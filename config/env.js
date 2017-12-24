@@ -20,7 +20,7 @@ const CONFIG = {
     },
     development: {
         port: 3100,
-        host: 'http://localhost:3000',
+        host: 'http://localhost:3100',
         apiServer: 'https://testservice.kakamf.com',
     },
 }
