@@ -1,5 +1,3 @@
 # eth-service
-<<<<<<< HEAD
-# eth-service
-=======
->>>>>>> temp
+
+ETH service for cybereits php server.
