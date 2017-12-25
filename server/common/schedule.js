@@ -5,7 +5,7 @@ require('babel-register')({
 const web3 = require('../../framework/web3').default
 const Task = require('./task').default
 const schedule = require('node-schedule')
-const request = require('../../framework/request')
+const request = require('../../framework/request').default
 
 const config = require('../../config/env')
 
@@ -47,17 +47,19 @@ async function getBalance(address) {
 }
 
 const taskQueue = new Task.ParallelQueue(() => {
-  console.log(balanceArr.length)
-  // request.post(config.apiServer, balanceArr)
-  //   .then((res) => {
-  //     console.log(res)
-  //   })
-  //   .catch((err) => { console.log(err) })
-}, 1)
+  console.log(`查询成功的地址数量${balanceArr.length}`)
+  request.post(config.apiServer, {
+    'data': balanceArr,
+  })
+    .then((res) => {
+      console.log(`${config.apiServer}: ${res}`)
+    })
+    .catch((err) => { console.log(err) })
+})
 
 
 const rule = new schedule.RecurrenceRule()
-// rule.second = [0, 30]
+// rule.second = [0, 10, 20, 30, 40, 50]
 rule.minute = 5
 
 function scheduleCronstyle() {
@@ -65,7 +67,7 @@ function scheduleCronstyle() {
     let listAccounts = await getListAccounts()
     let list = listAccounts.listAccounts
     balanceArr = []
-    console.log(list.length)
+    console.log(`地址数量${list.length}`)
     for (let i = 0; i < list.length; i += 1) {
       taskQueue.add(
         new Task.TaskCapsule(() =>

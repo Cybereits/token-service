@@ -88,7 +88,6 @@ class TaskQueue {
       return false
     } else if (this.queue.length === 0) {
       console.warn('No task.')
-      this[finish]()
       return false
     } else {
       return true
