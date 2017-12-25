@@ -4,10 +4,10 @@
     "private": true,
     "scripts": {
         "start": "node bin/www",
-        "dev": "NODE_ENV=development ./node_modules/.bin/nodemon bin/www ",
+        "dev": "NODE_ENV=development ./node_modules/.bin/nodemon bin/www ./server/common/schedule.js",
         "test-web": "NODE_ENV=test pm2 start bin/www",
         "alpha": "NODE_ENV=alpha pm2 start bin/www",
-        "prd": "NODE_ENV=production pm2 start bin/www",
+        "prd": "NODE_ENV=production pm2 start bin/www ./server/common/schedule.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
@@ -25,6 +25,7 @@
         "koa-router": "^7.1.1",
         "koa-static": "^3.0.0",
         "koa-views": "^5.2.1",
+        "node-schedule": "^1.2.5",
         "pug": "^2.0.0-rc.1",
         "request": "^2.83.0",
         "web3": "^1.0.0-beta.24"

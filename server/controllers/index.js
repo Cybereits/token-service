@@ -8,22 +8,66 @@ function _buildUrl(subpath) {
 
 async function creatAccount(ctx) {
   let connect = await web3.onWs
-  let newAccount = await connect.eth.personal.newAccount()
+  let [newAccount, code, msg] = ['', 200, '']
+
+  try {
+    code = 200
+    newAccount = await connect.eth.personal.newAccount()
+  } catch (error) {
+    code = -1
+    msg = error.toString()
+  }
+
   ctx.body = {
+    code,
     newAccount,
+    msg,
   }
 }
 
 async function listAccounts(ctx) {
   let connect = await web3.onWs
-  let listAccounts = await connect.eth.getAccounts()
-  
+  let [listAccounts, code, msg] = [[], 200, '']
+  try {
+    code = 200
+    listAccounts = await connect.eth.getAccounts()
+  } catch (error) {
+    code = -1
+    msg = error.toString()
+  }
+
   ctx.body = {
+    code,
     listAccounts,
+    msg,
+  }
+}
+
+async function getBalance(ctx) {
+  let { address } = ctx.query
+  let connect = await web3.onWs
+  let [user, code, msg, balance] = [{}, 200, '', '']
+  try {
+    code = 200
+    balance = await connect.eth.getBalance(address)
+    user = {
+      address,
+      balance,
+    }
+  } catch (error) {
+    code = -1
+    msg = error.toString()
+  }
+
+  ctx.body = {
+    code,
+    user,
+    msg,
   }
 }
 
 export default {
   creatAccount,
   listAccounts,
+  getBalance,
 }
