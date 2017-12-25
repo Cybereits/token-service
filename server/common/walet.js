@@ -4,7 +4,6 @@ require('babel-register')({
 
 const web3 = require('../../framework/web3').default
 const Task = require('./task').default
-const schedule = require('node-schedule')
 const request = require('../../framework/request').default
 
 const config = require('../../config/env')
@@ -58,35 +57,26 @@ const taskQueue = new Task.ParallelQueue(() => {
     .catch((err) => { console.log(err) })
 })
 
-
-const rule = new schedule.RecurrenceRule()
-// rule.second = [0, 10, 20, 30, 40, 50]
-rule.minute = 5
-
-function scheduleCronstyle() {
-  schedule.scheduleJob(rule, async () => {
-    let listAccounts = await getListAccounts()
-    let list = listAccounts.listAccounts
-    balanceArr = []
-    console.log(`地址数量${list.length + 1}`)
-    for (let i = 0; i < list.length; i += 1) {
-      taskQueue.add(
-        new Task.TaskCapsule(() =>
-          new Promise((resolve, reject) =>
-            getBalance(list[i])
-              .then((res) => {
-                // console.log(`record ${i + 1}`)
-                balanceArr.push(res.user)
-                resolve('succ')
-              })
-              .catch(reject)),
-        ),
-      )
-    }
-    taskQueue.consume()
-  })
+async function scheduleCronstyle() {
+  let listAccounts = await getListAccounts()
+  let list = listAccounts.listAccounts
+  balanceArr = []
+  console.log(`地址数量${list.length + 1}`)
+  for (let i = 0; i < list.length; i += 1) {
+    taskQueue.add(
+      new Task.TaskCapsule(() =>
+        new Promise((resolve, reject) =>
+          getBalance(list[i])
+            .then((res) => {
+              // console.log(`record ${i + 1}`)
+              balanceArr.push(res.user)
+              resolve('succ')
+            })
+            .catch(reject)),
+      ),
+    )
+  }
+  taskQueue.consume()
 }
 
-export default {
-  scheduleCronstyle,
-}
+scheduleCronstyle()

@@ -50,6 +50,7 @@ async function getBalance(ctx) {
   try {
     code = 200
     balance = await connect.eth.getBalance(address)
+    balance = connect.eth.extend.utils.toWei(balance, 'ether')
     user = {
       address,
       balance,
