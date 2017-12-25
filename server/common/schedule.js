@@ -47,7 +47,7 @@ async function getBalance(address) {
 }
 
 const taskQueue = new Task.ParallelQueue(() => {
-  console.log(`查询成功的地址数量${balanceArr.length}`)
+  console.log(`查询成功的地址数量${balanceArr.length + 1}`)
   request.post(config.apiServer, {
     'data': balanceArr,
   })
@@ -67,7 +67,7 @@ function scheduleCronstyle() {
     let listAccounts = await getListAccounts()
     let list = listAccounts.listAccounts
     balanceArr = []
-    console.log(`地址数量${list.length}`)
+    console.log(`地址数量${list.length + 1}`)
     for (let i = 0; i < list.length; i += 1) {
       taskQueue.add(
         new Task.TaskCapsule(() =>
