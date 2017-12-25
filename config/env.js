@@ -6,7 +6,7 @@ const CONFIG = {
     production: {
         port: 3100,
         host: '',
-        apiServer: 'https://sess.kakamf.com',
+        apiServer: 'https://api.cybereits.com/api/walet',
     },
     alpha: {
         port: 3100,

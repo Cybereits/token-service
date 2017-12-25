@@ -8,5 +8,6 @@ router.get('/', async (ctx) => {
 })
 router.get('/creatAccount', controllers.creatAccount)
 router.get('/listAccounts', controllers.listAccounts)
+router.get('/getBalance', controllers.getBalance)
 
 module.exports = router
