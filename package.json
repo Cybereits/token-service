@@ -4,10 +4,10 @@
     "private": true,
     "scripts": {
         "start": "node bin/www",
-        "dev": "NODE_ENV=development ./node_modules/.bin/nodemon bin/www ./server/common/schedule.js",
+        "dev": "NODE_ENV=development ./node_modules/.bin/nodemon bin/www",
         "test-web": "NODE_ENV=test pm2 start bin/www",
         "alpha": "NODE_ENV=alpha pm2 start bin/www",
-        "prd": "NODE_ENV=production pm2 start bin/www ./server/common/schedule.js",
+        "prd": "NODE_ENV=production pm2 start bin/www",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {

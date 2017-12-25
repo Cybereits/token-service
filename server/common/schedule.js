@@ -86,4 +86,6 @@ function scheduleCronstyle() {
   })
 }
 
-scheduleCronstyle()
+export default {
+  scheduleCronstyle,
+}

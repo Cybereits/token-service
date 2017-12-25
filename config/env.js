@@ -11,17 +11,17 @@ const CONFIG = {
     alpha: {
         port: 3100,
         host: '',
-        apiServer: 'https://sess.kakamf.com',
+        apiServer: 'https://api.cybereits.com/api/walet',
     },
     test: {
         port: 3100,
         host: '',
-        apiServer: 'https://testservice.kakamf.com',
+        apiServer: 'https://api.cybereits.com/api/walet',
     },
     development: {
         port: 3100,
         host: 'http://localhost:3100',
-        apiServer: 'https://testservice.kakamf.com',
+        apiServer: 'https://api.cybereits.com/api/walet',
     },
 }
 
