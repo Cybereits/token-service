@@ -33,7 +33,7 @@ async function getBalance(address) {
   try {
     code = 200
     amount = await connect.eth.getBalance(address)
-    amount = connect.eth.extend.utils.toWei(amount, 'ether')
+    amount = connect.eth.extend.utils.fromWei(amount, 'ether')
     user = { address, amount }
   } catch (error) {
     code = -1
