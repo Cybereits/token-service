@@ -56,7 +56,8 @@ const taskQueue = new Task.ParallelQueue(() => {
 }, 1)
 
 const rule = new schedule.RecurrenceRule()
-rule.second = [0, 10, 20, 30, 40, 50]
+// rule.second = [0, 30]
+rule.minute = 5
 
 function scheduleCronstyle() {
   schedule.scheduleJob(rule, async () => {
