@@ -47,12 +47,12 @@ async function getBalance(address) {
 }
 
 const taskQueue = new Task.ParallelQueue(() => {
-  console.log(`查询成功的地址数量${balanceArr.length + 1}`)
-  request.post(config.apiServer, {
+  console.log(`查询成功的地址数量${balanceArr.length}`)
+  request.post(`${config.apiServer}/walet`, {
     'data': balanceArr,
   })
     .then((res) => {
-      console.log(`${config.apiServer}: ${res}`)
+      console.log(`${config.apiServer}/walet: ${res}`)
     })
     .catch((err) => { console.log(err) })
 })
@@ -61,7 +61,7 @@ async function scheduleCronstyle() {
   let listAccounts = await getListAccounts()
   let list = listAccounts.listAccounts
   balanceArr = []
-  console.log(`地址数量${list.length + 1}`)
+  console.log(`地址数量${list.length}`)
   for (let i = 0; i < list.length; i += 1) {
     taskQueue.add(
       new Task.TaskCapsule(() =>

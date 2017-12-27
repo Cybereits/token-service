@@ -6,22 +6,22 @@ const CONFIG = {
     production: {
         port: 3100,
         host: '',
-        apiServer: 'https://api.cybereits.com/api/walet',
+        apiServer: 'https://api.cybereits.com/api',
     },
     alpha: {
         port: 3100,
         host: '',
-        apiServer: 'https://api.cybereits.com/api/walet',
+        apiServer: 'https://api.cybereits.com/api',
     },
     test: {
         port: 3100,
         host: '',
-        apiServer: 'https://api.cybereits.com/api/walet',
+        apiServer: 'https://api.cybereits.com/api',
     },
     development: {
         port: 3100,
         host: 'http://localhost:3100',
-        apiServer: 'https://api.cybereits.com/api/walet',
+        apiServer: 'https://api.cybereits.com/api',
     },
 }
 

@@ -47,6 +47,7 @@ function _request(method, url, params) {
 }
 
 function get(url, params) {
+    // console.log(params)
     return _request('get', url, params)
 }
 
