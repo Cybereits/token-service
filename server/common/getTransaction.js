@@ -59,9 +59,8 @@ function getTransaction(address) {
 
 async function getListTransaction() {
   let connect = await web3.onWs
-  // let listAccounts = await getListAccounts()
-  let list = ['0x3ac3d18f3b72bc68644633076925aee187d385f1', '0x39d9f4640b98189540A9C0edCFa95C5e657706aA']
-  // let list = listAccounts.listAccounts
+  let listAccounts = await getListAccounts()
+  let list = listAccounts.listAccounts
   transactionList = []
   console.log(`地址数量为${list.length}`)
   for (let i = 0; i < list.length; i += 1) {
