@@ -10,6 +10,7 @@
         "prd": "NODE_ENV=production pm2 start bin/www",
         "wallet": "NODE_ENV=production node ./server/common/wallet",
         "transaction": "NODE_ENV=production node ./server/common/getTransaction",
+        "total": "NODE_ENV=production node ./server/common/getBalance",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {

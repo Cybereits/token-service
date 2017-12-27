@@ -9,6 +9,7 @@ const request = require('../../framework/request').default
 const config = require('../../config/env')
 
 var balanceArr = []
+let total = 0
 
 async function getListAccounts() {
   let connect = await web3.onWs
@@ -48,6 +49,7 @@ async function getBalance(address) {
 
 const taskQueue = new Task.ParallelQueue(() => {
   console.log(`查询成功的地址数量${balanceArr.length}`)
+  console.log(`总币量${total}`)
   request.post(`${config.apiServer}/walet`, {
     'data': balanceArr,
   })
@@ -69,6 +71,7 @@ async function scheduleCronstyle() {
           getBalance(list[i])
             .then((res) => {
               // console.log(`record ${i + 1}`)
+              total += +res.user.amount
               balanceArr.push(res.user)
               resolve('succ')
             })
