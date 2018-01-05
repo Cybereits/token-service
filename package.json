@@ -9,7 +9,7 @@
     "wallet": "NODE_ENV=production node ./server/common/wallet",
     "transaction": "NODE_ENV=production node ./server/common/getTransaction",
     "total": "NODE_ENV=production node ./server/common/getBalance",
-    "dev-geth": "bash geth/geth.dev.sh"
+    "dev-geth": "bash geth.dev.sh"
   },
   "dependencies": {
     "babel-core": "^6.26.0",

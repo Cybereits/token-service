@@ -41,7 +41,7 @@ const taskQueue = new ParallelQueue(() => {
     })
     .catch((err) => {
       console.log(err)
-      process.exit(-1)
+      process.exit(0)
     })
 })
 
@@ -65,34 +65,39 @@ async function getListTransaction() {
   let list = listAccounts.listAccounts
   transactionList = []
   console.log(`地址数量为${list.length}`)
-  for (let i = 0; i < list.length; i += 1) {
-    taskQueue.add(
-      new TaskCapsule(() =>
-        new Promise((resolve, reject) =>
-          getTransaction(list[i])
-            .then((res) => {
-              count += 1
-              if (res.status !== '0' && res.result.length > 0) {
-                for (let i = 0; i < res.result.length; i += 1) {
-                  transactionList.push({
-                    txid: res.result[i].hash,
-                    from: res.result[i].from,
-                    to: res.result[i].to,
-                    amount: connect.eth.extend.utils.fromWei(res.result[i].value, 'ether'),
-                    block: res.result[i].blockNumber,
-                  })
+  if (list.length > 0) {
+
+    for (let i = 0; i < list.length; i += 1) {
+      taskQueue.add(
+        new TaskCapsule(() =>
+          new Promise((resolve, reject) =>
+            getTransaction(list[i])
+              .then((res) => {
+                count += 1
+                if (res.status !== '0' && res.result.length > 0) {
+                  for (let i = 0; i < res.result.length; i += 1) {
+                    transactionList.push({
+                      txid: res.result[i].hash,
+                      from: res.result[i].from,
+                      to: res.result[i].to,
+                      amount: connect.eth.extend.utils.fromWei(res.result[i].value, 'ether'),
+                      block: res.result[i].blockNumber,
+                    })
+                  }
+                  console.log(`${list[i]} 有${res.result.length}笔交易记录`)
+                } else {
+                  console.log(`${list[i]} 暂无交易记录`)
                 }
-                console.log(`${list[i]} 有${res.result.length}笔交易记录`)
-              } else {
-                console.log(`${list[i]} 暂无交易记录`)
-              }
-              resolve('succ')
-            })
-            .catch(reject))
+                resolve('succ')
+              })
+              .catch(reject))
+        )
       )
-    )
+    }
+    taskQueue.consume()
+  } else {
+    process.exit(0)
   }
-  taskQueue.consume()
 }
 
 getListTransaction()

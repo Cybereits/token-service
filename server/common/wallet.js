@@ -55,8 +55,12 @@ const taskQueue = new ParallelQueue(() => {
   })
     .then((res) => {
       console.log(`${config.apiServer}/walet: ${res}`)
+      process.exit(0)
     })
-    .catch((err) => { console.log(err) })
+    .catch((err) => {
+      console.log(err)
+      process.exit(0)
+    })
 })
 
 async function scheduleCronstyle() {
@@ -64,22 +68,26 @@ async function scheduleCronstyle() {
   let list = listAccounts.listAccounts
   balanceArr = []
   console.log(`地址数量${list.length}`)
-  for (let i = 0; i < list.length; i += 1) {
-    taskQueue.add(
-      new TaskCapsule(() =>
-        new Promise((resolve, reject) =>
-          getBalance(list[i])
-            .then((res) => {
-              // console.log(`record ${i + 1}`)
-              total += +res.user.amount
-              balanceArr.push(res.user)
-              resolve('succ')
-            })
-            .catch(reject)),
-      ),
-    )
+  if (list.length > 0) {
+    for (let i = 0; i < list.length; i += 1) {
+      taskQueue.add(
+        new TaskCapsule(() =>
+          new Promise((resolve, reject) =>
+            getBalance(list[i])
+              .then((res) => {
+                // console.log(`record ${i + 1}`)
+                total += +res.user.amount
+                balanceArr.push(res.user)
+                resolve('succ')
+              })
+              .catch(reject))
+        )
+      )
+    }
+    taskQueue.consume()
+  } else {
+    process.exit(0)
   }
-  taskQueue.consume()
 }
 
 scheduleCronstyle()
