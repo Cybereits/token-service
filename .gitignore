@@ -1,4 +1,5 @@
-/data/
-/node_modules/
-/config/env.example.js
-/geth/geth.log
+node_modules/
+
+*.log
+
+geth-node/

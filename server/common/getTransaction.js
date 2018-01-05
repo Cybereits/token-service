@@ -4,11 +4,9 @@ require('babel-register')({
 
 const request = require('../../framework/request').default
 const web3 = require('../../framework/web3').default
-const Task = require('./task').default
+const { TaskCapsule, ParallelQueue } = require('./task')
 const config = require('../../config/env')
-
-const etherScanApi = 'https://api.etherscan.io/api'
-const apikey = 'JZ32792P5A6BD4RDAPK7XZ6P21PFRWWXDS'
+const { etherScanApi, apikey } = require('../../config/const')
 
 let transactionList = []
 let count = 0
@@ -30,7 +28,7 @@ async function getListAccounts() {
   }
 }
 
-const taskQueue = new Task.ParallelQueue(() => {
+const taskQueue = new ParallelQueue(() => {
   console.log(`查询成功的地址数量为${count}`)
   console.log(`共有${transactionList.length}条交易记录`)
   console.log(`${config.apiServer}/trans`)
@@ -39,8 +37,12 @@ const taskQueue = new Task.ParallelQueue(() => {
   })
     .then((res) => {
       console.log(`${config.apiServer}/trans: ${res}`)
+      process.exit(0)
     })
-    .catch((err) => { console.log(err) })
+    .catch((err) => {
+      console.log(err)
+      process.exit(-1)
+    })
 })
 
 function getTransaction(address) {
@@ -65,7 +67,7 @@ async function getListTransaction() {
   console.log(`地址数量为${list.length}`)
   for (let i = 0; i < list.length; i += 1) {
     taskQueue.add(
-      new Task.TaskCapsule(() =>
+      new TaskCapsule(() =>
         new Promise((resolve, reject) =>
           getTransaction(list[i])
             .then((res) => {
@@ -86,8 +88,8 @@ async function getListTransaction() {
               }
               resolve('succ')
             })
-            .catch(reject)),
-      ),
+            .catch(reject))
+      )
     )
   }
   taskQueue.consume()

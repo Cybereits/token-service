@@ -2,9 +2,9 @@ require('babel-register')({
   presets: ['es2015', 'stage-0'],
 })
 
-const web3 = require('../../framework/web3').default
-const Task = require('./task').default
 const schedule = require('node-schedule')
+const web3 = require('../../framework/web3').default
+const { TaskCapsule, ParallelQueue } = require('./task')
 const request = require('../../framework/request').default
 
 const config = require('../../config/env')
@@ -48,7 +48,7 @@ async function getBalance(address) {
   }
 }
 
-const taskQueue = new Task.ParallelQueue(() => {
+const taskQueue = new ParallelQueue(() => {
   console.log(`查询成功的地址数量${balanceArr.length}`)
   console.log(`总币量${total}`)
   request.post(`${config.apiServer}/walet`, {
@@ -73,7 +73,7 @@ function scheduleCronstyle() {
     console.log(`地址数量${list.length}`)
     for (let i = 0; i < list.length; i += 1) {
       taskQueue.add(
-        new Task.TaskCapsule(() =>
+        new TaskCapsule(() =>
           new Promise((resolve, reject) =>
             getBalance(list[i])
               .then((res) => {

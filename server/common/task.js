@@ -7,7 +7,9 @@ const prepareToBegin = Symbol('prepareToBegin')
 const execAmountChange = Symbol('execAmountChange')
 const consumeValid = Symbol('consumeValid')
 
-class TaskCapsule {
+// #region Single Task Wrapper
+
+export class TaskCapsule {
   // func must be an asynchronized function
   // if it's not
   // why you need task queue?
@@ -22,8 +24,12 @@ class TaskCapsule {
   }
 }
 
+// #endregion
+
+// #region Task Queues
+
 class TaskQueue {
-  constructor(onFinished) {
+  constructor({ onFinished }) {
     this.queue = [] // task queue
     this[abort] = false // is abort
     this.done = false // has done
@@ -79,7 +85,7 @@ class TaskQueue {
   [consumeValid]() {
     if (this.done) {
       if (this.onExecAmount > 0) {
-        console.warn('Called consume after the tasks were handled.')
+        console.info('Called consume after the tasks were handled. Thats\'s all right.')
       }
       return false
     } else if (this[abort]) {
@@ -87,7 +93,6 @@ class TaskQueue {
       this[finish]()
       return false
     } else if (this.queue.length === 0) {
-      console.warn('No task.')
       return false
     } else {
       return true
@@ -112,9 +117,9 @@ class TaskQueue {
   }
 }
 
-class ParallelQueue extends TaskQueue {
-  constructor(onFinished, limit = 5, span = 300, toleration = 3) {
-    super(onFinished)
+export class ParallelQueue extends TaskQueue {
+  constructor({ limit = 5, span = 300, toleration = 3, onFinished }) {
+    super({ onFinished })
     this.limitation = limit
     this.timespan = span
     this.toleration = toleration
@@ -157,11 +162,55 @@ class ParallelQueue extends TaskQueue {
       for (let _i = 0; _i < this.limitation; _i += 1) {
         this[start]()
       }
+    } else {
+      console.warn('not able to consume')
     }
   }
 }
 
-export default {
-  TaskCapsule,
-  ParallelQueue,
+export class SerialQueue extends TaskQueue {
+  constructor({ abortAfterFail = false, toleration = 3, onFinished }) {
+    super({ onFinished })
+    this.abortAfterFail = abortAfterFail
+    this.toleration = toleration
+  }
+
+  [start]() {
+    if (this[consumeValid]()) {
+      this[execAmountChange](1)
+      let task = this.queue.shift()
+      task.run()
+        .then(() => {
+          this.succ += 1
+          this[execAmountChange](-1)
+          this[start].call(this)
+        })
+        .catch(() => {
+          if (task[retry] >= this.toleration) {
+            // retried many times still failed
+            this.fail += 1
+            if (this.abortAfterFail) {
+              this[finish]()
+              return false
+            }
+          } else {
+            // failed but retry it
+            task[retry] += 1
+            this.queue.unshift(task)
+          }
+          this[execAmountChange](-1)
+          this[start].call(this)
+        })
+    }
+  }
+
+  consume() {
+    if (this[prepareToBegin]()) {
+      this[start]()
+    } else {
+      console.warn('not able to consume')
+    }
+  }
 }
+
+// #endregion
