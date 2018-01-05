@@ -1,18 +1,17 @@
-require('babel-register')({
-  presets: ['es2015', 'stage-0'],
-})
-
-const addr = require('./addr.js').default
-const request = require('../../framework/request').default
-const web3 = require('../../framework/web3').default
-const { TaskCapsule, ParallelQueue } = require('./task')
-const { etherScanApi, apikey } = require('../../config/const')
+import config from '../../config/env'
+import { etherScanApi, apikey } from '../../config/const'
+import addr from '../../config/address'
+import web3 from '../../framework/web3'
+import { TaskCapsule, ParallelQueue } from '../utils/task'
+import request from '../../framework/request'
 
 let total = 0
 
-const taskQueue = new ParallelQueue(() => {
-  console.log(`\n总币量 ${total}`)
-  process.exit(0)
+const taskQueue = new ParallelQueue({
+  onFinished: () => {
+    console.log(`\n总币量 ${total}`)
+    process.exit(0)
+  },
 })
 
 function getBalance(address) {

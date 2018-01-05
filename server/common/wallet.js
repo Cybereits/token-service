@@ -1,9 +1,5 @@
-require('babel-register')({
-  presets: ['es2015', 'stage-0'],
-})
-
 const web3 = require('../../framework/web3').default
-const { TaskCapsule, ParallelQueue } = require('./task')
+const { TaskCapsule, ParallelQueue } = require('../utils/task')
 const request = require('../../framework/request').default
 
 const config = require('../../config/env')
@@ -47,20 +43,22 @@ async function getBalance(address) {
   }
 }
 
-const taskQueue = new ParallelQueue(() => {
-  console.log(`查询成功的地址数量${balanceArr.length}`)
-  console.log(`总币量${total}`)
-  request.post(`${config.apiServer}/walet`, {
-    'data': balanceArr,
-  })
-    .then((res) => {
-      console.log(`${config.apiServer}/walet: ${res}`)
-      process.exit(0)
+const taskQueue = new ParallelQueue({
+  onFinished: () => {
+    console.log(`查询成功的地址数量${balanceArr.length}`)
+    console.log(`总币量${total}`)
+    request.post(`${config.apiServer}/walet`, {
+      data: balanceArr,
     })
-    .catch((err) => {
-      console.log(err)
-      process.exit(0)
-    })
+      .then((res) => {
+        console.log(`${config.apiServer}/walet: ${res}`)
+        process.exit(0)
+      })
+      .catch((err) => {
+        console.log(err)
+        process.exit(0)
+      })
+  }
 })
 
 async function scheduleCronstyle() {
@@ -75,7 +73,7 @@ async function scheduleCronstyle() {
           new Promise((resolve, reject) =>
             getBalance(list[i])
               .then((res) => {
-                // console.log(`record ${i + 1}`)
+                console.log(`record ${i + 1}`)
                 total += +res.user.amount
                 balanceArr.push(res.user)
                 resolve('succ')
