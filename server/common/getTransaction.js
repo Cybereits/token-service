@@ -1,10 +1,6 @@
-require('babel-register')({
-  presets: ['es2015', 'stage-0'],
-})
-
 const request = require('../../framework/request').default
 const web3 = require('../../framework/web3').default
-const { TaskCapsule, ParallelQueue } = require('./task')
+const { TaskCapsule, ParallelQueue } = require('../utils/task')
 const config = require('../../config/env')
 const { etherScanApi, apikey } = require('../../config/const')
 
@@ -28,21 +24,23 @@ async function getListAccounts() {
   }
 }
 
-const taskQueue = new ParallelQueue(() => {
-  console.log(`查询成功的地址数量为${count}`)
-  console.log(`共有${transactionList.length}条交易记录`)
-  console.log(`${config.apiServer}/trans`)
-  request.post(`${config.apiServer}/trans`, {
-    'data': transactionList,
-  })
-    .then((res) => {
-      console.log(`${config.apiServer}/trans: ${res}`)
-      process.exit(0)
+const taskQueue = new ParallelQueue({
+  onFinished: () => {
+    console.log(`查询成功的地址数量为${count}`)
+    console.log(`共有${transactionList.length}条交易记录`)
+    console.log(`${config.apiServer}/trans`)
+    request.post(`${config.apiServer}/trans`, {
+      'data': transactionList,
     })
-    .catch((err) => {
-      console.log(err)
-      process.exit(0)
-    })
+      .then((res) => {
+        console.log(`${config.apiServer}/trans: ${res}`)
+        process.exit(0)
+      })
+      .catch((err) => {
+        console.log(err)
+        process.exit(0)
+      })
+  },
 })
 
 function getTransaction(address) {

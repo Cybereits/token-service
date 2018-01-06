@@ -1,13 +1,9 @@
-require('babel-register')({
-  presets: ['es2015', 'stage-0'],
-})
+import schedule from 'node-schedule'
 
-const schedule = require('node-schedule')
-const web3 = require('../../framework/web3').default
-const { TaskCapsule, ParallelQueue } = require('./task')
-const request = require('../../framework/request').default
-
-const config = require('../../config/env')
+import web3 from '../../framework/web3'
+import { TaskCapsule, ParallelQueue } from '../utils/task'
+import request from '../../framework/request'
+import config from '../../config/env'
 
 var balanceArr = []
 let total = 0
@@ -48,16 +44,18 @@ async function getBalance(address) {
   }
 }
 
-const taskQueue = new ParallelQueue(() => {
-  console.log(`查询成功的地址数量${balanceArr.length}`)
-  console.log(`总币量${total}`)
-  request.post(`${config.apiServer}/walet`, {
-    'data': balanceArr,
-  })
-    .then((res) => {
-      console.log(`${config.apiServer}/walet: ${res}`)
+const taskQueue = new ParallelQueue({
+  onFinished: () => {
+    console.log(`查询成功的地址数量${balanceArr.length}`)
+    console.log(`总币量${total}`)
+    request.post(`${config.apiServer}/walet`, {
+      'data': balanceArr,
     })
-    .catch((err) => { console.log(err) })
+      .then((res) => {
+        console.log(`${config.apiServer}/walet: ${res}`)
+      })
+      .catch((err) => { console.log(err) })
+  },
 })
 
 
@@ -77,7 +75,6 @@ function scheduleCronstyle() {
           new Promise((resolve, reject) =>
             getBalance(list[i])
               .then((res) => {
-                // console.log(`record ${i + 1}`)
                 total += +res.user.amount
                 balanceArr.push(res.user)
                 resolve('succ')

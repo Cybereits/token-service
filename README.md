@@ -12,3 +12,6 @@ ETH service for cybereits internal usage.
 
 #### yarn wallet
 > query wallet balance via local geth service for address collection which fetch from php server
+
+#### yarn dtc
+> deploy token contract !!!!!

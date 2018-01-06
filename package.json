@@ -6,9 +6,10 @@
     "start": "node bin/www",
     "dev": "NODE_ENV=development ./node_modules/.bin/nodemon bin/www",
     "prd": "NODE_ENV=production pm2 start bin/www",
-    "wallet": "NODE_ENV=production node ./server/common/wallet",
-    "transaction": "NODE_ENV=production node ./server/common/getTransaction",
-    "total": "NODE_ENV=production node ./server/common/getBalance",
+    "wallet": "task=wallet node ./server/common",
+    "transaction": "task=getTransaction node ./server/common",
+    "total": "task=getTotal node ./server/common",
+    "dtc": "task=deployTokenContract node ./server/common",
     "dev-geth": "bash geth.dev.sh"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
     "koa-views": "^5.2.1",
     "node-schedule": "^1.2.5",
     "request": "^2.83.0",
+    "solc": "^0.4.19",
     "web3": "^1.0.0-beta.24"
   },
   "devDependencies": {

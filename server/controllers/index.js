@@ -1,6 +1,8 @@
 import web3 from '../../framework/web3'
 import request from '../../framework/request'
 import config from '../../config/env'
+import { getTokenBalance } from '../utils/coin'
+import { deployOwnerAddr } from '../../config/const'
 
 function _buildUrl(subpath) {
   return subpath ? `${config.apiServer}/${subpath}` : config.apiServer
@@ -67,8 +69,22 @@ async function getBalance(ctx) {
   }
 }
 
+async function queryTokenBalance(ctx) {
+  let { address } = ctx.query
+  let result = await getTokenBalance(address)
+  ctx.body = result
+}
+
+async function queryOfficialTokenBalance(ctx) {
+  let result = await getTokenBalance(deployOwnerAddr)
+  ctx.body = result
+}
+
+
 export default {
   creatAccount,
   listAccounts,
   getBalance,
+  queryTokenBalance,
+  queryOfficialTokenBalance,
 }
