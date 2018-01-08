@@ -1,5 +1,10 @@
 import fs from 'fs'
 import path from 'path'
+import { unlockAccount } from './basic'
+import {
+  gas,
+  gasPrice,
+} from '../../config/const'
 import web3 from '../../framework/web3'
 
 export function contractJson(fileName, contractData) {
@@ -59,7 +64,7 @@ function eventContract(contract, cb) {
 }
 
 async function createContract(connect, contract, code, deployAccount, accountPwd, contractArguments) {
-  await connect.eth.personal.unlockAccount(deployAccount, accountPwd, 20)
+  await unlockAccount(connect, deployAccount, accountPwd, 20)
   return contract.deploy({ data: code, arguments: contractArguments })
 }
 
@@ -71,9 +76,12 @@ export async function deployContract(filename, contractCode, contractAbi, deploy
   let result = await createContract(connect, depContract, contractCode, deployAccount, accountPwd, contractArguments)
   let newContractInstance = await result.send({
     from: deployAccount,
-    gas: 3000000,
-    gasPrice: '300000000000',
+    gas,
+    gasPrice,
   })
+
+  console.log(`contract instance: ${JSON.stringify(newContractInstance, null, 2)}`)
+
   let address = newContractInstance.options.address
   connect.eth.personal.lockAccount(deployAccount)
   depContract.options.address = address

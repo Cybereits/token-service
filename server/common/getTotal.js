@@ -1,6 +1,5 @@
-import config from '../../config/env'
+import addr from '../../config/address.json'
 import { etherScanApi, apikey } from '../../config/const'
-import addr from '../../config/address'
 import web3 from '../../framework/web3'
 import { TaskCapsule, ParallelQueue } from '../utils/task'
 import request from '../../framework/request'

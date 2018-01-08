@@ -58,7 +58,7 @@ const taskQueue = new ParallelQueue({
         console.log(err)
         process.exit(0)
       })
-  }
+  },
 })
 
 async function scheduleCronstyle() {

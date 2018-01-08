@@ -2,28 +2,32 @@ import solc from 'solc'
 import fs from 'fs'
 import path from 'path'
 import { contractJson, deployContract } from '../utils/contract'
-import web3 from '../../framework/web3'
-import { deployOwnerAddr, deployOwnerSecret, teamFreezePercent } from '../../config/const'
+import {
+  deployOwnerAddr,
+  deployOwnerSecret,
+  tokenSupply,
+  contractDecimals,
+  teamLockPercent,
+  teamAddr01,
+  teamAddr02,
+  teamAddr03,
+  teamAddr04,
+  teamAddr05,
+  teamAddr06,
+} from '../../config/const'
 
 const contractName = 'token'
 
 let contractCode = []
 let contractAbi = []
-let name
-let meta
+let name = 'Cybereits Token'
+let meta = {
+  sources: {
+    'CybereitsToken.sol': fs.readFileSync(path.resolve(__dirname, '../contracts/CybereitsToken.sol')).toString(),
+  },
+}
 
 function exec() {
-
-  switch (contractName) {
-    case 'token':
-      meta = {
-        sources: {
-          'CybereitsToken.sol': fs.readFileSync(path.resolve(__dirname, '../contracts/CybereitsToken.sol')).toString(),
-        },
-      }
-      name = 'Cybereits Token'
-      break
-  }
 
   let output = solc.compile(meta, 1)
   let errCounter = 0
@@ -55,14 +59,25 @@ function exec() {
       .then(() => {
         deployContract(
           contractName,
-          `0x${contractCode[0]}`,
-          // contractCode, //.map(t => t === '' ? t : `0x${t}`),
-          // contractAbi,
-          JSON.parse(contractAbi[0]),
+          `0x${contractCode[1]}`,
+          JSON.parse(contractAbi[1]),
           deployOwnerAddr,
           deployOwnerSecret,
-          [teamFreezePercent]
-          // [`0x${teamFreezePercent}`]
+          // 合约第1个参数 代币总量
+          // 合约第2个参数 decimals
+          // 合约第3个参数 团队锁定份额 百分比:0-100
+          // 合约第4-9个参数 团队地址1-6
+          [
+            tokenSupply,
+            contractDecimals,
+            teamLockPercent,
+            teamAddr01,
+            teamAddr02,
+            teamAddr03,
+            teamAddr04,
+            teamAddr05,
+            teamAddr06,
+          ]
         )
           .then(() => {
             console.log('合约部署成功!')
