@@ -1,9 +1,5 @@
 node_modules/
 
-*.log
+dist/
 
 geth-node/
-
-test/
-
-token.json

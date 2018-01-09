@@ -58,7 +58,6 @@ const taskQueue = new ParallelQueue({
   },
 })
 
-
 const rule = new schedule.RecurrenceRule()
 // rule.second = [0, 10, 20, 30, 40, 50]
 rule.minute = 5
