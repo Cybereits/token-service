@@ -194,14 +194,14 @@ contract CybereitsTeamLock {
         frozen[_teamAddr6] = now + 30 minutes; // 36 * 30 days;
     }
 
-    function unlock(address unlockAddr) external returns (uint256) {
+    function unlock(address unlockAddr) external returns (bool) {
         require(allocations[unlockAddr] != 0);
         require(now >= frozen[unlockAddr]);
 
         var amount = allocations[unlockAddr];
+        assert(cre.transfer(unlockAddr, amount));
         allocations[unlockAddr] = 0;
-        cre.transfer(unlockAddr, amount);
         Unlock(unlockAddr, amount);
-        return cre.balanceOf(unlockAddr);
+        return true;
     }
 }
