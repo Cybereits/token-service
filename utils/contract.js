@@ -4,8 +4,8 @@ import { unlockAccount } from './basic'
 import {
   gas,
   gasPrice,
-} from '../../config/const'
-import web3 from '../../framework/web3'
+} from '../config/const'
+import web3 from '../framework/web3'
 
 /**
  * 记录智能合约编译后的 json 数据

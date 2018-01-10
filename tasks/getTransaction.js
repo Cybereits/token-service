@@ -1,8 +1,10 @@
-const request = require('../../framework/request').default
-const web3 = require('../../framework/web3').default
-const { TaskCapsule, ParallelQueue } = require('../utils/task')
-const config = require('../../config/env')
-const { etherScanApi, apikey } = require('../../config/const')
+import { TaskCapsule, ParallelQueue } from '../utils/task'
+
+import request from '../framework/request'
+import web3 from '../framework/web3'
+
+import { etherScanApi, apikey } from '../config/const'
+import config from '../config/env'
 
 let transactionList = []
 let count = 0
@@ -33,7 +35,7 @@ const taskQueue = new ParallelQueue({
       'data': transactionList,
     })
       .then((res) => {
-        console.log(`${config.apiServer}/trans: ${res}`)
+        console.log(`${config.apiServer}/trans: ${JSON.stringify(res, null, 4)}`)
         process.exit(0)
       })
       .catch((err) => {
@@ -98,4 +100,4 @@ async function getListTransaction() {
   }
 }
 
-getListTransaction()
+export default getListTransaction

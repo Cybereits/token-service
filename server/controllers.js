@@ -1,6 +1,6 @@
-import web3 from '../../framework/web3'
+import web3 from '../framework/web3'
 import { getTokenBalance } from '../utils/coin'
-import { deployOwnerAddr } from '../../config/const'
+import { deployOwnerAddr } from '../config/const'
 
 async function creatAccount(ctx) {
   let connect = await web3.onWs

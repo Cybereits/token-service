@@ -11,4 +11,6 @@ const CONFIG = {
     },
 }
 
+console.log(CONFIG[env])
+
 module.exports = Object.assign({}, CONFIG[env], { env })

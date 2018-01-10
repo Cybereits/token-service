@@ -1,22 +1,23 @@
 import web3 from '../framework/web3'
+
 import {
   deployOwnerAddr,
   deployOwnerSecret,
 } from '../config/const'
-import { unlockAccount } from '../server/utils/basic'
+
+import { unlockAccount } from '../utils/basic'
 
 export default async (
-  fromAddress,
-  secret,
   toAddress,
   amount,
+  fromAddress = deployOwnerAddr,
+  secret = deployOwnerSecret,
 ) => {
+  console.assert(toAddress, '接收地址不能为空!')
+  console.assert(!!amount && !isNaN(+amount) && +amount > 0, '转账的 eth 数量必须为有效数值!')
   console.assert(fromAddress, '转出地址不能为空!')
-  console.assert(secret, '转出地址密码不能为空!')
-  console.assert(toAddress, '转入地址不能为空!')
-  console.assert(amount, '转账的 eth 数量不能为空!')
   let connect = await web3.onWs
-  await unlockAccount(connect, deployOwnerAddr, deployOwnerSecret)
+  await unlockAccount(connect, fromAddress, secret)
   connect
     .eth
     .personal

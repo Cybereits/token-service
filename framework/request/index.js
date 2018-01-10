@@ -4,13 +4,13 @@ function _request(method, url, params) {
     return new Promise((resolve, reject) => {
         if (!url) {
             return reject(new Error(
-                `url invalid! method: ${method} url: ${url} params: ${JSON.stringify(params)}`,
+                `url invalid! method: ${method} url: ${url} params: ${JSON.stringify(params, null, 4)}`,
             ))
         }
 
         if (!method || !method.toString()) {
             return reject(new Error(
-                `http method invalid! method: ${method} url: ${url} params: ${JSON.stringify(params)}`,
+                `http method invalid! method: ${method} url: ${url} params: ${JSON.stringify(params, null, 4)}`,
             ))
         }
 
@@ -21,7 +21,7 @@ function _request(method, url, params) {
 
         if (!~allowMethods.indexOf(method)) {
             return reject(new Error(
-                `http method is not allowed! method: ${method} url: ${url} params: ${JSON.stringify(params)}`,
+                `http method is not allowed! method: ${method} url: ${url} params: ${JSON.stringify(params, null, 4)}`,
             ))
         }
 
@@ -37,7 +37,7 @@ function _request(method, url, params) {
 
             if (err) {
                 return reject(new Error(
-                    `request api failed! error: ${err} method: ${method} url: ${url} params: ${JSON.stringify(params)}`,
+                    `request api failed! error: ${err} method: ${method} url: ${url} params: ${JSON.stringify(params, null, 4)}`,
                 ))
             }
 

@@ -1,9 +1,9 @@
-import schedule from 'node-schedule'
-
-import web3 from '../../framework/web3'
 import { TaskCapsule, ParallelQueue } from '../utils/task'
-import request from '../../framework/request'
-import config from '../../config/env'
+
+import web3 from '../framework/web3'
+import request from '../framework/request'
+
+import config from '../config/env'
 
 var balanceArr = []
 let total = 0
@@ -49,43 +49,44 @@ const taskQueue = new ParallelQueue({
     console.log(`查询成功的地址数量${balanceArr.length}`)
     console.log(`总币量${total}`)
     request.post(`${config.apiServer}/walet`, {
-      'data': balanceArr,
+      data: balanceArr,
     })
       .then((res) => {
         console.log(`${config.apiServer}/walet: ${res}`)
+        process.exit(0)
       })
-      .catch((err) => { console.log(err) })
+      .catch((err) => {
+        console.log(err)
+        process.exit(0)
+      })
   },
 })
 
-const rule = new schedule.RecurrenceRule()
-// rule.second = [0, 10, 20, 30, 40, 50]
-rule.minute = 5
-
-function scheduleCronstyle() {
-  schedule.scheduleJob(rule, async () => {
-    let listAccounts = await getListAccounts()
-    let list = listAccounts.listAccounts
-    balanceArr = []
-    console.log(`地址数量${list.length}`)
+async function run() {
+  let listAccounts = await getListAccounts()
+  let list = listAccounts.listAccounts
+  balanceArr = []
+  console.log(`地址数量${list.length}`)
+  if (list.length > 0) {
     for (let i = 0; i < list.length; i += 1) {
       taskQueue.add(
         new TaskCapsule(() =>
           new Promise((resolve, reject) =>
             getBalance(list[i])
               .then((res) => {
+                console.log(`record ${i + 1}`)
                 total += +res.user.amount
                 balanceArr.push(res.user)
                 resolve('succ')
               })
-              .catch(reject)),
-        ),
+              .catch(reject))
+        )
       )
     }
     taskQueue.consume()
-  })
+  } else {
+    process.exit(0)
+  }
 }
 
-export default {
-  scheduleCronstyle,
-}
+export default run

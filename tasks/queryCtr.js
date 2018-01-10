@@ -1,12 +1,14 @@
 import web3 from '../framework/web3'
 
+import { unlockAccount } from '../utils/basic'
+
 import {
   getTokenContract,
   getSubContract,
   balanceOf,
-} from '../server/utils/coin'
+} from '../utils/coin'
 
-import contractMetaData from '../server/contracts/token.json'
+import contractMetaData from '../contracts/token.json'
 
 import {
   tokenSupply,
@@ -18,8 +20,6 @@ import {
   deployOwnerAddr,
   deployOwnerSecret,
 } from '../config/const'
-
-import { unlockAccount } from '../server/utils/basic'
 
 const lockSupposed = (tokenSupply * teamLockPercent) / 100
 
