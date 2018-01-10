@@ -2,7 +2,16 @@
 
 ETH service for cybereits internal usage.
 
-## 使用方法
+## 开发说明
+
+- 安装 `geth` 钱包
+- 运行本地开发网络钱包客户端 `yarn dev-geth`
+- 复制 `config/const.example.js` 到 `config/const.js`, 修改相关参数
+- 部署代币合约 `yarn dtc`
+- 启动本地 http 服务，`yarn dev`
+- 查询官方代币账户： `http://localhost:3100/officialBalance`
+
+## 使用说明
 
 #### yarn transaction
 > 查询本地

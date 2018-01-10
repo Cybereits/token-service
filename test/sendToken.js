@@ -11,7 +11,7 @@ export default (
   toAddress,
   amount,
 ) => {
-  if (!toAddress || amount <= 0) {
+  if (!toAddress || isNaN(+amount) || +amount <= 0) {
     console.error('toAddress 或 amount 无效！')
     process.exit(-1)
   } else {

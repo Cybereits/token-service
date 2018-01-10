@@ -4,4 +4,7 @@ node_modules/
 
 geth-node/
 
+config/const.js
+config/address.json
+
 token.json

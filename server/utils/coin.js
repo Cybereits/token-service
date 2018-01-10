@@ -8,30 +8,53 @@ import {
   contractDecimals,
 } from '../../config/const'
 
-// don't ask me why, it just happened!!!
-const lockContractAbi = JSON.parse(tokenContractData.abi[0])
-const tokenContractAbi = JSON.parse(tokenContractData.abi[1])
-const tokenContractAddress = tokenContractData.address[0]
-
+/**
+ * 获取代币合约
+ * @param {*} connect web3链接
+ */
 export async function getTokenContract(connect) {
+  const tokenContractAbi = JSON.parse(tokenContractData.abi[1])
+  const tokenContractAddress = tokenContractData.address[0]
   return new connect.eth.Contract(tokenContractAbi, tokenContractAddress)
 }
 
-export async function getLockContract(connect, address) {
-  return new connect.eth.Contract(lockContractAbi, address)
+/**
+ * 获取锁仓合约
+ * @param {*} connect web3链接
+ */
+export async function getSubContract(connect) {
+  const lockContractAbi = JSON.parse(tokenContractData.abi[0])
+  const tokenSubContractAddress = tokenContractData.subContractAddress[0]
+  return new connect.eth.Contract(lockContractAbi, tokenSubContractAddress)
 }
 
+/**
+ * 获取代币总量（调用totalSupply方法）
+ * @param {*} connect web3链接
+ * @param {*} contract 合约对象
+ */
 export async function getTotal(connect, contract = null) {
   let amount = await contract.methods.totalSupply().call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
 
+/**
+ * 获取制定地址的
+ * @param {*} connect web3链接
+ * @param {*} contract 合约对象
+ * @param {*} userAddress 用户地址
+ */
 export async function balanceOf(connect, contract = null, userAddress) {
   let amount = await contract.methods.balanceOf(userAddress).call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
 
+/**
+ * 查询钱包地址下的代币数量
+ * @param {*} userAddress 要查询的钱包地址
+ */
 export async function getTokenBalance(userAddress) {
+  const tokenContractAddress = tokenContractData.address[0]
   let connect = await web3.onWs
   let tokenContract = await getTokenContract(connect)
   let tokenTotalAmount = await getTotal(connect, tokenContract)
@@ -45,6 +68,13 @@ export async function getTokenBalance(userAddress) {
   }
 }
 
+/**
+ * 发送代币
+ * @param {*} fromAddress 发送代币的钱包地址
+ * @param {*} passWord 发送代币地址的秘钥
+ * @param {*} toAddress 接收代币的钱包地址
+ * @param {*} amount 发送代币数量
+ */
 export async function sendToken(fromAddress, passWord, toAddress, amount) {
   if (amount > 10000000) {
     return {
@@ -57,15 +87,19 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
   } else {
     let connect = await web3.onWs
     let tokenContract = await getTokenContract(connect)
-    // 对于超过20位的数值会转换成科学计数法 所以这里换成字符串拼接的方式
+    // 对于超过20位的数值会转换成科学计数法
+    // 所以这里换成字符串拼接的方式
     let _amountDecimals = `${amount}${'0'.repeat(contractDecimals)}`
     console.log(_amountDecimals)
     await unlockAccount(connect, fromAddress, passWord)
-    let sendToken = await tokenContract.methods.transfer(toAddress, _amountDecimals).send({
-      from: fromAddress,
-      gas,
-      gasPrice,
-    })
+    let sendToken = await tokenContract
+      .methods
+      .transfer(toAddress, _amountDecimals)
+      .send({
+        from: fromAddress,
+        gas,
+        gasPrice,
+      })
 
     lockAccount(connect, fromAddress)
     return {

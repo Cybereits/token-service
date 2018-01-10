@@ -3,5 +3,6 @@ require('babel-register')({
 })
 
 let FILE_NAME_IN_CURRENT_DIR = process.argv[2]
+console.log(process.argv)
 let func = require(`./${FILE_NAME_IN_CURRENT_DIR}`).default
 func.apply(global, process.argv.slice(3))
