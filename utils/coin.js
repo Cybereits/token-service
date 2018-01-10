@@ -1,5 +1,3 @@
-import tokenContractData from '../contracts/token.json'
-
 import web3 from '../framework/web3'
 import { lockAccount, unlockAccount } from './basic'
 import {
@@ -13,6 +11,7 @@ import {
  * @param {*} connect web3链接
  */
 export async function getTokenContract(connect) {
+  let tokenContractData = require('../contracts/token.json')
   const tokenContractAbi = JSON.parse(tokenContractData.abi[1])
   const tokenContractAddress = tokenContractData.address[0]
   return new connect.eth.Contract(tokenContractAbi, tokenContractAddress)
@@ -23,6 +22,7 @@ export async function getTokenContract(connect) {
  * @param {*} connect web3链接
  */
 export async function getSubContract(connect) {
+  let tokenContractData = require('../contracts/token.json')
   const lockContractAbi = JSON.parse(tokenContractData.abi[0])
   const tokenSubContractAddress = tokenContractData.subContractAddress[0]
   return new connect.eth.Contract(lockContractAbi, tokenSubContractAddress)
@@ -54,6 +54,7 @@ export async function balanceOf(connect, contract = null, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
+  let tokenContractData = require('../contracts/token.json')
   const tokenContractAddress = tokenContractData.address[0]
   let connect = await web3.onWs
   let tokenContract = await getTokenContract(connect)

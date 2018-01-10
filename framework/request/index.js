@@ -47,17 +47,15 @@ function _request(method, url, params) {
 }
 
 function get(url, params) {
-    // console.log(params)
     return _request('get', url, params)
 }
 
 function post(url, params) {
     return _request('post', url, params)
         .then((res) => {
-            console.log(`------${url}------\n`, `params: ${JSON.stringify(params, null, 4)}\n`, `response: ${JSON.stringify(res, null, 4)}`)
             if (res.code !== 0) {
-                console.log(res.msg)
-                return res
+                console.log(`------${url}------\n`, `params: ${JSON.stringify(params, null, 4)}\n`, `response: ${JSON.stringify(res, null, 4)}`)
+                throw new Error('网络请求错误')
             } else {
                 return res
             }

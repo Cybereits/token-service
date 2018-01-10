@@ -5,10 +5,8 @@ import request from '../framework/request'
 
 import config from '../config/env'
 
-var balanceArr = []
-let total = 0
-
 async function getListAccounts() {
+  console.log('获取账户列表')
   let connect = await web3.onWs
   let [listAccounts, code, msg] = [[], 200, '']
   try {
@@ -44,29 +42,29 @@ async function getBalance(address) {
   }
 }
 
-const taskQueue = new ParallelQueue({
-  onFinished: () => {
-    console.log(`查询成功的地址数量${balanceArr.length}`)
-    console.log(`总币量${total}`)
-    request.post(`${config.apiServer}/walet`, {
-      data: balanceArr,
-    })
-      .then((res) => {
-        console.log(`${config.apiServer}/walet: ${res}`)
-        process.exit(0)
-      })
-      .catch((err) => {
-        console.log(err)
-        process.exit(0)
-      })
-  },
-})
-
 async function run() {
-  let listAccounts = await getListAccounts()
-  let list = listAccounts.listAccounts
-  balanceArr = []
-  console.log(`地址数量${list.length}`)
+  let result = await getListAccounts()
+  console.log(`成功获取地址列表：${JSON.stringify(result, null, 4)}`)
+  let list = result.listAccounts
+  let balanceArr = []
+  let total = 0
+
+  const taskQueue = new ParallelQueue({
+    onFinished: () => {
+      console.log(`查询成功的地址数量${balanceArr.length}`)
+      console.log(`总币量${total}`)
+      request.post(`${config.apiServer}/walet`, {
+        data: balanceArr,
+      })
+        .then((res) => {
+          console.log(`${config.apiServer}/walet: ${JSON.stringify(res, null, 4)}`)
+        })
+        .catch((err) => {
+          console.log(`定时任务队列执行错误:${err.message}`)
+        })
+    },
+  })
+
   if (list.length > 0) {
     for (let i = 0; i < list.length; i += 1) {
       taskQueue.add(
@@ -74,7 +72,6 @@ async function run() {
           new Promise((resolve, reject) =>
             getBalance(list[i])
               .then((res) => {
-                console.log(`record ${i + 1}`)
                 total += +res.user.amount
                 balanceArr.push(res.user)
                 resolve('succ')
@@ -83,9 +80,12 @@ async function run() {
         )
       )
     }
+
     taskQueue.consume()
+
+    return true
   } else {
-    process.exit(0)
+    throw new Error('地址数组为空')
   }
 }
 
