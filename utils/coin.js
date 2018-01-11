@@ -82,7 +82,12 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
   } else if (amount <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
+    console.info('建立转账链接')
     let connect = await web3.onWs
+      .catch((err) => {
+        throw new Error(err.message)
+      })
+    console.info('读取代币合约')
     let tokenContract = await getTokenContract(connect)
       .catch((err) => {
         throw new Error(err.message)
@@ -91,11 +96,13 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
     // 所以这里换成字符串拼接的方式
     let _amountDecimals = `${amount}${'0'.repeat(contractDecimals)}`
 
+    console.info('解锁账户')
     await unlockAccount(connect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
+    console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${amount}`)
     let sendToken = await tokenContract
       .methods
       .transfer(toAddress, _amountDecimals)
@@ -108,6 +115,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
         throw new Error(err.message)
       })
 
+    console.info('锁定账户')
     lockAccount(connect, fromAddress)
       .catch((err) => {
         throw new Error(err.message)
