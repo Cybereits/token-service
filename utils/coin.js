@@ -78,13 +78,9 @@ export async function getTokenBalance(userAddress) {
  */
 export async function sendToken(fromAddress, passWord, toAddress, amount) {
   if (amount > 10000000) {
-    return {
-      msg: '单笔转账不得超过一千万代币',
-    }
+    throw new Error('单笔转账不得超过一千万代币')
   } else if (amount <= 0) {
-    return {
-      msg: '忽略转账额度小于等于0的请求',
-    }
+    throw new Error('忽略转账额度小于等于0的请求')
   } else {
     let connect = await web3.onWs
     let tokenContract = await getTokenContract(connect)
@@ -104,7 +100,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
     lockAccount(connect, fromAddress)
     return {
       result: sendToken.events.Transfer,
-      msg: `send finished, from ${fromAddress} to ${toAddress} amount ${_amountDecimals}`,
+      msg: `send finished, from ${fromAddress} to ${toAddress} amount ${_amountDecimals} txid ${sendToken.events.Transfer.transactionHash}`,
     }
   }
 }

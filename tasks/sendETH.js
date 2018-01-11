@@ -28,6 +28,7 @@ export default async (
     }, secret)
     .then((res) => {
       console.log('success!')
+      console.log(res)
       process.exit(0)
     })
     .catch((err) => {
