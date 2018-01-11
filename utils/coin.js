@@ -84,10 +84,18 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
   } else {
     let connect = await web3.onWs
     let tokenContract = await getTokenContract(connect)
+      .catch((err) => {
+        throw new Error(err.message)
+      })
     // 对于超过20位的数值会转换成科学计数法
     // 所以这里换成字符串拼接的方式
     let _amountDecimals = `${amount}${'0'.repeat(contractDecimals)}`
+
     await unlockAccount(connect, fromAddress, passWord)
+      .catch((err) => {
+        throw new Error(err.message)
+      })
+
     let sendToken = await tokenContract
       .methods
       .transfer(toAddress, _amountDecimals)
@@ -96,8 +104,15 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
         gas,
         gasPrice,
       })
+      .catch((err) => {
+        throw new Error(err.message)
+      })
 
     lockAccount(connect, fromAddress)
+      .catch((err) => {
+        throw new Error(err.message)
+      })
+
     return {
       result: sendToken.events.Transfer,
       msg: `send finished, from ${fromAddress} to ${toAddress} amount ${_amountDecimals} txid ${sendToken.events.Transfer.transactionHash}`,
