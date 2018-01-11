@@ -32,6 +32,12 @@ let meta = {
   sources: {
     'CybereitsToken.sol': fs.readFileSync(path.resolve(__dirname, '../contracts/CybereitsToken.sol')).toString(),
   },
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 500,
+    },
+  },
 }
 
 export default () => {

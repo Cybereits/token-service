@@ -84,7 +84,6 @@ contract Token is ERC20 {
     require(_value <= balances[msg.sender]);
     require(balances[_to] < balances[_to].add(_value));
 
-    // SafeMath.sub will throw if there is not enough balance.
     balances[msg.sender] = balances[msg.sender].sub(_value);
     balances[_to] = balances[_to].add(_value);
     Transfer(msg.sender, _to, _value);
@@ -123,7 +122,6 @@ contract CybereitsToken is Token, Ownable {
     string public symbol = "CRE";
     uint public decimals;
 
-    // 团队锁仓合约地址
     address public teamLockAddr;
 
     function CybereitsToken(
@@ -140,10 +138,8 @@ contract CybereitsToken is Token, Ownable {
     {
         decimals = _decimals;
         var multiplier = 10 ** decimals;
-        // 发行总量
         supply = total * multiplier;
         var teamLockAmount = _teamLockPercent * supply / 100;
-        // 创建团队锁仓合约
         teamLockAddr = new CybereitsTeamLock(
           teamLockAmount,
           _teamAddr1,
@@ -153,9 +149,7 @@ contract CybereitsToken is Token, Ownable {
           _teamAddr5,
           _teamAddr6
         );
-        // 团队代币锁定地址
         balances[teamLockAddr] = teamLockAmount;
-        // 锁仓之外剩余所有代币
         balances[msg.sender] = supply - teamLockAmount;
     }
 }
