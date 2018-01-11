@@ -181,17 +181,17 @@ contract CybereitsTeamLock {
     {
         cre = CybereitsToken(msg.sender);
         allocations[_teamAddr1] = lockAmount / 6;
-        frozen[_teamAddr1] = now + 1 minutes; // 6 * 30 days;
+        frozen[_teamAddr1] = now + 6 * 30 days;
         allocations[_teamAddr2] = lockAmount / 6;
-        frozen[_teamAddr2] = now + 10 minutes; // 12 * 30 days;
+        frozen[_teamAddr2] = now + 12 * 30 days;
         allocations[_teamAddr3] = lockAmount / 6;
-        frozen[_teamAddr3] = now + 15 minutes; // 18 * 30 days;
+        frozen[_teamAddr3] = now + 18 * 30 days;
         allocations[_teamAddr4] = lockAmount / 6;
-        frozen[_teamAddr4] = now + 20 minutes; // 24 * 30 days;
+        frozen[_teamAddr4] = now + 24 * 30 days;
         allocations[_teamAddr5] = lockAmount / 6;
-        frozen[_teamAddr5] = now + 25 minutes; // 30 * 30 days;
+        frozen[_teamAddr5] = now + 30 * 30 days;
         allocations[_teamAddr6] = lockAmount / 6;
-        frozen[_teamAddr6] = now + 30 minutes; // 36 * 30 days;
+        frozen[_teamAddr6] = now + 36 * 30 days;
     }
 
     function unlock(address unlockAddr) external returns (bool) {
