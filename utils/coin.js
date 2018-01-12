@@ -119,7 +119,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
     console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${_amount}`)
 
     // 由于以太网络可能出现拥堵，所以现在只要发送过程中没有异常即视作成功
-    let result = await tokenContract
+    tokenContract
       .methods
       .transfer(toAddress, _sendAmount)
       .send({
@@ -135,6 +135,6 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
     //     throw new Error(err.message)
     //   })
 
-    return result
+    return true
   }
 }

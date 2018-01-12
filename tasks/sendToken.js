@@ -20,7 +20,9 @@ export default (
     .then((res) => {
       console.log('success!')
       console.log(res)
-      process.exit(0)
+      setTimeout(() => {
+        process.exit(0)
+      }, 3000)
     })
     .catch((err) => {
       console.error(err)
