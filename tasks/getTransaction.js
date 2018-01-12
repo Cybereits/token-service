@@ -1,15 +1,12 @@
 import { TaskCapsule, ParallelQueue } from '../utils/task'
-
-import request from '../framework/request'
+import { postTransactions } from '../apis/phpApis'
 import web3 from '../framework/web3'
-
-import { etherScanApi, apikey } from '../config/const'
-import config from '../config/env'
+import { getTransaction } from '../apis/etherscanApis'
 
 let transactionList = []
 let count = 0
 
-async function getListAccounts() {
+async function getLocalAccounts() {
   let connect = await web3.onWs
   let [listAccounts, code, msg] = [[], 200, '']
   try {
@@ -30,12 +27,9 @@ const taskQueue = new ParallelQueue({
   onFinished: () => {
     console.log(`查询成功的地址数量为${count}`)
     console.log(`共有${transactionList.length}条交易记录`)
-    console.log(`${config.apiServer}/trans`)
-    request.post(`${config.apiServer}/trans`, {
-      'data': transactionList,
-    })
+    postTransactions
       .then((res) => {
-        console.log(`${config.apiServer}/trans: ${JSON.stringify(res, null, 4)}`)
+        console.log(`postTransactions response: ${JSON.stringify(res, null, 4)}`)
         process.exit(0)
       })
       .catch((err) => {
@@ -45,26 +39,14 @@ const taskQueue = new ParallelQueue({
   },
 })
 
-function getTransaction(address) {
-  return request.get(etherScanApi, {
-    module: 'account',
-    action: 'txlist',
-    address: address,
-    startblock: 0,
-    endblock: 99999999,
-    page: 1,
-    offset: 100,
-    sort: 'asc',
-    apikey: apikey,
-  })
-}
-
 async function getListTransaction() {
   let connect = await web3.onWs
-  let listAccounts = await getListAccounts()
+  let listAccounts = await getLocalAccounts()
   let list = listAccounts.listAccounts
   transactionList = []
-  console.log(`地址数量为${list.length}`)
+
+  console.log(`本地地址数量为${list.length}`)
+
   if (list.length > 0) {
 
     for (let i = 0; i < list.length; i += 1) {

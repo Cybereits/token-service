@@ -15,9 +15,14 @@ export default async (
 ) => {
   console.assert(toAddress, '接收地址不能为空!')
   console.assert(!!amount && !isNaN(+amount) && +amount > 0, '转账的 eth 数量必须为有效数值!')
-  console.assert(fromAddress, '转出地址不能为空!')
+
   let connect = await web3.onWs
   await unlockAccount(connect, fromAddress, secret)
+    .catch((err) => {
+      console.error(err)
+      process.exit(-1)
+    })
+
   connect
     .eth
     .personal

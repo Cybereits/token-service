@@ -19,6 +19,7 @@ export class TaskCapsule {
     this.args = args
     this[retry] = 0
   }
+
   run() {
     return this.exec.apply(this.ctx || this, this.args)
   }

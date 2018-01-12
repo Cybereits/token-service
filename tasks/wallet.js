@@ -1,9 +1,6 @@
 import { TaskCapsule, ParallelQueue } from '../utils/task'
-
+import { postBalances } from '../apis/phpApis'
 import web3 from '../framework/web3'
-import request from '../framework/request'
-
-import config from '../config/env'
 
 async function getListAccounts() {
   console.log('获取账户列表')
@@ -53,11 +50,9 @@ async function run() {
     onFinished: () => {
       console.log(`查询成功的地址数量${balanceArr.length}`)
       console.log(`总币量${total}`)
-      request.post(`${config.apiServer}/walet`, {
-        data: balanceArr,
-      })
+      postBalances(balanceArr)
         .then((res) => {
-          console.log(`${config.apiServer}/walet: ${JSON.stringify(res, null, 4)}`)
+          console.log(`postBalances response: ${JSON.stringify(res, null, 4)}`)
         })
         .catch((err) => {
           console.log(`定时任务队列执行错误:${err.message}`)

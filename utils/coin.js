@@ -1,10 +1,20 @@
+import bignumber from 'bignumber.js'
 import web3 from '../framework/web3'
-import { lockAccount, unlockAccount } from './basic'
+
+import {
+  lockAccount,
+  unlockAccount,
+} from './basic'
+
 import {
   gas,
   gasPrice,
   contractDecimals,
 } from '../config/const'
+
+const multiplier = 10 ** contractDecimals
+
+bignumber.config({ DECIMAL_PLACES: 5 })
 
 /**
  * 获取代币合约
@@ -83,6 +93,10 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
 
+    let _amount = bignumber(amount.toFixed(5))
+
+    let _sendAmount = _amount.times(multiplier)
+
     console.info('建立转账链接')
     let connect = await web3.onWs
       .catch((err) => {
@@ -94,9 +108,6 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
       .catch((err) => {
         throw new Error(err.message)
       })
-    // 对于超过20位的数值会转换成科学计数法
-    // 所以这里换成字符串拼接的方式
-    let _amountDecimals = `${amount}${'0'.repeat(contractDecimals)}`
 
     console.info('解锁账户')
     await unlockAccount(connect, fromAddress, passWord)
@@ -104,11 +115,12 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
         throw new Error(err.message)
       })
 
+    console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${_amount}`)
+
     // 由于以太网络可能出现拥堵，所以现在只要发送过程中没有异常即视作成功
-    console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${amount}`)
     tokenContract
       .methods
-      .transfer(toAddress, _amountDecimals)
+      .transfer(toAddress, _sendAmount)
       .send({
         from: fromAddress,
         gas,
@@ -118,11 +130,11 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
         throw new Error(err.message)
       })
 
-    console.info('锁定账户')
-    await lockAccount(connect, fromAddress)
-      .catch((err) => {
-        throw new Error(err.message)
-      })
+    // console.info('锁定账户')
+    // await lockAccount(connect, fromAddress)
+    //   .catch((err) => {
+    //     throw new Error(err.message)
+    //   })
 
     return true
   }

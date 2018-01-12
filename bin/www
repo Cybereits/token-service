@@ -86,4 +86,6 @@ function onListening() {
   debug(`Listening on ${bind}`)
 }
 
-scheduleCronstyle()
+if (process.env.NODE_ENV !== 'development') {
+  scheduleCronstyle()
+}
