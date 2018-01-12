@@ -1,9 +1,10 @@
 import { etherScanApi, apikey } from '../config/const'
 import request from '../framework/request'
+import { concatUrl } from './urlHelper'
 import contractData from '../contracts/token.json'
 
 export function getTransaction(address) {
-  return request.get(etherScanApi, {
+  return request.get(concatUrl(etherScanApi, {
     module: 'account',
     action: 'txlist',
     address: address,
@@ -13,7 +14,7 @@ export function getTransaction(address) {
     offset: 100,
     sort: 'asc',
     apikey: apikey,
-  })
+  }))
 }
 
 // {
@@ -22,13 +23,13 @@ export function getTransaction(address) {
 //   "result": "673457032179599583078378"
 // }
 export function getBalance(queryAddr) {
-  return request.get(etherScanApi, {
+  return request.get(concatUrl(etherScanApi, {
     module: 'account',
     action: 'balance',
     tag: 'latest',
     address: queryAddr,
     apikey,
-  })
+  }))
 }
 
 //   {
@@ -50,13 +51,13 @@ export function getBalance(queryAddr) {
 //     ]
 //   }
 export function getMultiBalance(addrCollection) {
-  return request.get(etherScanApi, {
+  return request.get(concatUrl(etherScanApi, {
     module: 'account',
     action: 'balancemulti',
     address: addrCollection.join(','),
     tag: 'latest',
     apikey,
-  })
+  }))
 }
 
 // {
@@ -65,12 +66,12 @@ export function getMultiBalance(addrCollection) {
 //   "result": "340000000000000000000000000"
 // }
 export function getERC20TokenAccountBalance(queryAddr) {
-  return request.get(etherScanApi, {
+  return request.get(concatUrl(etherScanApi, {
     module: 'account',
     action: 'tokenbalance',
     contractaddress: contractData.address[0],
     address: queryAddr,
     tag: 'latest',
     apikey,
-  })
+  }))
 }
