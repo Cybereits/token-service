@@ -85,3 +85,8 @@ function onListening() {
   var bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`
   debug(`Listening on ${bind}`)
 }
+
+if (process.env.WITH_SCHEDULE === 'true') {
+  console.log('开启定时任务')
+  scheduleCronstyle()
+}

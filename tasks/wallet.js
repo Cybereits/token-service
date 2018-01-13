@@ -52,10 +52,10 @@ async function run() {
       console.log(`总币量${total}`)
       postBalances(balanceArr)
         .then((res) => {
-          console.log(`postBalances response: ${JSON.stringify(res, null, 4)}`)
+          console.log(`钱包信息查询完毕，提交到 php 服务器: ${JSON.stringify(res, null, 4)}`)
         })
         .catch((err) => {
-          console.log(`定时任务队列执行错误:${err.message}`)
+          console.log(`定时任务队列执行错误: ${err.message}`)
         })
     },
   })

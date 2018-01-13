@@ -7,11 +7,8 @@ rule.minutes = 5
 
 function scheduleCronstyle() {
   schedule.scheduleJob(rule, async () => {
-    console.log('定时任务开启')
+    console.log('触发定时任务')
     runTask()
-      .then(() => {
-        console.log('定时任务执行完毕.')
-      })
       .catch((err) => {
         console.error(`定时任务执行失败:${JSON.stringify(err, null, 4)}`)
       })
