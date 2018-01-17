@@ -64,6 +64,17 @@ export async function balanceOf(connect, contract = null, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
+  let connect = await web3.onWs
+  let tokenContract = await getTokenContract(connect)
+  let userBalance = await balanceOf(connect, tokenContract, userAddress)
+  return userBalance
+}
+
+/**
+ * 查询钱包地址下的代币数量及代币总量，占比等信息
+ * @param {*} userAddress 要查询的钱包地址
+ */
+export async function getTokenBalanceFullInfo(userAddress) {
   let tokenContractData = require('../contracts/token.json')
   const tokenContractAddress = tokenContractData.address[0]
   let connect = await web3.onWs

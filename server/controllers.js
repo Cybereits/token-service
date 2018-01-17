@@ -1,5 +1,5 @@
 import web3 from '../framework/web3'
-import { getTokenBalance } from '../utils/coin'
+import { getTokenBalanceFullInfo } from '../utils/coin'
 import { deployOwnerAddr } from '../config/const'
 
 async function creatAccount(ctx) {
@@ -65,12 +65,12 @@ async function getBalance(ctx) {
 
 async function queryTokenBalance(ctx) {
   let { address } = ctx.query
-  let result = await getTokenBalance(address)
+  let result = await getTokenBalanceFullInfo(address)
   ctx.body = result
 }
 
 async function queryOfficialTokenBalance(ctx) {
-  let result = await getTokenBalance(deployOwnerAddr)
+  let result = await getTokenBalanceFullInfo(deployOwnerAddr)
   ctx.body = result
 }
 

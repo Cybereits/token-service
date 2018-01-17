@@ -7,8 +7,6 @@ import {
   syncTokenSendingSucc,
 } from '../apis/phpApis'
 
-import { getTokenBalance } from '../utils/coin'
-
 import { SerialQueue, TaskCapsule } from '../utils/task'
 
 export default async () => {
@@ -60,20 +58,6 @@ export default async () => {
                 .catch((err) => {
                   reject(`请求 etherscan 接口失败: ${err.message}`)
                 })
-
-              // getTokenBalance(address)
-              //   .then(({ balance }) => {
-              //     if (+balance > 0) {
-              //       console.log(`${address} 账户已经收到 ${balance} 枚代币`)
-              //     } else {
-              //       console.info(`${address} 账户尚未收到代币.`)
-              //       succAddress = succAddress.filter(addr => addr !== address)
-              //     }
-              //     resolve()
-              //   })
-              //   .catch(() => {
-              //     reject('获取账户代币信息失败')
-              //   })
             })
           )
         )
