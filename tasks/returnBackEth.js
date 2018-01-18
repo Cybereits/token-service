@@ -9,6 +9,7 @@ import { getReturnBackInfo, submitReturnBackSendResult } from '../apis/phpApis'
 // 已发送过的地址
 let sentAddresses = []
 let sentTransactions = []
+let connect
 let walletAddress
 let walletSecret
 let transInfo
@@ -87,7 +88,7 @@ const main = async () => {
             amount: (+match.return_amount).toFixed(2),
           }
         } else {
-          throw new Error(`Can't fidn the match entity to chosen term ${transTerm}`)
+          throw new Error(`Can't find the matched entity with chosen term ${transTerm}`)
         }
       })
 
@@ -118,8 +119,7 @@ ${trans.map(({ address, amount }) => `  to：${address}\tamount: ${amount}`).joi
 
     if (confirmEnter && confirmEnter.toLowerCase() === 'y') {
       statistics.total += trans.length
-      // 批量发送代币
-      let connect = await web3.onWs
+
       let succCollection = []
 
       let proms = trans.map(({ address, amount }) =>
@@ -201,4 +201,7 @@ Continue? [Y to confirm, other to cancel]`,
   }
 }
 
-export default main
+export default async () => {
+  connect = await web3.onWs
+  main()
+}
