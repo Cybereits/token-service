@@ -5,8 +5,6 @@ import {
   deployOwnerSecret,
 } from '../config/const'
 
-import { unlockAccount } from '../utils/basic'
-
 export default async (
   toAddress,
   amount,
@@ -17,11 +15,12 @@ export default async (
   console.assert(!!amount && !isNaN(+amount) && +amount > 0, '转账的 eth 数量必须为有效数值!')
 
   let connect = await web3.onWs
-  await unlockAccount(connect, fromAddress, secret)
-    .catch((err) => {
-      console.error(err)
-      process.exit(-1)
-    })
+
+  // await unlockAccount(connect, fromAddress, secret)
+  //   .catch((err) => {
+  //     console.error(err)
+  //     process.exit(-1)
+  //   })
 
   connect
     .eth

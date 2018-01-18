@@ -2,13 +2,10 @@ import bignumber from 'bignumber.js'
 import web3 from '../framework/web3'
 
 import {
-  lockAccount,
   unlockAccount,
 } from './basic'
 
 import {
-  gas,
-  gasPrice,
   contractDecimals,
 } from '../config/const'
 

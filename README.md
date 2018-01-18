@@ -46,6 +46,8 @@ ETH service for cybereits internal usage.
 - deployTokenContract 部署代币合约，即 `yarn dtc`
 - getTotal 通过 ehterscan.io 的 api 接口查询 addr.json 文件中指定钱包地址内的 eth 总量，即 `yarn total`
 - getTransaction 查询本地生成账户中的 eth 数量, 即 `yarn transaction`
+- getTransFromLocal 扫描本地生成账户和指定的区块区间，生成对应账户的 eth，cre 余额和所有的 transactions
+- returnBackEth 从服务器获取需要退回的以太钱包地址和数量 并批量退回
 - wallet 从 php 服务器获取要查询的地址列表，通过本地的 geth 客户端查询地址中的 eth 数量 (每五分钟一次的定时任务)，即 `yarn wallet`
 - schedule 启动定时任务，每五分钟执行一次 `wallet` 任务
 - sendETH 发起 eth 转账，接受参数 `toAddress, amount, fromAddress, secret` 分别代表:
@@ -58,7 +60,6 @@ ETH service for cybereits internal usage.
   - amount 转出数量（代币数量，不是 wei）
   - fromAddress 转出钱包的地址（默认是 deployOwnerAddr）
   - secret 转出钱包的秘钥（默认是 deployOwnerSecret）
-
 - unlock 解锁团队锁仓份额, 接受参数 index 表示解锁团队钱包地址的序号：1-6
 
 ## 常量配置说明

@@ -28,6 +28,7 @@ function _request(method, url, params) {
         let option = {
             url: url,
             json: true,
+            'Content-Type': 'application/json',
         }
 
         if (method === 'get') option.qs = params || {}

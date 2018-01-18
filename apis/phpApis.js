@@ -40,3 +40,18 @@ export const syncTokenSent = addrCollection => request.post(`${apiServer}/cresen
 export const syncTokenSendingSucc = addrCollection => request.post(`${apiServer}/cresuccess`, {
   data: addrCollection,
 })
+
+// 获取退回 eth 的用户信息
+export const getReturnBackInfo = () => request.get(`${apiServer}/return`)
+  .then((res) => {
+    if (+res.code === 0) {
+      return res['data']
+    } else {
+      throw new Error(`请求退回 eth 的用户信息出错:${JSON.stringify(res, null, 4)}`)
+    }
+  })
+
+// 提交返还 eth 的结果信息
+export const submitReturnBackSendResult = result => request.post(`${apiServer}/return`, {
+  data: result,
+})

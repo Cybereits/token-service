@@ -1,8 +1,13 @@
-import { getERC20TokenAccountBalance } from '../apis/etherscanApis'
+import request from '../framework/request'
+import { getReturnBackInfo } from '../apis/phpApis'
 
 export default () => {
-  getERC20TokenAccountBalance()
+  // request.get('https://www.baidu.com')
+  getReturnBackInfo()
     .then((res) => {
       console.log(res)
+    })
+    .catch((err) => {
+      console.error(err)
     })
 }

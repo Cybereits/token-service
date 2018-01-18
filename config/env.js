@@ -7,10 +7,10 @@ const CONFIG = {
     },
     development: {
         port: 3100,
-        apiServer: 'https://api.id-cloud.org/api',
+        apiServer: 'http://192.168.3.11:8000/api',
     },
 }
 
-console.log(CONFIG[env])
+console.log(`Environment : ${env}`)
 
 module.exports = Object.assign({}, CONFIG[env], { env })

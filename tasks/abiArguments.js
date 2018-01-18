@@ -13,17 +13,18 @@ import {
 } from '../config/const'
 
 export default () => {
-  let result = abi.rawEncode([
-    'uint256',
-    'uint256',
-    'uint256',
-    'address',
-    'address',
-    'address',
-    'address',
-    'address',
-    'address',
-  ],
+  let result = abi.rawEncode(
+    [
+      'uint256',
+      'uint256',
+      'uint256',
+      'address',
+      'address',
+      'address',
+      'address',
+      'address',
+      'address',
+    ],
     [
       tokenSupply,
       contractDecimals,
