@@ -121,10 +121,51 @@ ${trans.map(({ address, amount }) => `  to：${address}\tamount: ${amount}`).joi
       statistics.total += trans.length
 
       let succCollection = []
+      let continueConfirm = new Input({
+        name: 'continue',
+        message: `Synchronous sent result success!
+Successed Transactions:
+--------------------------------------------------------------------------------------------
+address\t\t\t\t\t\t|amount\t|txid
+--------------------------------------------------------------------------------------------
+${succCollection.map(({ address, amount, txid }) => `${address}\t${amount}\t${txid}`).join('\n')}
+--------------------------------------------------------------------------------------------
+Continue? [Y to confirm, other to cancel]`,
+      })
+
+      let submitResult = () => {
+        if (trans.length > succCollection.length) {
+          console.warn(`共执行${trans.length}笔转账,成功发出的只有${succCollection.length}笔,请手动核实!`)
+        }
+        console.log('提交发送结果...')
+        submitReturnBackSendResult(succCollection)
+          .then(async () => {
+            let continueResult = await continueConfirm
+              .run()
+              .catch((err) => {
+                console.error(err)
+                process.exit(-1)
+              })
+
+            if (continueResult && continueResult.toLowerCase() === 'y') {
+              main()
+            } else {
+              logResult()
+              process.exit(0)
+            }
+
+          })
+          .catch((err) => {
+            console.error(err)
+            logResult()
+            process.exit(-1)
+          })
+      }
 
       let proms = trans.map(({ address, amount }) =>
         new Promise((resolve, reject) => {
           console.log(`Send begin! to:${address} amount:${amount}`)
+          sentAddresses.push(address)
           connect
             .eth
             .personal
@@ -140,7 +181,6 @@ ${trans.map(({ address, amount }) => `  to：${address}\tamount: ${amount}`).joi
                 amount,
                 txid,
               })
-              sentAddresses.push(address)
               sentTransactions.push(txid)
               statistics.succ += 1
               resolve()
@@ -152,42 +192,10 @@ ${trans.map(({ address, amount }) => `  to：${address}\tamount: ${amount}`).joi
 
       Promise
         .all(proms)
-        .then(() => {
-          submitReturnBackSendResult(succCollection)
-            .then(async () => {
-              let continueConfirm = new Input({
-                name: 'continue',
-                message: `Synchronous sent result success!
-Successed Transactions:
---------------------------------------------------------------------------------------------
-address\t\t\t\t\t\t|amount\t|txid
---------------------------------------------------------------------------------------------
-${succCollection.map(({ address, amount, txid }) => `${address}\t${amount}\t${txid}`).join('\n')}
---------------------------------------------------------------------------------------------
-Continue? [Y to confirm, other to cancel]`,
-              })
-              let continueResult = await continueConfirm.run()
-                .catch((err) => {
-                  console.error(err)
-                  process.exit(-1)
-                })
-              if (continueResult && continueResult.toLowerCase() === 'y') {
-                main()
-              } else {
-                logResult()
-                process.exit(0)
-              }
-            })
-            .catch((err) => {
-              console.error(err)
-              logResult()
-              process.exit(-1)
-            })
-        })
+        .then(submitResult)
         .catch((err) => {
           console.error(err)
-          logResult()
-          process.exit(-1)
+          submitResult()
         })
     } else {
       console.warn('Transactions canceled, application exit...')
