@@ -36,7 +36,12 @@ const logResult = () => {
 ${sentTransactions.join('\n')}
 ------------------------  
 `)
+}
 
+const errorHandler = (err) => {
+  console.error(err)
+  logResult()
+  process.exit(-1)
 }
 
 const init = async () => {
@@ -56,22 +61,13 @@ const init = async () => {
   })
 
   walletAddress = await sendWalletPrompt.run()
-    .catch((err) => {
-      console.error(err)
-      process.exit(-1)
-    })
+    .catch(errorHandler)
 
   walletSecret = await sendWalletPwdPrompt.run()
-    .catch((err) => {
-      console.error(err)
-      process.exit(-1)
-    })
+    .catch(errorHandler)
 
   trans = await transCheckPrompt.run()
-    .catch((err) => {
-      console.error(err)
-      process.exit(-1)
-    })
+    .catch(errorHandler)
 }
 
 const main = async () => {
@@ -93,8 +89,7 @@ const main = async () => {
       })
 
     } catch (ex) {
-      console.error(ex)
-      process.exit(-1)
+      errorHandler(ex)
     }
 
     walletAddress = (walletAddress && walletAddress.trim()) || deployOwnerAddr
@@ -112,10 +107,7 @@ ${trans.map(({ address, amount }) => `  to：${address}\tamount: ${amount}`).joi
     })
 
     let confirmEnter = await confirm.run()
-      .catch((err) => {
-        console.error(err)
-        process.exit(-1)
-      })
+      .catch(errorHandler)
 
     if (confirmEnter && confirmEnter.toLowerCase() === 'y') {
       statistics.total += trans.length
@@ -142,10 +134,7 @@ Continue? [Y to confirm, other to cancel]`,
           .then(async () => {
             let continueResult = await continueConfirm
               .run()
-              .catch((err) => {
-                console.error(err)
-                process.exit(-1)
-              })
+              .catch(errorHandler)
 
             if (continueResult && continueResult.toLowerCase() === 'y') {
               main()
@@ -155,11 +144,7 @@ Continue? [Y to confirm, other to cancel]`,
             }
 
           })
-          .catch((err) => {
-            console.error(err)
-            logResult()
-            process.exit(-1)
-          })
+          .catch(errorHandler)
       }
 
       let proms = trans.map(({ address, amount }) =>
