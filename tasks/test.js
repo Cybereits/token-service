@@ -1,4 +1,4 @@
-import request from '../framework/request'
+// import request from '../framework/request'
 import { getReturnBackInfo } from '../apis/phpApis'
 
 export default () => {
