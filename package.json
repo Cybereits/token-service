@@ -38,7 +38,6 @@
     "koa-static": "^3.0.0",
     "koa-views": "^5.2.1",
     "node-schedule": "^1.2.5",
-    "prompt-checkbox": "^2.2.0",
     "prompt-input": "^3.0.0",
     "request": "^2.83.0",
     "solc": "^0.4.19",
