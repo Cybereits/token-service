@@ -15,6 +15,14 @@ ETH service for cybereits internal usage.
 
 ## 使用说明
 
+#### 启动服务指令
+
+- `yarn prd` 正式环境启动 pm2 守护进程
+- `yarn prd-schedule` 正式环境下带有定时任务的 pm2 守护进程
+- `yarn dev` 本地开发环境启动 pm2 守护进程
+- `yarn dev-schedule` 本地开发环境下带有定时任务的 pm2 守护进程
+- `yarn dev-geth` 本地开发环境启动钱包
+
 #### yarn dtc
 
 > 部署代币合约
@@ -53,7 +61,6 @@ ETH service for cybereits internal usage.
   - type 扫描的账户类型 默认 `account` 可以指定为 `contract` 则扫描代币合约地址的所有 transactions
 - returnBackEth 从服务器获取需要退回的以太钱包地址和数量 并批量退回
 - wallet 从 php 服务器获取要查询的地址列表，通过本地的 geth 客户端查询地址中的 eth 数量 (每五分钟一次的定时任务)，即 `yarn wallet`
-- schedule 启动定时任务，每五分钟执行一次 `wallet` 任务
 - sendETH 发起 eth 转账，接受参数 `toAddress, amount, fromAddress, secret` 分别代表:
   - toAddress 转到的钱包地址
   - amount 转出数量（eth 数量，不是 wei）

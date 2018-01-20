@@ -14,7 +14,6 @@
     "transaction": "node ./tasks getTransaction",
     "total": "node ./tasks getTotal",
     "dtc": "node ./tasks deployTokenContract",
-    "schedule": "node ./tasks schedule",
     "dev-task": "node ./tasks",
     "prd-task": "NODE_ENV=production node ./tasks"
   },
