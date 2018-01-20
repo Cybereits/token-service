@@ -7,7 +7,7 @@ const CONFIG = {
     },
     development: {
         port: 3100,
-        apiServer: 'http://192.168.3.11:8000/api',
+        apiServer: 'https://api.id-cloud.org/api',
     },
 }
 

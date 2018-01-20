@@ -28,15 +28,15 @@ ETH service for cybereits internal usage.
 
 > 在部署代币将从根目录的 `config/const.js` 中读取:
 > 1. 代币总数(tokenSupply)
-> 2. 代币精度(contractDecimals)v
+> 2. 代币精度(contractDecimals)
 > 3. 团队锁定百分比(teamLockPercent)
 > 4. 团队钱包地址1-6(teamAddr01 - teamAddr06)
 >
 > 并且在后续的接口、任务中将持续使用这些变量进行计算，例如查询指定地址的代币数量等
 
-#### yarn task _taskFileName_ _params_
+#### yarn dev-task _taskFileName_ _params_
 
-    开发环境下运行任务脚本（把 task 替换成 prd-task，即可在生产环境下运行任务脚本）
+    开发环境下运行任务脚本（把 dev-task 替换成 prd-task，即可在生产环境下运行任务脚本）
     第一个参数必填，任务文件名（即 ./tasks 目录中的文件名)
     接下来的参数是任务运行时所需的参数,以空格分隔
 

@@ -45,6 +45,7 @@ const errorHandler = (err) => {
 }
 
 const init = async () => {
+  connect = await web3.onWs
 
   transInfo = await getReturnBackInfo()
     .catch((err) => {
@@ -113,17 +114,6 @@ ${trans.map(({ address, amount }) => `  to：${address}\tamount: ${amount}`).joi
       statistics.total += trans.length
 
       let succCollection = []
-      let continueConfirm = new Input({
-        name: 'continue',
-        message: `Synchronous sent result success!
-Successed Transactions:
---------------------------------------------------------------------------------------------
-address\t\t\t\t\t\t|amount\t|txid
---------------------------------------------------------------------------------------------
-${succCollection.map(({ address, amount, txid }) => `${address}\t${amount}\t${txid}`).join('\n')}
---------------------------------------------------------------------------------------------
-Continue? [Y to confirm, other to cancel]`,
-      })
 
       let submitResult = () => {
         if (trans.length > succCollection.length) {
@@ -132,6 +122,17 @@ Continue? [Y to confirm, other to cancel]`,
         console.log('提交发送结果...')
         submitReturnBackSendResult(succCollection)
           .then(async () => {
+            let continueConfirm = new Input({
+              name: 'continue',
+              message: `Synchronous sent result success!
+Successed Transactions:
+--------------------------------------------------------------------------------------------
+address\t\t\t\t\t\tamount\t\ttxid
+--------------------------------------------------------------------------------------------
+${succCollection.map(({ address, amount, txid }) => `${address}\t${amount}\t\t${txid}`).join('\n')}
+--------------------------------------------------------------------------------------------
+Continue? [Y to confirm, other to cancel]`,
+            })
             let continueResult = await continueConfirm
               .run()
               .catch(errorHandler)
@@ -194,7 +195,4 @@ Continue? [Y to confirm, other to cancel]`,
   }
 }
 
-export default async () => {
-  connect = await web3.onWs
-  main()
-}
+export default main
