@@ -16,12 +16,6 @@ export default async (
 
   let connect = await web3.onWs
 
-  // await unlockAccount(connect, fromAddress, secret)
-  //   .catch((err) => {
-  //     console.error(err)
-  //     process.exit(-1)
-  //   })
-
   connect
     .eth
     .personal

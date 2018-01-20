@@ -16,6 +16,7 @@ ETH service for cybereits internal usage.
 ## 使用说明
 
 #### yarn dtc
+
 > 部署代币合约
 
 在实现时分为两个合约：CybereitsToken(代币合约)，CybereitsTeamLock(锁仓合约)  
