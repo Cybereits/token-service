@@ -116,7 +116,7 @@ function submitTransInfo(info) {
   let start = 0
   let end = step
   let queue = new ParallelQueue({
-    limit: 3,
+    limit: 1,
     onFinished: () => {
       console.log(`${info.address} 下所有交易信息已经同步...`)
     },
