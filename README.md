@@ -53,6 +53,7 @@ ETH service for cybereits internal usage.
 
 - abiArguments 从 token.json 中获取合约 abi，从 const.js 中获取合约编译时的参数，生成 abi-encoded arguments
 - deployTokenContract 部署代币合约，即 `yarn dtc`
+- getBalance 扫描本地所有账户，并返回 eth 余额
 - getTotal 通过 ehterscan.io 的 api 接口查询 addr.json 文件中指定钱包地址内的 eth 总量，即 `yarn total`
 - getTransaction 查询本地生成账户中的 eth 数量, 即 `yarn transaction`
 - getTransFromLocal 扫描本地生成账户和指定的区块区间，生成对应账户的 eth，cre 余额和所有的 transactions
