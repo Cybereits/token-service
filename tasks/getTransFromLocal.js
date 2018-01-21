@@ -13,89 +13,96 @@ import { address as contractAddress } from '../contracts/token.json'
  * @param {*} onFinished 完成后的处理函数
  * @param {boolean} isContract 是否是合约地址
  */
-async function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlockNumber, onFinished, isContract) {
-  console.log(`Searching for transactions within blocks ${startBlockNumber} and ${endBlockNumber}`)
-  // console.log(`accounts: ${accounts.join(' | ')}`)
+function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlockNumber, onFinished, isContract) {
+  return new Promise(async (resolve) => {
+    console.log(`Searching for transactions within blocks ${startBlockNumber} and ${endBlockNumber}`)
+    // console.log(`accounts: ${accounts.join(' | ')}`)
 
-  let transactionSet = new Set(accounts)
+    let transactionSet = new Set(accounts)
 
-  let taskQueue = new ParallelQueue({
-    limit: 50,
-    onFinished: () => {
-      console.log('finished!')
-      onFinished && onFinished(transactionSet)
-    },
-  })
-
-  let proms = accounts.map(_addr => new Promise(async (resolve, reject) => {
-    if (isContract) {
-      let ethBalance = await eth.getBalance(_addr)
-        .catch((ex) => {
-          console.log(`get address eth balance failded: ${_addr}`)
-          reject(ex)
-        })
-      transactionSet[_addr] = {
-        address: _addr,
-        eth: eth.extend.utils.fromWei(ethBalance, 'ether'),
-        cre: 0,
-        trans: [],
-      }
-      resolve()
-    } else {
-      let ethBalance = await eth.getBalance(_addr)
-        .catch((ex) => {
-          console.log(`get address eth balance failded: ${_addr}`)
-          reject(ex)
-        })
-      let creBalance = await getTokenBalance(_addr)
-        .catch((ex) => {
-          console.log(`get address cre balance failded: ${_addr}`)
-          reject(ex)
-        })
-      transactionSet[_addr] = {
-        address: _addr,
-        eth: eth.extend.utils.fromWei(ethBalance, 'ether'),
-        cre: creBalance,
-        trans: [],
-      }
-      resolve()
-    }
-  }))
-
-  await Promise
-    .all(proms)
-    .catch((err) => {
-      console.error(`初始化钱包集合对象失败,扫描终止:${err.message}`)
-      process.exit(-1)
+    let taskQueue = new ParallelQueue({
+      limit: 30,
+      onFinished: () => {
+        console.log('finished!')
+        onFinished && onFinished(transactionSet)
+      },
     })
 
-  // eslint-disable-next-line
-  for (let i = startBlockNumber; i <= endBlockNumber; i++) {
-    taskQueue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
-      if (i % 1000 === 0) {
-        console.log(`Searching block ${i}`)
-      }
-      let block = await eth.getBlock(i, true).catch(reject)
-      if (block != null && block.transactions != null) {
-        // 遍历区块内的交易记录
-        block
-          .transactions
-          .forEach(({ from: fromAddress, to, hash, value, input }) => {
-            // 如果该交易的转入或转出地址与指定钱包有任何一则匹配
-            // 则将该转账记录添加到对应钱包下的交易记录集合中
-            accounts.forEach((accountAddr) => {
-              if (fromAddress === accountAddr || to === accountAddr) {
-                // here used to have a stupid mistake for using fromAddress
-                transactionSet[accountAddr].trans.push({ txid: hash, value, input })
-              }
-            })
-          })
-      }
-      resolve()
-    })))
-  }
+    let accountsQueue = new ParallelQueue({
+      limit: 30,
+      onFinished: () => {
+        console.log('钱包地址信息扫描完毕...开始扫描区块')
+        scanBlock()
+        resolve(taskQueue)
+      },
+    })
 
-  return taskQueue
+    let scanBlock = function () {
+      // eslint-disable-next-line
+      for (let i = startBlockNumber; i <= endBlockNumber; i++) {
+        taskQueue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
+          if (i % 1000 === 0) {
+            console.log(`Searching block ${i}`)
+          }
+          let block = await eth.getBlock(i, true).catch(reject)
+          if (block != null && block.transactions != null) {
+            // 遍历区块内的交易记录
+            block
+              .transactions
+              .forEach(({ from: fromAddress, to, hash, value, input }) => {
+                // 如果该交易的转入或转出地址与指定钱包有任何一则匹配
+                // 则将该转账记录添加到对应钱包下的交易记录集合中
+                accounts.forEach((accountAddr) => {
+                  if (fromAddress === accountAddr || to === accountAddr) {
+                    // here used to have a stupid mistake for using fromAddress
+                    transactionSet[accountAddr].trans.push({ txid: hash, value, input })
+                  }
+                })
+              })
+          }
+          resolve()
+        })))
+      }
+    }
+
+    accounts.map(_addr => accountsQueue.add(new TaskCapsule(() =>
+      new Promise(async (resolve, reject) => {
+        if (isContract) {
+          let ethBalance = await eth.getBalance(_addr)
+            .catch((ex) => {
+              console.log(`get address eth balance failded: ${_addr}`)
+              reject(ex)
+            })
+          transactionSet[_addr] = {
+            address: _addr,
+            eth: eth.extend.utils.fromWei(ethBalance, 'ether'),
+            cre: 0,
+            trans: [],
+          }
+          resolve()
+        } else {
+          let ethBalance = await eth.getBalance(_addr)
+            .catch((ex) => {
+              console.log(`get address eth balance failded: ${_addr}`)
+              reject(ex)
+            })
+          let creBalance = await getTokenBalance(_addr)
+            .catch((ex) => {
+              console.log(`get address cre balance failded: ${_addr}`)
+              reject(ex)
+            })
+          transactionSet[_addr] = {
+            address: _addr,
+            eth: eth.extend.utils.fromWei(ethBalance, 'ether'),
+            cre: creBalance,
+            trans: [],
+          }
+          resolve()
+        }
+      }))))
+
+    accountsQueue.consume()
+  })
 }
 
 /**
