@@ -105,23 +105,50 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
   })
 }
 
+const step = 30
 /**
  * 提交 transaction 信息
  * @param {*} info 要提交的信息体
  */
 function submitTransInfo(info) {
   // console.log(info)
-  postTransactions(info)
-    .then((res) => {
-      if (+res.code === 0) {
-        console.log(`同步成功，地址: ${info.address}， ${info.trans.length} 笔交易信息`)
-      } else {
-        throw new Error(res.msg)
-      }
-    })
-    .catch((err) => {
-      console.error(`同步钱包交易信息失败: ${err.message}`)
-    })
+  let transLength = info.trans.length
+  let start = 0
+  let end = step
+  let queue = new ParallelQueue({
+    limit: 3,
+    onFinished: () => {
+      console.log(`${info.address} 下所有交易信息已经同步...`)
+    },
+  })
+
+  do {
+    let _start = start
+    let _end = end
+    queue.add(new TaskCapsule(() => new Promise((resolve, reject) => {
+      let _trans = info.trans.slice(_start, _end)
+      let data = Object.assign({}, info, { trans: _trans })
+      console.log(`提交地址信息：: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
+      postTransactions(data)
+        .then((res) => {
+          if (+res.code === 0) {
+            console.log(`同步成功，地址: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
+            resolve()
+          } else {
+            reject(new Error(res.msg))
+          }
+        })
+        .catch((err) => {
+          console.error(`同步钱包交易信息失败: ${err.message}`)
+          reject(err)
+        })
+    })))
+    start += step
+    end += step
+  }
+  while (start < transLength)
+
+  queue.consume()
 }
 
 export default async (startBlockNumber = 0, endBlockNumber, type = 'account') => {
@@ -148,10 +175,12 @@ export default async (startBlockNumber = 0, endBlockNumber, type = 'account') =>
       .forEach((address) => {
         let detail = transCollection[address]
         if (detail.trans.length > 0) {
+          console.log(`扫描 ${address} 下 ${detail.trans.length} 条转账细节...`)
           let transactions = []
           let receiptQueue = new ParallelQueue({
             limit: 20,
             onFinished: () => {
+              console.log(`扫描 ${address} 转账细节成功，即将发送...`)
               detail.trans = transactions
               submitTransInfo(detail)
             },
