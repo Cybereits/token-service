@@ -1,8 +1,11 @@
 import web3 from '../framework/web3'
 import { TaskCapsule, ParallelQueue } from '../utils/task'
 import { postTransactions } from '../apis/phpApis'
-import { getTokenBalance } from '../utils/coin'
+import { getTokenBalance, decodeTransferInput } from '../utils/coin'
 import { address as contractAddress } from '../contracts/token.json'
+
+// 同步交易记录时每次交易数量的限制
+const step = 30
 
 /**
  * 扫描区块查询账户下的 transactions
@@ -10,30 +13,36 @@ import { address as contractAddress } from '../contracts/token.json'
  * @param {*} accounts 钱包地址数组
  * @param {*} startBlockNumber 扫描起始区块高度
  * @param {*} endBlockNumber 扫描截止区块高度
- * @param {*} onFinished 完成后的处理函数
  * @param {boolean} isContract 是否是合约地址
  */
-function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlockNumber, onFinished, isContract) {
-  return new Promise(async (resolve) => {
+function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlockNumber, isContract) {
+  return new Promise((resolve) => {
     console.log(`Searching for transactions within blocks ${startBlockNumber} and ${endBlockNumber}`)
-    // console.log(`accounts: ${accounts.join(' | ')}`)
 
     let transactionSet = new Set(accounts)
 
+    // 扫描区块的任务队列
+    // 由于获取区块时并发数量过高会导致 missing trie node 错误
+    // 所以限制区块扫描任务并发数量不得超过 30
     let taskQueue = new ParallelQueue({
       limit: 30,
       onFinished: () => {
-        console.log('finished!')
-        onFinished && onFinished(transactionSet)
+        console.log('区块扫描完成，所有账户的交易记录匹配完毕!')
+        // 区块扫描完成后
+        resolve(transactionSet)
       },
     })
 
+    // 钱包信息任务队列
+    // 由于获取钱包账户信息时并发数量过高会导致 missing trie node 错误
+    // 所以限制任务并发数量不得超过 30
     let accountsQueue = new ParallelQueue({
       limit: 30,
       onFinished: () => {
         console.log('钱包地址信息扫描完毕...开始扫描区块')
         scanBlock()
-        resolve(taskQueue)
+        // 钱包信息创建完成时 执行区块扫描任务队列
+        taskQueue.consume()
       },
     })
 
@@ -54,7 +63,6 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
                 // 则将该转账记录添加到对应钱包下的交易记录集合中
                 accounts.forEach((accountAddr) => {
                   if (fromAddress === accountAddr || to === accountAddr) {
-                    // here used to have a stupid mistake for using fromAddress
                     transactionSet[accountAddr].trans.push({ txid: hash, value, input })
                   }
                 })
@@ -105,16 +113,16 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
   })
 }
 
-const step = 30
 /**
- * 提交 transaction 信息
- * @param {*} info 要提交的信息体
+ * 同步 transaction 信息
+ * @param {*} info 要同步的信息体
  */
 function submitTransInfo(info) {
-  // console.log(info)
-  let transLength = info.trans.length
-  let start = 0
-  let end = step
+  let transLength = info.trans.length // 记录该地址下交易记录的总长度
+  let start = 0 // 发送的交易的起始位置
+  let end = step  // 发送交易的截止位置
+
+  // 每个地址下对应交易记录同步任务的并行队列
   let queue = new ParallelQueue({
     limit: 1,
     onFinished: () => {
@@ -122,23 +130,35 @@ function submitTransInfo(info) {
     },
   })
 
+  // 由于同步信息时如果交易记录很多就会超出 post 请求的限制
+  // 所以对于每个地址的交易记录，每次只同步 30 条
+  // 不同的地址可以并发同步 但是相同地址每次只能有一个同步请求 完成后才会继续同步接下来的 30 条交易记录
   do {
+    // 临时记录任务执行时的交易记录区间
     let _start = start
     let _end = end
+
+    // 创建同步的任务
     queue.add(new TaskCapsule(() => new Promise((resolve, reject) => {
+      // 获取本此同步的交易记录
       let _trans = info.trans.slice(_start, _end)
+      // 生成同步的数据体
       let data = Object.assign({}, info, { trans: _trans })
-      console.log(`提交地址信息：: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
+      console.log(`同步地址信息: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
+      // 同步数据
       postTransactions(data)
         .then((res) => {
           if (+res.code === 0) {
+            // 同步成功
             console.log(`同步成功，地址: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
             resolve()
           } else {
+            // 同步失败
             reject(new Error(res.msg))
           }
         })
         .catch((err) => {
+          // 同步时网络异常
           console.error(`同步钱包交易信息失败: ${err.message}`)
           reject(err)
         })
@@ -146,9 +166,8 @@ function submitTransInfo(info) {
     start += step
     end += step
   }
-  while (start < transLength)
-
-  queue.consume()
+  while (start < transLength) // 一次行生成该地址下所有的同步任务
+  queue.consume() // 执行同步任务队列
 }
 
 export default async (startBlockNumber = 0, endBlockNumber, type = 'account') => {
@@ -160,7 +179,7 @@ export default async (startBlockNumber = 0, endBlockNumber, type = 'account') =>
     default:
       accounts = await connect.eth.getAccounts()
         .catch((err) => {
-          console.error(`获取本地账户信息失败：${err.message}`)
+          console.error(`获取本地账户信息失败: ${err.message}`)
           process.exit(0)
         })
       break
@@ -169,58 +188,64 @@ export default async (startBlockNumber = 0, endBlockNumber, type = 'account') =>
       break
   }
 
-  let queue = await getTransactionsByAccounts(connect.eth, accounts, startBlockNumber, endBlockNumber, (transCollection) => {
-    console.log(`共计 ${transCollection.size} 个钱包账户:`)
-    transCollection
-      .forEach((address) => {
-        let detail = transCollection[address]
-        if (detail.trans.length > 0) {
-          console.log(`扫描 ${address} 下 ${detail.trans.length} 条转账细节...`)
-          let transactions = []
-          let receiptQueue = new ParallelQueue({
-            limit: 20,
-            onFinished: () => {
-              console.log(`扫描 ${address} 转账细节成功，即将发送...`)
-              detail.trans = transactions
-              submitTransInfo(detail)
-            },
-          })
+  let transCollection = await getTransactionsByAccounts(connect.eth, accounts, startBlockNumber, endBlockNumber, type === 'contract')
 
-          detail
-            .trans
-            .forEach(({ txid, value, input }) => {
-              receiptQueue.add(new TaskCapsule(
-                () => new Promise(async (resolve, reject) => {
+  console.log(`共计 ${transCollection.size} 个钱包账户:`)
 
-                  let { from: fromAddress, to, cumulativeGasUsed, gasUsed, blockNumber } = await connect
-                    .eth
-                    .getTransactionReceipt(txid)
-                    .catch((err) => {
-                      reject(new Error(`获取转账明细失败: ${err.message}`))
-                    })
+  transCollection
+    .forEach((address) => {
+      // 获取钱包地址的详细信息
+      let detail = transCollection[address]
+      // 判断该地址下的交易记录的数量是否为空
+      if (detail.trans.length > 0) {
+        console.log(`扫描 ${address} 下 ${detail.trans.length} 条转账细节...`)
+        // 交易记录详情
+        let transactions = []
+        // 交易详情查询异步任务队列
+        let receiptQueue = new ParallelQueue({
+          limit: 20,
+          onFinished: () => {
+            console.log(`扫描 ${address} 转账细节成功，即将发送...`)
+            detail.trans = transactions
+            submitTransInfo(detail)
+          },
+        })
 
-                  transactions.push({
-                    block: blockNumber,
-                    txid,
-                    from: fromAddress,
-                    to,
-                    cumulativeGasUsed,
-                    gasUsed,
-                    value,
-                    input,
+        detail
+          .trans
+          .forEach(({ txid, value, input }) => {
+            // 创建查询交易记录详情的异步任务
+            receiptQueue.add(new TaskCapsule(
+              () => new Promise(async (resolve, reject) => {
+                let { from: fromAddress, to, cumulativeGasUsed, gasUsed, blockNumber } = await connect
+                  .eth
+                  .getTransactionReceipt(txid)
+                  .catch((err) => {
+                    reject(new Error(`获取转账明细失败: ${err.message}`))
                   })
 
-                  resolve()
+                // 将交易详情信息添加到队列中
+                transactions.push({
+                  block: blockNumber,
+                  txid,
+                  from: fromAddress,
+                  to,
+                  cumulativeGasUsed,
+                  gasUsed,
+                  ethTransterred: +value,
+                  tokenTransferred: decodeTransferInput(input)[2],
                 })
-              ))
-            })
+                resolve()
+              })
+            ))
+          })
 
-          receiptQueue.consume()
-        } else {
-          submitTransInfo(detail)
-        }
-      })
-  }, type === 'contract')
-
-  queue.consume()
+        // 执行交易详情的任务队列
+        receiptQueue.consume()
+      } else {
+        // 没有交易记录的账户
+        // 直接提交账户余额等信息
+        submitTransInfo(detail)
+      }
+    })
 }

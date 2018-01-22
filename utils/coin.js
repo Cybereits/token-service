@@ -146,3 +146,51 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
     return true
   }
 }
+
+/**
+ * 通过输入的数值计算得出对应的代币数量
+ * @param {string|number} inputBigNumber 输入的大数值
+ */
+export function getTokenAmountByBigNumber(inputBigNumber) {
+  let _bigNumber = +inputBigNumber
+  if (isNaN(_bigNumber)) {
+    if (typeof inputBigNumber === 'string') {
+      if (inputBigNumber.indexOf('0x') !== 0) {
+        // 默认加上16进制的前缀
+        _bigNumber = +`0x${inputBigNumber}`
+        if (isNaN(_bigNumber)) {
+          // 如果非有效数值则返回 0
+          return 0
+        }
+      }
+    } else {
+      // 不知道传入的是个什么类型,返回 0
+      return 0
+    }
+  }
+  return _bigNumber / multiplier
+}
+
+/**
+ * 解析交易记录中的 input 参数
+ * @param {string} inputStr input 参数字符串
+ * @returns {Array} 解析后的参数数组
+ */
+export function decodeTransferInput(inputStr) {
+  // Transfer转账的数据格式
+  // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
+  let str = inputStr.toString()
+  let seperator = '00000000000000000000000'  // 23个0
+  if (str.length >= 10) {
+    let arr = str.split(seperator)
+    // 参数解析后
+    // 第一个参数是函数的id 16进制格式，不需要改变
+    // 第二个参数是转入地址，加 0x 前缀转换成有效地址
+    arr[1] = `0x${arr[1]}`
+    // 第三个参数是交易的代币数量 需要转换成有效数值
+    arr[2] = getTokenAmountByBigNumber(arr[2])
+    return arr
+  } else {
+    return [str]
+  }
+}
