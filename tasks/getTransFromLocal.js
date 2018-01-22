@@ -233,7 +233,7 @@ export default async (startBlockNumber = 0, endBlockNumber, type = 'account') =>
                   cumulativeGasUsed,
                   gasUsed,
                   ethTransterred: +value,
-                  tokenTransferred: decodeTransferInput(input)[2],
+                  tokenTransferred: decodeTransferInput(input)[2] || 0,
                 })
                 resolve()
               })
