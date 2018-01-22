@@ -1,10 +1,11 @@
 import web3 from '../framework/web3'
 import { TaskCapsule, ParallelQueue } from '../utils/task'
+import { getTokenBalance } from '../utils/coin'
 
 let taskQueue = new ParallelQueue({
   limit: 3,
   onFinished: () => {
-    console.log('finished!')
+    console.log('-'.repeat(100))
     process.exit(0)
   },
 })
@@ -14,19 +15,26 @@ async function getBalance() {
   let listAccounts = await connect.eth.getAccounts()
   listAccounts.forEach((address) => {
     taskQueue.add(new TaskCapsule(() =>
-      new Promise((resolve, reject) => {
-        connect.eth.getBalance(address)
-          .then((amount) => {
-            console.log(`钱包地址 ${address} eth 余额 ${connect.eth.extend.utils.fromWei(amount, 'ether')}`)
-            resolve()
-          })
+      new Promise(async (resolve, reject) => {
+        let amount = await connect.eth.getBalance(address)
           .catch((ex) => {
             console.error(`get address eth balance failded: ${address}`)
             reject(ex)
           })
+        let creAmount = await getTokenBalance(address)
+          .catch((ex) => {
+            console.error(`get address eth balance failded: ${address}`)
+            reject(ex)
+          })
+        let ethAmount = connect.eth.extend.utils.fromWei(amount, 'ether').toString().split('').concat(new Array(30).fill(' ')).slice(0, 30).join('')
+        console.log(`${address}\t${ethAmount}\t${creAmount}`)
+        resolve()
       })
     ))
   })
+  console.log('-'.repeat(100))
+  console.log('钱包地址\t\t\t\t\teth 余额\t\t\tcre 余额')
+  console.log('-'.repeat(100))
   taskQueue.consume()
 }
 
