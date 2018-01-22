@@ -232,7 +232,7 @@ export default async (startBlockNumber = 0, endBlockNumber, type = 'account') =>
                   to,
                   cumulativeGasUsed,
                   gasUsed,
-                  ethTransterred: +value,
+                  ethTransterred: connect.eth.extend.utils.fromWei(value, 'ether'),
                   tokenTransferred: decodeTransferInput(input)[2] || 0,
                 })
                 resolve()
