@@ -3,7 +3,7 @@ import Input from 'prompt-input'
 import web3 from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
 import Model from '../server/schemas'
-
+import { ParallelQueue, TaskCapsule } from '../utils/task'
 import { getReturnBackInfo, submitReturnBackSendResult } from '../apis/phpApis'
 
 const userReturnBackModel = Model.userReturnBackInfo()
@@ -14,7 +14,6 @@ let connect
 let walletAddress
 let walletSecret
 let transInfo
-let trans
 let statistics = {
   total: 0,
   succ: 0,
@@ -47,7 +46,13 @@ const errLogAndExit = (err) => {
   process.exit(-1)
 }
 
-const prepareTransInfo = async () => {
+const prepareTransInfo = () => new Promise(async (resolve) => {
+
+  let validData = []
+  let queue = new ParallelQueue({
+    limit: 1,
+    onFinished: () => resolve(validData),
+  })
 
   // fetch return info from server
   let data = await getReturnBackInfo()
@@ -56,20 +61,37 @@ const prepareTransInfo = async () => {
       process.exit(-1)
     })
 
-  userReturnBackModel({
-
-  }).save((err) => {
-    if (err) {
-      console.error(`[WTF] save market snapshot failed. ${err.message}`)
-    } else {
-      console.log('[Data] synchronoused successfully.')
-    }
+  data.forEach((entity) => {
+    queue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
+      let dataToSave = {
+        refId: entity.id,
+        regAddress: entity.reg_address,
+        sysAddress: entity.sys_address,
+        regAmount: entity.reg_amount,
+        acceptAmount: entity.accept_amount,
+        receiveAmount: entity.receive_amount,
+        returnAmount: entity.return_amount,
+        name: entity.name,
+        email: entity.email,
+        mobile: entity.mobile,
+        coinType: entity.coin_type,
+        status: 0,
+        txid: '',
+      }
+      let existEntity = await userReturnBackModel.findOne({ refId: dataToSave.refId })
+      if (existEntity) {
+        console.log(`用户 ${dataToSave.name} 数据重复获取，已忽略`)
+        resolve()
+      } else {
+        await userReturnBackModel.create(dataToSave).catch(reject)
+        validData.push(dataToSave)
+        resolve()
+      }
+    })))
   })
 
-  // data = transInfo.filter(t => sentAddresses.indexOf(t.reg_address) === -1)
-
-  return data
-}
+  queue.consume()
+})
 
 const init = async () => {
   connect = await web3.onWs
@@ -82,14 +104,14 @@ const init = async () => {
   walletSecret = await sendWalletPwdPrompt.run()
     .catch(errLogAndExit)
 
-  trans = transInfo.map(({ name, reg_address, return_amount }) => ({ name, address: reg_address, amount: (+return_amount).toFixed(2) }))
+  return transInfo.map(({ name, regAddress, returnAmount }) => ({ name, address: regAddress, amount: (+returnAmount).toFixed(2) }))
 }
 
 const main = async () => {
 
-  await init()
+  let transColl = await init()
 
-  if (trans && trans.length > 0) {
+  if (transColl && transColl.length > 0) {
 
     walletAddress = (walletAddress && walletAddress.trim()) || deployOwnerAddr
     walletSecret = (walletSecret && walletSecret.trim()) || deployOwnerSecret
@@ -100,22 +122,22 @@ const main = async () => {
       name: 'confirm',
       message: `确认 [输入 Y 确认, 任意键取消]
       转出钱包地址: ${walletAddress}
-      共计: ${trans.length} 笔
+      共计: ${transColl.length} 笔
       -------------------------
-      ${trans.map(({ address, amount }) => `  姓名:${name}\t\t数量: ${amount}\t\t钱包地址: ${address}`).join('\n')}`,
+      ${transColl.map(({ address, amount }) => `  姓名:${name}\t\t数量: ${amount}\t\t钱包地址: ${address}`).join('\n')}`,
     })
 
     let confirmEnter = await confirm.run()
       .catch(errLogAndExit)
 
     if (confirmEnter && confirmEnter.toLowerCase() === 'y') {
-      statistics.total += trans.length
+      statistics.total += transColl.length
 
       let succCollection = []
 
       let submitResult = () => {
-        if (trans.length > succCollection.length) {
-          console.warn(`共执行${trans.length}笔转账,确认成功发出的只有${succCollection.length}笔,请手动核实!!!`)
+        if (transColl.length > succCollection.length) {
+          console.warn(`共执行${transColl.length}笔转账,确认成功发出的只有${succCollection.length}笔,请手动核实!!!`)
           console.log('同步发送结果...请稍后')
           submitReturnBackSendResult(succCollection)
             .then(() => { errLogAndExit() })
@@ -150,7 +172,7 @@ const main = async () => {
         }
       }
 
-      let proms = trans.map(({ name, address, amount }) =>
+      let proms = transColl.map(({ name, address, amount }) =>
         new Promise((resolve, reject) => {
           console.log(`开始发送 姓名: ${name} 钱包地址: ${address} amount: ${amount}`)
           connect

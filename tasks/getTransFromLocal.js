@@ -14,14 +14,14 @@ const walletTransInfoModel = Model.walletTransInfo()
 
 async function saveToDb(data) {
   let { address, eth, cre, trans } = data
-  let exsistEntity = await walletTransInfoModel.findOne({ address })
-  if (exsistEntity) {
-    exsistEntity.eth = eth
-    exsistEntity.cre = cre
+  let existEntity = await walletTransInfoModel.findOne({ address })
+  if (existEntity) {
+    existEntity.eth = eth
+    existEntity.cre = cre
     // 拼接并去重 transaction 集合
-    exsistEntity.trans = [...new Set(exsistEntity.trans.concat(trans))]
+    existEntity.trans = [...new Set(existEntity.trans.concat(trans))]
     walletTransInfoModel
-      .update({ address }, exsistEntity)
+      .update({ address }, existEntity)
       .then(() => {
         console.log(`save wallet transactions succ : ${address}`)
       })
