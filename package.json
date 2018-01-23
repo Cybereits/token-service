@@ -15,7 +15,9 @@
     "total": "node ./tasks getTotal",
     "dtc": "node ./tasks deployTokenContract",
     "dev-task": "node ./tasks",
-    "prd-task": "NODE_ENV=production node ./tasks"
+    "prd-task": "NODE_ENV=production node ./tasks",
+    "exportTransactionsAsCsv": "mongoexport --db ethService --collection wallettransinfos --type=csv --fields address,eth,cre,trans --out walletTransactions.csv",
+    "exportTransactionsAsJson": "mongoexport --db ethService --collection wallettransinfos --fields address,eth,cre,trans --out walletTransactions.json"
   },
   "dependencies": {
     "babel-core": "^6.26.0",
@@ -36,8 +38,9 @@
     "koa-router": "^7.1.1",
     "koa-static": "^3.0.0",
     "koa-views": "^5.2.1",
-    "mongoose": "^5.0.1",
+    "mongoose": "^4.11.6",
     "node-schedule": "^1.2.5",
+    "prompt-checkbox": "^2.2.0",
     "prompt-input": "^3.0.0",
     "properties-reader": "0.0.16",
     "request": "^2.83.0",

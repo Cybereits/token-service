@@ -39,6 +39,7 @@ function _request(method, url, params) {
             if (err) {
                 return reject(new Error(
                     `request api failed! error: ${err} method: ${method} url: ${url} params: ${JSON.stringify(params, null, 4)}`,
+                    // `request api failed! error: ${err} method: ${method} url: ${url}`,
                 ))
             }
 

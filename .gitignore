@@ -8,3 +8,5 @@ config/const.js
 config/address.json
 
 contracts/token.json
+
+walletTransactions.*

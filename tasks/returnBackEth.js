@@ -2,11 +2,13 @@ import Input from 'prompt-input'
 
 import web3 from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
+import Model from '../server/schemas'
 
 import { getReturnBackInfo, submitReturnBackSendResult } from '../apis/phpApis'
 
+const userReturnBackModel = Model.userReturnBackInfo()
+
 // 已发送过的地址
-let sentAddresses = []
 let sentTransactions = []
 let connect
 let walletAddress
@@ -45,16 +47,34 @@ const errLogAndExit = (err) => {
   process.exit(-1)
 }
 
-const init = async () => {
-  connect = await web3.onWs
+const prepareTransInfo = async () => {
 
-  transInfo = await getReturnBackInfo()
+  // fetch return info from server
+  let data = await getReturnBackInfo()
     .catch((err) => {
       console.log(err)
       process.exit(-1)
     })
 
-  transInfo = transInfo.filter(t => sentAddresses.indexOf(t.reg_address) === -1)
+  userReturnBackModel({
+
+  }).save((err) => {
+    if (err) {
+      console.error(`[WTF] save market snapshot failed. ${err.message}`)
+    } else {
+      console.log('[Data] synchronoused successfully.')
+    }
+  })
+
+  // data = transInfo.filter(t => sentAddresses.indexOf(t.reg_address) === -1)
+
+  return data
+}
+
+const init = async () => {
+  connect = await web3.onWs
+
+  transInfo = await prepareTransInfo()
 
   walletAddress = await sendWalletPrompt.run()
     .catch(errLogAndExit)
@@ -79,10 +99,10 @@ const main = async () => {
     let confirm = new Input({
       name: 'confirm',
       message: `确认 [输入 Y 确认, 任意键取消]
-转出钱包地址: ${walletAddress}
-共计: ${trans.length} 笔
--------------------------
-${trans.map(({ address, amount }) => `  姓名:${name}\t\t数量: ${amount}\t\t钱包地址: ${address}`).join('\n')}`,
+      转出钱包地址: ${walletAddress}
+      共计: ${trans.length} 笔
+      -------------------------
+      ${trans.map(({ address, amount }) => `  姓名:${name}\t\t数量: ${amount}\t\t钱包地址: ${address}`).join('\n')}`,
     })
 
     let confirmEnter = await confirm.run()
@@ -99,40 +119,40 @@ ${trans.map(({ address, amount }) => `  姓名:${name}\t\t数量: ${amount}\t\t�
           console.log('同步发送结果...请稍后')
           submitReturnBackSendResult(succCollection)
             .then(() => { errLogAndExit() })
-            .catch(() => { errLogAndExit() })
-        }
-        console.log('同步发送结果...请稍后')
-        submitReturnBackSendResult(succCollection)
-          .then(async () => {
-            let continueConfirm = new Input({
-              name: 'continue',
-              message: `同步发送结果完成!
-成功转账:
---------------------------------------------------------------------------------------------
-钱包地址\t\t\t\t\t\t数量\t\ttxid
---------------------------------------------------------------------------------------------
-${succCollection.map(({ address, amount, txid }) => `${address}\t${amount}\t\t${txid}`).join('\n')}
---------------------------------------------------------------------------------------------
-继续? [输入 Y 确认，任意键取消]`,
-            })
-            let continueResult = await continueConfirm
-              .run()
-              .catch(errLogAndExit)
+            .catch(errLogAndExit)
+        } else {
+          console.log('同步发送结果...请稍后')
+          submitReturnBackSendResult(succCollection)
+            .then(async () => {
+              let continueConfirm = new Input({
+                name: 'continue',
+                message: `同步发送结果完成!
+              成功转账:
+              --------------------------------------------------------------------------------------------
+              钱包地址\t\t\t\t\t\t数量\t\ttxid
+              --------------------------------------------------------------------------------------------
+              ${succCollection.map(({ address, amount, txid }) => `${address}\t${amount}\t\t${txid}`).join('\n')}
+              --------------------------------------------------------------------------------------------
+              继续? [输入 Y 确认，任意键取消]`,
+              })
+              let continueResult = await continueConfirm
+                .run()
+                .catch(errLogAndExit)
 
-            if (continueResult && continueResult.toLowerCase() === 'y') {
-              main()
-            } else {
-              logResult()
-              process.exit(0)
-            }
-          })
-          .catch(errLogAndExit)
+              if (continueResult && continueResult.toLowerCase() === 'y') {
+                main()
+              } else {
+                logResult()
+                process.exit(0)
+              }
+            })
+            .catch(errLogAndExit)
+        }
       }
 
       let proms = trans.map(({ name, address, amount }) =>
         new Promise((resolve, reject) => {
           console.log(`开始发送 姓名: ${name} 钱包地址: ${address} amount: ${amount}`)
-          sentAddresses.push(address)
           connect
             .eth
             .personal

@@ -73,6 +73,8 @@ ETH service for cybereits internal usage.
   - fromAddress 转出钱包的地址（默认是 deployOwnerAddr）
   - secret 转出钱包的秘钥（默认是 deployOwnerSecret）
 - unlock 解锁团队锁仓份额, 接受参数 index 表示解锁团队钱包地址的序号：1-6
+- exportTransactionsAsCsv 以 csv 格式导出本地数据库存储的钱包地址转账数据到项目根目录的 walletTransactions.csv
+- exportTransactionsAsJson 以 json 格式导出本地数据库存储的钱包地址转账数据到项目根目录的 walletTransactions.json
 
 ## 常量配置说明
 
