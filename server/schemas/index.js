@@ -27,18 +27,10 @@ const userReturnBackInfo = mongoose.Schema({
     type: Number,
     index: true,
   },
-  // 白名单注册的用户钱包地址
-  regAddress: String,
-  // 系统分配的钱包地址
-  sysAddress: String,
-  // 注册数量
-  regAmount: Number,
-  // 系统接收数量
-  acceptAmount: Number,
-  // 客户转入数量
-  receiveAmount: Number,
+  // 钱包地址
+  address: String,
   // 返还数量
-  returnAmount: Number,
+  amount: Number,
   // 用户姓名
   name: String,
   // 邮箱地址
@@ -48,6 +40,11 @@ const userReturnBackInfo = mongoose.Schema({
   // 代币类型
   coinType: String,
   // 状态
+  // 0 表示待发送
+  // 1 表示已发送
+  // 2 表示已成功
+  // -1 表示取消发送
+  // -2 表示发送失败
   status: Number,
   // transaction hash
   txid: String,
@@ -57,6 +54,8 @@ const userReturnBackInfo = mongoose.Schema({
     default: Date.now(),
   },
 })
+
+// let t = { "refId": 307, "address": "0xe85aD77c0d3657FDda3Ca74ED6f499C3f21b83d0", "amount": 0.1, "name": "葛云飞", "email": "geyunfei@kakamf.com", "mobile": "13521510781", "coinType": "ETH", "status": -1, "txid": "" }
 
 export default {
   userReturnBackInfo: () => connection.model('userReturnBackInfo', userReturnBackInfo),

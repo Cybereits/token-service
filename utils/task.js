@@ -160,8 +160,12 @@ export class ParallelQueue extends TaskQueue {
 
   consume() {
     if (this[prepareToBegin]()) {
-      for (let _i = 0; _i < this.limitation; _i += 1) {
-        this[start]()
+      if (this.queue.length > 0) {
+        for (let _i = 0; _i < this.limitation; _i += 1) {
+          this[start]()
+        }
+      } else {
+        this[execAmountChange](0)
       }
     } else {
       console.warn('not able to consume')
@@ -207,7 +211,11 @@ export class SerialQueue extends TaskQueue {
 
   consume() {
     if (this[prepareToBegin]()) {
-      this[start]()
+      if (this.queue.length > 0) {
+        this[start]()
+      } else {
+        this[execAmountChange](0)
+      }
     } else {
       console.warn('not able to consume')
     }
