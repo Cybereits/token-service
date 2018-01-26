@@ -1,4 +1,5 @@
-import { TaskCapsule, ParallelQueue } from '../utils/task'
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
+
 import addr from '../config/address.json'
 import web3 from '../framework/web3'
 import { getBalance } from '../apis/etherscanApis'

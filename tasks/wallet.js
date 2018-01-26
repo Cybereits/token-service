@@ -1,4 +1,5 @@
-import { TaskCapsule, ParallelQueue } from '../utils/task'
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
+
 import { postBalances } from '../apis/phpApis'
 import web3 from '../framework/web3'
 

@@ -57,9 +57,10 @@ ETH service for cybereits internal usage.
 - getTotal 通过 ehterscan.io 的 api 接口查询 addr.json 文件中指定钱包地址内的 eth 总量，即 `yarn total`
 - getTransaction 查询本地生成账户中的 eth 数量, 即 `yarn transaction`
 - getTransFromLocal 扫描本地生成账户和指定的区块区间，生成对应账户的 eth，cre 余额和所有的 transactions
-  - startBlockNumber 扫描的开始区块高度 默认 `0`
-  - endBlockNumber 扫描的结束区块高度 默认当前最新 如果指定为 `''` 则使用默认值
   - type 扫描的账户类型 默认 `account` 可以指定为 `contract` 则扫描代币合约地址的所有 transactions
+  - startBlockNumber 扫描的开始区块高度 默认为上一次扫描完成的位置
+  - endBlockNumber 扫描的结束区块高度 默认当前最新
+  - force 强制重新扫描已扫描的区块
 - returnBackEth 从服务器获取需要退回的以太钱包地址和数量 并批量退回
 - wallet 从 php 服务器获取要查询的地址列表，通过本地的 geth 客户端查询地址中的 eth 数量 (每五分钟一次的定时任务)，即 `yarn wallet`
 - sendETH 发起 eth 转账，接受参数 `toAddress, amount, fromAddress, secret` 分别代表:

@@ -1,9 +1,10 @@
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
+
 import Input from 'prompt-input'
 import Checkbox from 'prompt-checkbox'
 import web3 from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
 import Model from '../server/schemas'
-import { ParallelQueue, TaskCapsule } from '../utils/task'
 import { getEthReturnBackInfo, syncReturnBackTransactionSentStatus } from '../apis/phpApis'
 
 const userReturnBackModel = Model.userReturnBackInfo()

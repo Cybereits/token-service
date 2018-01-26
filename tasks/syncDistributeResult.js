@@ -1,3 +1,5 @@
+import { TaskCapsule, SerialQueue } from 'async-task-manager'
+
 import {
   getERC20TokenAccountBalance,
 } from '../apis/etherscanApis'
@@ -6,8 +8,6 @@ import {
   getDistributeSentInfo,
   syncTokenSendingSucc,
 } from '../apis/phpApis'
-
-import { SerialQueue, TaskCapsule } from '../utils/task'
 
 export default async () => {
   // 获取已经发送过的地址信息

@@ -1,5 +1,6 @@
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
+
 import web3 from '../framework/web3'
-import { TaskCapsule, ParallelQueue } from '../utils/task'
 import { getTokenBalance } from '../utils/coin'
 
 let taskQueue = new ParallelQueue({

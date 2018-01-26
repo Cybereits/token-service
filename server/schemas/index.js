@@ -6,6 +6,7 @@ const walletTransInfo = mongoose.Schema({
   address: {
     type: String,
     index: true,
+    unique: true,
   },
   eth: Number,
   cre: Number,
@@ -51,7 +52,19 @@ const userReturnBackInfo = mongoose.Schema({
   // 用户创建日期
   createdate: {
     type: Date,
-    default: Date.now(),
+    default: new Date(),
+  },
+})
+
+const blockScanLog = mongoose.Schema({
+  blockNum: {
+    type: Number,
+    index: true,
+    unique: true,
+  },
+  scanTime: {
+    type: Date,
+    default: new Date(),
   },
 })
 
@@ -60,4 +73,5 @@ const userReturnBackInfo = mongoose.Schema({
 export default {
   userReturnBackInfo: () => connection.model('userReturnBackInfo', userReturnBackInfo),
   walletTransInfo: () => connection.model('walletTransInfo', walletTransInfo),
+  blockScanLog: () => connection.model('blockScanLog', blockScanLog),
 }

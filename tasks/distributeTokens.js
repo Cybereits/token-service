@@ -1,10 +1,11 @@
+import { SerialQueue, TaskCapsule } from 'async-task-manager'
+
 import {
   getDistributeTokenInfo,
   syncTokenSent,
 } from '../apis/phpApis'
 
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
-import { SerialQueue, TaskCapsule } from '../utils/task'
 import { sendToken } from '../utils/coin'
 
 export default async () => {
