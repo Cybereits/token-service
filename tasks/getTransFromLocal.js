@@ -25,19 +25,21 @@ async function saveTrans(data) {
   if (existEntity) {
     existEntity.eth = eth
     existEntity.cre = cre
+    let existTxids = existEntity.trans.map(t => t.txid)
     // 拼接并去重 transaction 集合
-    existEntity.trans = [...new Set(existEntity.trans.concat(trans))]
-    walletTransInfoModel
-      .update({ address }, existEntity)
-      .catch((err) => {
-        console.error(`save wallet transaction failed: ${err}`)
-      })
+    trans.forEach((transaction) => {
+      if (existTxids.indexOf(transaction.txid) === -1) {
+        existTxids.push(transaction.txid)
+        existEntity.trans.push(transaction)
+      }
+    })
+    existEntity.save().catch((err) => {
+      console.error(`save wallet transaction failed: ${err}`)
+    })
   } else {
-    walletTransInfoModel(data)
-      .save()
-      .catch((err) => {
-        console.error(`save wallet transaction failed: ${err}`)
-      })
+    walletTransInfoModel(data).save().catch((err) => {
+      console.error(`save wallet transaction failed: ${err}`)
+    })
   }
 }
 

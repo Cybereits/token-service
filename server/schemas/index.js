@@ -68,8 +68,6 @@ const blockScanLog = mongoose.Schema({
   },
 })
 
-// let t = { "refId": 307, "address": "0xe85aD77c0d3657FDda3Ca74ED6f499C3f21b83d0", "amount": 0.1, "name": "葛云飞", "email": "geyunfei@kakamf.com", "mobile": "13521510781", "coinType": "ETH", "status": -1, "txid": "" }
-
 export default {
   userReturnBackInfo: () => connection.model('userReturnBackInfo', userReturnBackInfo),
   walletTransInfo: () => connection.model('walletTransInfo', walletTransInfo),
