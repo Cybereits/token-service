@@ -1,6 +1,6 @@
-# eth-service
+# token-service
 
-ETH service for cybereits internal usage.
+基于以太坊钱包的 ERC-20 代币相关服务
 
 > 在接下来的说明中指令 `yarn` 可被替换做 `npm run`
 
