@@ -80,7 +80,7 @@
   - toAddress 归集接收钱包地址
   - fromAddress 转出钱包的地址（默认是 deployOwnerAddr）
   - secret 转出钱包的秘钥（默认是 deployOwnerSecret）
-  - adjust 溢价百分比，例如指定 20，则实际使用的油量是当前油量的 120%
+  - adjust 溢价百分比，例如指定 20，则实际使用的油量是当前油量的 120%（默认是 0）
 - transferAllToken 归集 ERC-20 代币到指定钱包地址
   - gatherAddress 归集接收钱包地址
   - targetAddress 持有代币的钱包地址（默认是 deployOwnerAddr）
