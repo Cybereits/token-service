@@ -76,6 +76,17 @@
 - unlock 解锁团队锁仓份额, 接受参数 index 表示解锁团队钱包地址的序号：1-6
 - exportTransactionsAsCsv 以 csv 格式导出本地数据库存储的钱包地址转账数据到项目根目录的 walletTransactions.csv
 - exportTransactionsAsJson 以 json 格式导出本地数据库存储的钱包地址转账数据到项目根目录的 walletTransactions.json
+- transferAllEth 归集 eth 到指定钱包地址
+  - toAddress 归集接收钱包地址
+  - fromAddress 转出钱包的地址（默认是 deployOwnerAddr）
+  - secret 转出钱包的秘钥（默认是 deployOwnerSecret）
+  - adjust 溢价百分比，例如指定 20，则实际使用的油量是当前油量的 120%
+- transferAllToken 归集 ERC-20 代币到指定钱包地址
+  - gatherAddress 归集接收钱包地址
+  - targetAddress 持有代币的钱包地址（默认是 deployOwnerAddr）
+  - targetAddrSecret 持有代币钱包的私钥（默认是 deployOwnerSecret）
+  - fromAddr 拨划油费的钱包地址（默认是 deployOwnerAddr）
+  - fromAddrSecret 拨划邮费的钱包私钥（默认是 deployOwnerSecret）
 
 ## 常量配置说明
 

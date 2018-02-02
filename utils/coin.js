@@ -93,8 +93,10 @@ export async function getTokenBalanceFullInfo(userAddress) {
  * @param {*} passWord 发送代币地址的秘钥
  * @param {*} toAddress 接收代币的钱包地址
  * @param {*} amount 发送代币数量
+ * @param {*} gas 油费
+ * @param {*} gasPrice 油价
  */
-export async function sendToken(fromAddress, passWord, toAddress, amount) {
+export async function sendToken(fromAddress, passWord, toAddress, amount, gas, gasPrice) {
   let amountInt = +amount
   if (amountInt > 100000000) {
     throw new Error('单笔转账不得超过一亿代币')
@@ -132,16 +134,12 @@ export async function sendToken(fromAddress, passWord, toAddress, amount) {
       .transfer(toAddress, _sendAmount)
       .send({
         from: fromAddress,
+        gas: gas,
+        gasPrice: gasPrice,
       })
       .catch((err) => {
         throw new Error(err.message)
       })
-
-    // console.info('锁定账户')
-    // await lockAccount(connect, fromAddress)
-    //   .catch((err) => {
-    //     throw new Error(err.message)
-    //   })
 
     return true
   }
