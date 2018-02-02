@@ -3,7 +3,7 @@ import schedule from 'node-schedule'
 
 import web3 from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
-import { getTokenBalance, sendToken } from '../utils/coin'
+import { getTokenBalance, sendToken, estimateGasOfSendToken } from '../utils/coin'
 
 export default async (
   gatherAddress,
@@ -36,7 +36,13 @@ export default async (
   gUsed = new BN(gUsed)
 
   let txCost = gPrice.mul(gUsed)
-  let transAmount = txCost
+  let creAmount = await getTokenBalance(targetAddress)
+    .catch((ex) => {
+      console.error(`get address eth balance failded: ${targetAddress}`)
+      process.exit(-1)
+    })
+  let transAmount = await estimateGasOfSendToken(gatherAddress, creAmount)
+  console.log(`估算转出代币的油费 ${transAmount}`)
 
   console.log(`
   账户余额\t${total.toString(10)}\n
@@ -58,12 +64,6 @@ export default async (
     }, fromAddrSecret)
     .catch((err) => {
       console.error(err)
-      process.exit(-1)
-    })
-
-  let creAmount = await getTokenBalance(targetAddress)
-    .catch((ex) => {
-      console.error(`get address eth balance failded: ${targetAddress}`)
       process.exit(-1)
     })
 

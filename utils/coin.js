@@ -146,6 +146,29 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
 }
 
 /**
+ * 估算发送代币所需油费
+ * @param {string} toAddress 转入地址
+ * @param {number} amount 发送代币数量
+ */
+export async function estimateGasOfSendToken(toAddress, amount) {
+
+  let connect = await web3.onWs
+    .catch((err) => {
+      throw new Error(err.message)
+    })
+
+  let tokenContract = await getTokenContract(connect)
+    .catch((err) => {
+      throw new Error(err.message)
+    })
+
+  return tokenContract
+    .methods
+    .transfer(toAddress, amount)
+    .estimateGas()
+}
+
+/**
  * 通过输入的数值计算得出对应的代币数量
  * @param {string|number} inputBigNumber 输入的大数值
  */
