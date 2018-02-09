@@ -16,7 +16,6 @@ export default async (
   secret = deployOwnerSecret,
   adjust = 0
 ) => {
-  console.log(secret)
   console.assert(toAddress, '接收地址不能为空!')
 
   let connect = await web3.onWs
@@ -59,10 +58,6 @@ export default async (
       gas: gUsed.toString(10),
       gasPrice: gPrice.toString(10),
     }, secret)
-    .then((res) => {
-      console.log('success!')
-      return res
-    })
     .catch((err) => {
       console.error(err)
       throw err
