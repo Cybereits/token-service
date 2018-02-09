@@ -55,3 +55,16 @@ export const getEthReturnBackInfo = () => request.get(`${apiServer}/eth_return`)
 export const syncReturnBackTransactionSentStatus = ids => request.post(`${apiServer}/eth_sending`, {
   data: ids,
 })
+
+// 获取需要归集的钱包地址信息
+export const getEthGatherAddrList = (amount) => {
+  console.log(`${apiServer}/ethsend/${amount || ''}`)
+  return request.get(`${apiServer}/ethsend/${amount || ''}`)
+    .then((res) => {
+      if (+res.code === 0) {
+        return res['data']
+      } else {
+        throw new Error(`请求需要归集的 eth 钱包信息失败：${JSON.stringify(res, null, 4)}`)
+      }
+    })
+}

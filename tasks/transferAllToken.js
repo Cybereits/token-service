@@ -41,16 +41,14 @@ export default async (
       console.error(`get address eth balance failded: ${targetAddress}`)
       process.exit(-1)
     })
-  let transAmount = await estimateGasOfSendToken(gatherAddress, creAmount)
-  console.log(`估算转出代币的油费 ${transAmount}`)
 
-  console.log(`
-  账户余额\t${total.toString(10)}\n
-  油费\t${gPrice.toString(10)}\n
-  用量\t${gUsed.toString(10)}\n
-  总花费\t${txCost.toString(10)}\n
-  实际发送数量\t${transAmount.toString(10)}\n
-  `)
+  let transAmount = await estimateGasOfSendToken(gatherAddress, creAmount)
+
+  console.log(`账户余额\t${total.toString(10)}\n
+油费\t${gPrice.toString(10)}\n
+用量\t${gUsed.toString(10)}\n
+总花费\t${txCost.toString(10)}\n
+实际发送数量\t${transAmount.toString(10)}`)
 
   let txid = await connect
     .eth
@@ -73,11 +71,10 @@ export default async (
     console.log('执行检验...')
     let ethAmount = await connect.eth.getBalance(targetAddress)
     if (+ethAmount >= +transAmount.toString(10)) {
-      console.log('检验成功,油费已到账,执行归集...')
+      console.log(`检验成功,油费已到账,执行归集 from ${targetAddress} to ${gatherAddress}`)
       sendToken(targetAddress, targetAddrSecret, gatherAddress, creAmount, gUsed.toString(10), gPrice.toString(10))
         .then((res) => {
-          console.log('归集成功!')
-          console.log(res)
+          console.log(`归集成功! from ${targetAddress} to ${gatherAddress}`)
           setTimeout(() => {
             process.exit(0)
           }, 3000)
@@ -87,7 +84,7 @@ export default async (
           process.exit(-1)
         })
     } else {
-      console.log('归集执行账户油钱尚未到账，取消本次归集操作')
+      console.log(`归集执行账户油钱尚未到账，取消本次归集操作 from ${targetAddress} to ${gatherAddress}`)
     }
   })
 }

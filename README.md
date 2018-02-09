@@ -87,6 +87,10 @@
   - targetAddrSecret 持有代币钱包的私钥（默认是 deployOwnerSecret）
   - fromAddr 拨划油费的钱包地址（默认是 deployOwnerAddr）
   - fromAddrSecret 拨划邮费的钱包私钥（默认是 deployOwnerSecret）
+- gatherEth 从服务器获取要归集的钱包地址并归集到指定钱包地址
+  - gatherAddress 归集接受钱包地址
+  - amount 本次批处理的数量
+  - secret 批处理钱包的私钥（默认是 deployOwnerSecret）
 
 ## 常量配置说明
 

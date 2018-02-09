@@ -16,6 +16,7 @@ export default async (
   secret = deployOwnerSecret,
   adjust = 0
 ) => {
+  console.log(secret)
   console.assert(toAddress, '接收地址不能为空!')
 
   let connect = await web3.onWs
@@ -42,15 +43,13 @@ export default async (
   let txCost = gPrice.mul(gUsed).mul(100 + adjust).div(100)
   let transAmount = total.minus(txCost)
 
-  console.log(`
-  账户余额\t${total.toString(10)}\n
-  油费\t${gPrice.toString(10)}\n
-  用量\t${gUsed.toString(10)}\n
-  总花费\t${txCost.toString(10)}\n
-  实际发送数量\t${transAmount.toString(10)}\n
-  `)
+  console.log(`账户余额\t${total.toString(10)}\n
+油费\t${gPrice.toString(10)}\n
+用量\t${gUsed.toString(10)}\n
+总花费\t${txCost.toString(10)}\n
+实际发送数量\t${transAmount.toString(10)}`)
 
-  connect
+  return connect
     .eth
     .personal
     .sendTransaction({
@@ -62,11 +61,10 @@ export default async (
     }, secret)
     .then((res) => {
       console.log('success!')
-      console.log(res)
-      process.exit(0)
+      return res
     })
     .catch((err) => {
       console.error(err)
-      process.exit(-1)
+      throw err
     })
 }
