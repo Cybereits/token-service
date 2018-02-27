@@ -1,5 +1,5 @@
 import web3 from '../framework/web3'
-import { getTokenBalanceFullInfo } from '../utils/coin'
+import { getTokenBalanceFullInfo } from '../utils/token'
 import { deployOwnerAddr } from '../config/const'
 
 async function creatAccount(ctx) {

@@ -1,5 +1,5 @@
 import ContractEvents, { deployContractEventListeners } from '../core/contractListeners'
-import { sendToken } from '../utils/coin'
+import { sendToken } from '../utils/token'
 import {
   deployOwnerAddr,
   deployOwnerSecret,

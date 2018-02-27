@@ -2,7 +2,7 @@ import { TaskCapsule, ParallelQueue, SerialQueue } from 'async-task-manager'
 
 import web3 from '../framework/web3'
 import { postTransactions } from '../apis/phpApis'
-import { getTokenBalance, decodeTransferInput } from '../utils/coin'
+import { getTokenBalance, decodeTransferInput } from '../utils/token'
 import { address as contractAddress } from '../contracts/token.json'
 import Model from '../core/schemas'
 

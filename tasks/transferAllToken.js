@@ -3,7 +3,7 @@ import schedule from 'node-schedule'
 
 import web3 from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
-import { getTokenBalance, sendToken, estimateGasOfSendToken } from '../utils/coin'
+import { getTokenBalance, sendToken, estimateGasOfSendToken } from '../utils/token'
 
 export default async (
   gatherAddress,

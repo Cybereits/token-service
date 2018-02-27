@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { subscribeContractAllEvents } from '../utils/contract'
-import { getTokenContract } from '../utils/coin'
+import { getTokenContract } from '../utils/token'
 import web3 from '../framework/web3'
 
 const ContractEvents = new EventEmitter()

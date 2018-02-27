@@ -4,7 +4,7 @@ import { unlockAccount } from '../utils/basic'
 
 import {
   getSubContract,
-} from '../utils/coin'
+} from '../utils/token'
 
 import {
   gas,
