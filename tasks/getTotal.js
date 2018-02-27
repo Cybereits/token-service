@@ -1,6 +1,5 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import addr from '../config/address.json'
 import web3 from '../framework/web3'
 import { getBalance } from '../apis/etherscanApis'
 
@@ -15,6 +14,7 @@ const taskQueue = new ParallelQueue({
 
 async function getTotal() {
   let connect = await web3.onWs
+  let addr = require('../config/address.json')
   if (addr.length > 0) {
     for (let i = 0; i < addr.length; i += 1) {
       taskQueue.add(
