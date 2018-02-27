@@ -4,7 +4,7 @@ import web3 from '../framework/web3'
 import { postTransactions } from '../apis/phpApis'
 import { getTokenBalance, decodeTransferInput } from '../utils/coin'
 import { address as contractAddress } from '../contracts/token.json'
-import Model from '../server/schemas'
+import Model from '../core/schemas'
 
 // 同步交易记录时每次交易数量的限制
 const step = 50

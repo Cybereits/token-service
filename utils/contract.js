@@ -75,11 +75,36 @@ export function updateContractData(fileName, modifier) {
 
 /**
  * 订阅合约事件
- * @param {*} contract 合约对象
- * @param {*} handlerFunc 事件处理函数
+ * @param {object} contract 合约对象
+ * @param {function} handlerFunc 事件处理函数
  */
-export function subscribeContractEvents(contract, handlerFunc) {
-  contract.events.allEvents({ fromBlock: 0, toBlock: 'latest' }, handlerFunc && handlerFunc())
+export function subscribeContractAllEvents(contract, handlerFunc) {
+  if (typeof handlerFunc !== 'function') {
+    return
+  }
+  contract.events.allEvents({ fromBlock: 0, toBlock: 'latest' }, handlerFunc)
+}
+
+/**
+ * 订阅合约事件
+ * @param {object} contract 合约对象
+ * @param {function} handlerFunc 事件处理函数
+ * @param {string} eventName 事件名称
+ * @param {object|null} filter 事件的过滤器
+ */
+export function subscribeContractEvent(contract, handlerFunc, eventName, filters) {
+  if (typeof handlerFunc !== 'function') {
+    return
+  }
+  let contractEvent = contract.events[eventName]
+  if (contractEvent) {
+    let event = contractEvent(filters)
+    event.watch(handlerFunc)
+    return event
+  } else {
+    console.error(`Invalid contract event ${eventName}`)
+    return false
+  }
 }
 
 /**
@@ -122,6 +147,7 @@ export async function createAndDeployContract(contractCode, contractAbi, deployA
   // 记录合约地址
   compiledContract.options.address = newContractInstance.options.address
 
+  // 监听合约事件
   // subscribeContractEvents(compiledContract, (error, event) => {
   //   if (error) {
   //     console.error(error)

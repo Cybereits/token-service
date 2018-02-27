@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-import connection from '../../framework/dbProviders/mongo'
+import connection from '../framework/dbProviders/mongo'
 
 const walletTransInfo = mongoose.Schema({
   address: {

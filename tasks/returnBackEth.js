@@ -4,7 +4,7 @@ import Input from 'prompt-input'
 import Checkbox from 'prompt-checkbox'
 import web3 from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
-import Model from '../server/schemas'
+import Model from '../core/schemas'
 import { getEthReturnBackInfo, syncReturnBackTransactionSentStatus } from '../apis/phpApis'
 
 const userReturnBackModel = Model.userReturnBackInfo()
