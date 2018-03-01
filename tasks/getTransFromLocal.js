@@ -1,6 +1,6 @@
 import { TaskCapsule, ParallelQueue, SerialQueue } from 'async-task-manager'
 
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 import { postTransactions } from '../apis/phpApis'
 import { getTokenBalance, decodeTransferInput } from '../utils/token'
 import { address as contractAddress } from '../contracts/token.json'
@@ -11,8 +11,6 @@ const step = 50
 
 // 提交信息的并行任务数量限制
 const postParallelLimitation = 2
-
-let connect
 
 /**
  * 保存交易详情到本地
@@ -160,18 +158,18 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
                     if (fromAddress === accountAddr || to === accountAddr) {
                       transQueue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
                         let {
-                            from: fromAddress,
+                          from: fromAddress,
                           to,
                           cumulativeGasUsed,
                           gasUsed,
                           blockNumber,
-                          } = await connect
-                            .eth
-                            .getTransactionReceipt(hash)
-                            .catch((err) => {
-                              console.error(`获取转账明细失败: ${err.message}`)
-                              reject(err)
-                            })
+                        } = await connect
+                          .eth
+                          .getTransactionReceipt(hash)
+                          .catch((err) => {
+                            console.error(`获取转账明细失败: ${err.message}`)
+                            reject(err)
+                          })
 
                         // 将交易详情信息添加到队列中
                         transactionSet[accountAddr].trans.push({
@@ -298,7 +296,6 @@ function submitTransInfo(info, callback) {
 }
 
 export default async (type = 'account', startBlockNumber = 0, endBlockNumber, isForce) => {
-  connect = await web3.onWs
   endBlockNumber = endBlockNumber || await connect.eth.getBlockNumber()
 
   let accounts

@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node bin/www",
     "lint": "bash ./eslint.sh",
-    "dev": "NODE_ENV=development pm2 start bin/www",
-    "dev-schedule": "WITH_SCHEDULE=true NODE_ENV=development ./node_modules/.bin/nodemon bin/www",
+    "dev": "NODE_ENV=development pm2 start bin/www --watch server",
+    "dev-schedule": "WITH_SCHEDULE=true NODE_ENV=development ./node_modules/.bin/nodemon bin/www --watch server",
     "prd": "NODE_ENV=production pm2 start bin/www",
     "prd-schedule": "WITH_SCHEDULE=true NODE_ENV=production pm2 start bin/www",
     "wallet": "node ./tasks wallet",

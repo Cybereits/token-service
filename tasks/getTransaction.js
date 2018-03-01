@@ -1,14 +1,13 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
+import { connect } from '../framework/web3'
 import { postTransactions } from '../apis/phpApis'
-import web3 from '../framework/web3'
 import { getTransaction } from '../apis/etherscanApis'
 
 let transactionList = []
 let count = 0
 
 async function getLocalAccounts() {
-  let connect = await web3.onWs
   let [listAccounts, code, msg] = [[], 200, '']
   try {
     code = 200
@@ -41,7 +40,6 @@ const taskQueue = new ParallelQueue({
 })
 
 async function getListTransaction() {
-  let connect = await web3.onWs
   let listAccounts = await getLocalAccounts()
   let list = listAccounts.listAccounts
   transactionList = []

@@ -1,4 +1,4 @@
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 
 import { unlockAccount } from '../utils/basic'
 
@@ -20,7 +20,6 @@ import {
 } from '../config/const'
 
 export default async (index) => {
-  let connect = await web3.onWs
   let unlockAddr = ''
 
   switch (+index) {

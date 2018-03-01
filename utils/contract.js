@@ -5,7 +5,7 @@ import {
   gas,
   gasPrice,
 } from '../config/const'
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 
 /**
  * 记录智能合约编译后的 json 数据
@@ -130,7 +130,6 @@ async function deploy(connect, contract, code, deployAccount, accountPwd, contra
  * @param {*} contractArguments 部署合约的参数数组
  */
 export async function createAndDeployContract(contractCode, contractAbi, deployAccount, accountPwd, contractArguments) {
-  let connect = await web3.onWs
   // 创建合约对象
   let compiledContract = new connect.eth.Contract(contractAbi)
   let result = await deploy(connect, compiledContract, contractCode, deployAccount, accountPwd, contractArguments)

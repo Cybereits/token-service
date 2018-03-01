@@ -1,7 +1,7 @@
 import BN from 'bignumber.js'
 import schedule from 'node-schedule'
 
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
 import { getTokenBalance, sendToken, estimateGasOfSendToken } from '../utils/token'
 
@@ -13,8 +13,6 @@ export default async (
   fromAddrSecret = deployOwnerSecret,
 ) => {
   console.assert(gatherAddress, '归集地址不能为空!')
-
-  let connect = await web3.onWs
 
   let total = await connect.eth.getBalance(fromAddress).catch((ex) => {
     console.error(`get address eth balance failded: ${fromAddress}`)

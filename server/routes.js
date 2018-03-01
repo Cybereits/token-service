@@ -1,12 +1,16 @@
 import Router from 'koa-router'
-import controllers from './controllers'
+import { create, list } from './actions/account'
+import { queryEthBalance, queryOfficialTokenBalance, queryTokenBalance } from './actions/balance'
 
 const router = new Router()
 
-router.get('/creatAccount', controllers.creatAccount)
-router.get('/listAccounts', controllers.listAccounts)
-router.get('/getBalance', controllers.getBalance)
-router.get('/queryTokenBalance', controllers.queryTokenBalance)
-router.get('/officialBalance', controllers.queryOfficialTokenBalance)
+// 钱包相关
+router.post('/account/create', create)
+router.get('/account/list', list)
+
+// 余额相关
+router.get('/balance/queryEth', queryEthBalance)
+router.get('/balance/queryToken', queryTokenBalance)
+router.get('/balance/queryOfficialToken', queryOfficialTokenBalance)
 
 module.exports = router

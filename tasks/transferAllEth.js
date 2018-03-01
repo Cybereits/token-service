@@ -1,5 +1,6 @@
 import BN from 'bignumber.js'
-import web3 from '../framework/web3'
+
+import { connect } from '../framework/web3'
 
 import {
   deployOwnerAddr,
@@ -17,8 +18,6 @@ export default async (
   adjust = 0
 ) => {
   console.assert(toAddress, '接收地址不能为空!')
-
-  let connect = await web3.onWs
 
   let total = await connect.eth.getBalance(fromAddress).catch((ex) => {
     console.error(`get address eth balance failded: ${fromAddress}`)

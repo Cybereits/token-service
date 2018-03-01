@@ -1,5 +1,5 @@
 import bignumber from 'bignumber.js'
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 
 import {
   unlockAccount,
@@ -61,7 +61,6 @@ export async function balanceOf(connect, contract = null, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
-  let connect = await web3.onWs
   let tokenContract = await getTokenContract(connect)
   let userBalance = await balanceOf(connect, tokenContract, userAddress)
   return userBalance
@@ -74,7 +73,6 @@ export async function getTokenBalance(userAddress) {
 export async function getTokenBalanceFullInfo(userAddress) {
   let tokenContractData = require('../contracts/token.json')
   const tokenContractAddress = tokenContractData.address[0]
-  let connect = await web3.onWs
   let tokenContract = await getTokenContract(connect)
   let tokenTotalAmount = await getTotal(connect, tokenContract)
   let userBalance = await balanceOf(connect, tokenContract, userAddress)
@@ -107,12 +105,6 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
     let _amount = bignumber(amountInt.toFixed(5))
 
     let _sendAmount = _amount.times(multiplier)
-
-    console.info('建立转账链接')
-    let connect = await web3.onWs
-      .catch((err) => {
-        throw new Error(err.message)
-      })
 
     console.info('读取代币合约')
     let tokenContract = await getTokenContract(connect)
@@ -151,11 +143,6 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
  * @param {number} amount 发送代币数量
  */
 export async function estimateGasOfSendToken(toAddress, amount) {
-
-  let connect = await web3.onWs
-    .catch((err) => {
-      throw new Error(err.message)
-    })
 
   let tokenContract = await getTokenContract(connect)
     .catch((err) => {

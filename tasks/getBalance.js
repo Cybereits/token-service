@@ -1,6 +1,6 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 import { getTokenBalance } from '../utils/token'
 
 let taskQueue = new ParallelQueue({
@@ -12,7 +12,6 @@ let taskQueue = new ParallelQueue({
 })
 
 async function getBalance() {
-  let connect = await web3.onWs
   let listAccounts = await connect.eth.getAccounts()
   listAccounts.forEach((address) => {
     taskQueue.add(new TaskCapsule(() =>

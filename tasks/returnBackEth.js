@@ -1,8 +1,8 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
-
 import Input from 'prompt-input'
 import Checkbox from 'prompt-checkbox'
-import web3 from '../framework/web3'
+
+import { connect } from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
 import Model from '../core/schemas'
 import { getEthReturnBackInfo, syncReturnBackTransactionSentStatus } from '../apis/phpApis'
@@ -11,7 +11,6 @@ const userReturnBackModel = Model.userReturnBackInfo()
 
 // 已发送过的地址
 let sentTransactions = []
-let connect
 let walletAddress
 let walletSecret
 let transInfo
@@ -93,7 +92,6 @@ const prepareTransInfo = () => new Promise(async (resolve) => {
 })
 
 const init = async (fetchDataFromServer, status) => {
-  connect = await web3.onWs
 
   if (fetchDataFromServer) {
     transInfo = await prepareTransInfo()

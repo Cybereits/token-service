@@ -1,11 +1,10 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { postBalances } from '../apis/phpApis'
-import web3 from '../framework/web3'
+import { connect } from '../framework/web3'
 
 async function getListAccounts() {
   console.log('获取账户列表')
-  let connect = await web3.onWs
   let [listAccounts, code, msg] = [[], 200, '']
   try {
     code = 200
@@ -22,7 +21,6 @@ async function getListAccounts() {
 }
 
 async function getBalance(address) {
-  let connect = await web3.onWs
   let [user, code, msg, amount] = [{}, 200, '', '']
   try {
     code = 200
