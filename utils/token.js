@@ -118,7 +118,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         throw new Error(err.message)
       })
 
-    console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${_amount}`)
+    console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${_amount} gas ${gas} gasPrice ${gasPrice}`)
 
     // 由于以太网络可能出现拥堵，所以现在只要发送过程中没有异常即视作成功
     tokenContract
