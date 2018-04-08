@@ -13,4 +13,4 @@ router.get('/balance/queryEth', queryEthBalance)
 router.get('/balance/queryToken', queryTokenBalance)
 router.get('/balance/queryOfficialToken', queryOfficialTokenBalance)
 
-module.exports = router
+export default router

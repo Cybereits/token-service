@@ -1,16 +1,12 @@
-require('babel-register')({
-  presets: ['es2015', 'stage-0'],
-})
+import Koa from 'koa'
+import json from 'koa-json'
+import onerror from 'koa-onerror'
+import bodyparser from 'koa-bodyparser'
+import logger from 'koa-logger'
 
-const Koa = require('koa')
+import index from './routes'
 
 const app = new Koa()
-const json = require('koa-json')
-const onerror = require('koa-onerror')
-const bodyparser = require('koa-bodyparser')
-const logger = require('koa-logger')
-
-const index = require('./routes')
 
 // error handler
 onerror(app)

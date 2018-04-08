@@ -39,14 +39,18 @@ export default async () => {
     distributeAddrColl
       .forEach(({ address, amount }) => {
         queue.add(
-          new TaskCapsule(
-            () => sendToken(deployOwnerAddr, deployOwnerSecret, address, amount)
+          new TaskCapsule(new Promise(async (resolve, reject) => {
+            let txId = await sendToken(deployOwnerAddr, deployOwnerSecret, address, amount)
               .catch((ex) => {
                 console.log(`发送代币失败: ${ex.message} 移除 address: ${address} amount: ${amount}`)
                 // 过滤掉失败的地址
                 sentAddr = sentAddr.filter(t => t !== address)
+                return false
               })
-          )
+            if (!txId) {
+              reject()
+            }
+          }))
         )
       })
 
