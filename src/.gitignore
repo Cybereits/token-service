@@ -1,0 +1,13 @@
+node_modules/
+
+*.log
+
+geth-node/
+
+config/const.js
+config/address.json
+config/env.js
+
+contracts/token.json
+
+walletTransactions.*

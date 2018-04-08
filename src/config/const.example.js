@@ -1,0 +1,15 @@
+export const etherScanApi = 'https://api.etherscan.io/api'
+export const apikey = ''
+export const deployOwnerAddr = ''
+export const deployOwnerSecret = ''
+export const gas = 3000000
+export const gasPrice = '300000000000'
+export const tokenSupply = 1000000000
+export const contractDecimals = 18
+export const teamLockPercent = 30
+export const teamAddr01 = ''
+export const teamAddr02 = ''
+export const teamAddr03 = ''
+export const teamAddr04 = ''
+export const teamAddr05 = ''
+export const teamAddr06 = ''
