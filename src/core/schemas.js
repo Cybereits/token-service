@@ -68,8 +68,29 @@ const blockScanLog = mongoose.Schema({
   },
 })
 
+const prizeInfo = mongoose.Schema({
+  // 钱包地址
+  ethAddress: {
+    type: String,
+    index: true,
+  },
+  // 奖励数量
+  prize: {
+    type: Number,
+  },
+  // 发放状态
+  status: {
+    type: Number,
+  },
+  // 奖励类型
+  type: {
+    type: String,
+  },
+})
+
 export default {
   userReturnBackInfo: () => connection.model('userReturnBackInfo', userReturnBackInfo),
   walletTransInfo: () => connection.model('walletTransInfo', walletTransInfo),
   blockScanLog: () => connection.model('blockScanLog', blockScanLog),
+  prizeInfo: () => connection.model('prizeInfo', prizeInfo),
 }

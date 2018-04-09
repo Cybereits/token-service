@@ -1,22 +1,13 @@
 import Koa from 'koa'
-import json from 'koa-json'
-import onerror from 'koa-onerror'
-import bodyparser from 'koa-bodyparser'
-import logger from 'koa-logger'
-
-import index from './routes'
+import router from './routes'
+import cors from 'koa2-cors'
 
 const app = new Koa()
 
-// error handler
-onerror(app)
-
-// middlewares
-app.use(bodyparser({
-  enableTypes: ['json', 'form', 'text'],
+app.use(cors({
+  origin: '*',
+  credentials: true,
 }))
-app.use(json())
-app.use(logger())
 
 // logger
 app.use(async (ctx, next) => {
@@ -27,11 +18,6 @@ app.use(async (ctx, next) => {
 })
 
 // routes
-app.use(index.routes(), index.allowedMethods())
+app.use(router.routes(), router.allowedMethods())
 
-// error-handling
-app.on('error', (err, ctx) => {
-  console.error('server error', err, ctx)
-})
-
-module.exports = app
+export default app
