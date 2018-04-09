@@ -5,6 +5,7 @@
   "scripts": {
     "start": "cd ./src; npm run dev",
     "poststart": "cd ../app; npm run start",
-    "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run start"
+    "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run start",
+    "dev-geth": "cd ./src; bash geth.dev.sh"
   }
 }
