@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
 import connection from '../framework/dbProviders/mongo'
+import { STATUS, PRIZE_TYPES } from './enums'
 
 const walletTransInfo = mongoose.Schema({
   address: {
@@ -73,18 +74,24 @@ const prizeInfo = mongoose.Schema({
   ethAddress: {
     type: String,
     index: true,
+    required: true,
   },
   // 奖励数量
   prize: {
     type: Number,
+    required: true,
   },
   // 发放状态
   status: {
     type: Number,
+    default: STATUS.pending,
+    required: true,
   },
   // 奖励类型
   type: {
     type: String,
+    default: PRIZE_TYPES.default,
+    required: true,
   },
 })
 

@@ -3,9 +3,10 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAccount, getAccountList } from './fields/accounts'
+import { createAccount, getAccountList } from './fields/account'
 import { queryTokenBalance, queryEthBalance } from './fields/balance'
-import { createPrizeInfo, getPrizeList } from './fields/prize'
+import { initPrizeInfo, createPrizeInfo, getPrizeList } from './fields/prize'
+import { commonStatusEnum, prizeTypeEnum } from './fields/enum'
 
 // 通用的修改功能
 const queries = new Obj({
@@ -17,6 +18,8 @@ const queries = new Obj({
     queryTokenBalance,
     queryEthBalance,
     getPrizeList,
+    commonStatusEnum,
+    prizeTypeEnum,
   },
 })
 
@@ -24,6 +27,7 @@ const mutations = new Obj({
   name: 'Mutations',
   description: '修改接口',
   fields: {
+    initPrizeInfo,
     createPrizeInfo,
   },
 })

@@ -1,11 +1,15 @@
 import {
   GraphQLInt as int,
-  GraphQLList as List,
+  GraphQLString as str,
 } from 'graphql'
 
 import Model from '../../../core/schemas'
+import data0 from '../../../../prize.json'
+import data1 from '../../../../prize1.json'
 
-import { prizeInfo, inputPrizeInfo, STATUS, PRIZE_TYPES } from '../types/plainTypes'
+import { STATUS, PRIZE_TYPES } from '../../../core/enums'
+import { prizeInfo, inputPrizeInfo, filterPrizeInfo } from '../types/plainTypes'
+import { PaginationWrapper } from '../types/complexTypes'
 
 export const createPrizeInfo = {
   type: prizeInfo,
@@ -15,18 +19,29 @@ export const createPrizeInfo = {
       type: inputPrizeInfo,
     },
   },
-  async resolve(root, { term: { ethAddress, prize = 0 } }) {
+  async resolve(root, { term: { ethAddress, prize = 0, type } }) {
     return Model.prizeInfo().create({
       ethAddress,
       prize,
-      type: PRIZE_TYPES.default,
+      type: type || PRIZE_TYPES.default,
       status: STATUS.pending,
     })
   },
 }
 
+export const initPrizeInfo = {
+  type: str,
+  description: '从文件初始化奖励信息',
+  async resolve() {
+    await Model.prizeInfo().remove()
+    await Model.prizeInfo().create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
+    await Model.prizeInfo().create(data1.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
+    return 'success'
+  },
+}
+
 export const getPrizeList = {
-  type: new List(prizeInfo),
+  type: PaginationWrapper(prizeInfo),
   description: '查询奖励信息',
   args: {
     pageIndex: {
@@ -37,8 +52,33 @@ export const getPrizeList = {
       type: int,
       description: '页容',
     },
+    filter: {
+      type: filterPrizeInfo,
+      description: '过滤条件',
+    },
   },
-  async resolve(root, { pageIndex = 0, pageSize = 10 }) {
-    return Model.prizeInfo().find().skip(pageIndex * pageSize).limit(pageSize)
+  async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
+    let result = null
+    let total = 0
+
+    if (pageSize <= 0) {
+      throw new TypeError('pageSize 必须为有效正整数')
+    }
+
+    if (filter) {
+      total = await Model.prizeInfo().find(filter).count()
+      result = await Model.prizeInfo().find(filter).skip(pageIndex * pageSize).limit(pageSize)
+    } else {
+      total = await Model.prizeInfo().find(filter).count()
+      result = await Model.prizeInfo().find(filter).skip(pageIndex * pageSize).limit(pageSize)
+    }
+
+    return {
+      total,
+      pageIndex,
+      pageSize,
+      pageCount: Math.ceil(total / pageSize),
+      items: result,
+    }
   },
 }
