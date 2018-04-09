@@ -1,12 +1,13 @@
 import {
   GraphQLString as str,
   GraphQLFloat as float,
-  GraphQLList as List,
+  GraphQLInt as int,
 } from 'graphql'
 
 import { connect } from '../../../framework/web3'
 import { getTokenBalance } from '../../../utils/token'
 import { balanceDetail } from '../types/plainTypes'
+import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 export const queryTokenBalance = {
   type: float,
@@ -38,16 +39,21 @@ export const queryEthBalance = {
 }
 
 export const queryAllBalance = {
-  type: new List(balanceDetail),
+  type: PaginationWrapper(balanceDetail),
   description: '查询账户下的代币余额',
   args: {
-    address: {
-      type: str,
-      description: '要查询的地址',
+    pageIndex: {
+      type: int,
+      description: '页码',
+    },
+    pageSize: {
+      type: int,
+      description: '页容',
     },
   },
-  async resolve(root, { address }) {
+  async resolve(root, { pageIndex = 0, pageSize = 10 }) {
     let listAccounts = await connect.eth.getAccounts()
+    listAccounts = listAccounts.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
     let result = []
     let promises = listAccounts.map(address => new Promise(async (resolve, reject) => {
       let amount = await connect.eth.getBalance(address).catch(reject)
@@ -63,6 +69,6 @@ export const queryAllBalance = {
       resolve()
     }))
 
-    return Promise.all(promises).then(() => result)
+    return Promise.all(promises).then(() => PaginationResult(result, pageIndex, pageSize, listAccounts.length))
   },
 }

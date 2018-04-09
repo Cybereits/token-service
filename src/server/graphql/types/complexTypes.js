@@ -14,7 +14,7 @@ const PaginationData = new Obj({
       type: int,
       description: '条目总数',
     },
-    pageIndex: {
+    current: {
       type: int,
       description: '页码',
     },
@@ -30,7 +30,7 @@ const PaginationData = new Obj({
 })
 
 // eslint-disable-next-line
-export const PaginationWrapper = (innerType, name = 'PaginationList', description = '标准分页数据类型') => {
+export const PaginationWrapper = (innerType) => {
 
   if (!innerType) {
     throw new TypeError('First arguments [innerType] is required and should be a GraphqlObjectType instance.')
@@ -38,8 +38,8 @@ export const PaginationWrapper = (innerType, name = 'PaginationList', descriptio
 
   if (!cache[innerType]) {
     let type = new Obj({
-      name,
-      description,
+      name: `${innerType.name}_pagination`,
+      description: `分页数据 - ${innerType.description}`,
       fields: {
         pagination: {
           type: PaginationData,
@@ -62,7 +62,6 @@ export const PaginationWrapper = (innerType, name = 'PaginationList', descriptio
  * @param {array<object>} list 列表数据
  * @param {number} pageIndex 当前查询页码
  * @param {number} pageSize 当前查询的页容
- * @param {number} pageCount 当前查询的结果页数量
  * @param {number} total 当前查询的结果条目数量
  */
-export const PaginationResult = (list, pageIndex, pageSize, pageCount, total) => ({ pagination: { total, pageCount, pageIndex, pageSize }, list: list })
+export const PaginationResult = (list, pageIndex, pageSize, total) => ({ pagination: { total, pageCount: Math.ceil(total / pageSize), current: pageIndex, pageSize }, list: list })

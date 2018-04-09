@@ -73,6 +73,6 @@ export const getPrizeList = {
       result = await Model.prizeInfo().find(filter).skip(pageIndex * pageSize).limit(pageSize)
     }
 
-    return PaginationResult(result, pageIndex, pageSize, Math.ceil(total / pageSize), total)
+    return PaginationResult(result, pageIndex, pageSize, total)
   },
 }
