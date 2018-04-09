@@ -1,7 +1,7 @@
 import {
   GraphQLObjectType as Obj,
   GraphQLString as str,
-  // GraphQLList as List,
+  GraphQLList as List,
   GraphQLInt as int,
   GraphQLInputObjectType,
   GraphQLNonNull as notNull,
@@ -16,6 +16,30 @@ const statusKeys = Object.keys(STATUS)
 function getStatus(_value) {
   return statusKeys.filter(t => STATUS[t] === _value)[0]
 }
+
+export const hashResult = new Obj({
+  name: 'hashResult',
+  description: '键值对结果',
+  fields: {
+    name: { type: str, description: '名称' },
+    value: { type: str, description: '值' },
+  },
+})
+
+export const balanceDetail = new Obj({
+  name: 'balanceDetail',
+  description: '账户详情',
+  fields: {
+    ethAddress: {
+      type: str,
+      description: '钱包地址',
+    },
+    balances: {
+      type: new List(hashResult),
+      description: '账户信息详情',
+    },
+  },
+})
 
 export const prizeInfo = new Obj({
   name: 'PrizeInfo',
@@ -58,14 +82,5 @@ export const filterPrizeInfo = new GraphQLInputObjectType({
     prize: { type: int, description: '奖励代币数量' },
     status: { type: int, description: '发放状态' },
     type: { type: str, description: '奖励类型' },
-  },
-})
-
-export const commonEnum = new Obj({
-  name: 'commonEnum',
-  description: '通用枚举类型',
-  fields: {
-    name: { type: str, description: '枚举名称' },
-    value: { type: str, description: '枚举值' },
   },
 })

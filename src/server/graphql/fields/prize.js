@@ -9,7 +9,7 @@ import data1 from '../../../../prize1.json'
 
 import { STATUS, PRIZE_TYPES } from '../../../core/enums'
 import { prizeInfo, inputPrizeInfo, filterPrizeInfo } from '../types/plainTypes'
-import { PaginationWrapper } from '../types/complexTypes'
+import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 export const createPrizeInfo = {
   type: prizeInfo,
@@ -73,12 +73,6 @@ export const getPrizeList = {
       result = await Model.prizeInfo().find(filter).skip(pageIndex * pageSize).limit(pageSize)
     }
 
-    return {
-      total,
-      pageIndex,
-      pageSize,
-      pageCount: Math.ceil(total / pageSize),
-      items: result,
-    }
+    return PaginationResult(result, pageIndex, pageSize, Math.ceil(total / pageSize), total)
   },
 }

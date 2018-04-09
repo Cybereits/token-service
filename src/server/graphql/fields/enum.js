@@ -3,13 +3,13 @@ import {
 } from 'graphql'
 
 import { STATUS, PRIZE_TYPES } from '../../../core/enums'
-import { commonEnum } from '../types/plainTypes'
+import { hashResult } from '../types/plainTypes'
 
 const statusMatrix = Object.entries(STATUS)
 const prizeTypeMatrix = Object.entries(PRIZE_TYPES)
 
 let EnumTypeGen = (desc, matrix) => ({
-  type: new List(commonEnum),
+  type: new List(hashResult),
   description: desc,
   async resolve() {
     return matrix.map(arr => ({ name: arr[0], value: arr[1] }))

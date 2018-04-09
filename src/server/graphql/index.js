@@ -4,7 +4,7 @@ import {
 } from 'graphql'
 
 import { createAccount, getAccountList } from './fields/account'
-import { queryTokenBalance, queryEthBalance } from './fields/balance'
+import { queryTokenBalance, queryEthBalance, queryAllBalance } from './fields/balance'
 import { initPrizeInfo, createPrizeInfo, getPrizeList } from './fields/prize'
 import { commonStatusEnum, prizeTypeEnum } from './fields/enum'
 
@@ -17,6 +17,7 @@ const queries = new Obj({
     getAccountList,
     queryTokenBalance,
     queryEthBalance,
+    queryAllBalance,
     getPrizeList,
     commonStatusEnum,
     prizeTypeEnum,
