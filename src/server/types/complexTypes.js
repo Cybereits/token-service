@@ -64,4 +64,4 @@ export const PaginationWrapper = (innerType) => {
  * @param {number} pageSize 当前查询的页容
  * @param {number} total 当前查询的结果条目数量
  */
-export const PaginationResult = (list, pageIndex, pageSize, total) => ({ pagination: { total, pageCount: Math.ceil(total / pageSize), current: pageIndex, pageSize }, list: list })
+export const PaginationResult = (list, pageIndex, pageSize, total) => ({ pagination: { total, pageCount: Math.ceil(total / pageSize), current: pageIndex + 1, pageSize }, list: list })

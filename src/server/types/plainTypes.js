@@ -9,13 +9,7 @@ import {
   // GraphQLBoolean as bool,
 } from 'graphql'
 
-import { STATUS } from '../../../core/enums'
-
-const statusKeys = Object.keys(STATUS)
-
-function getStatus(_value) {
-  return statusKeys.filter(t => STATUS[t] === _value)[0]
-}
+import { getStatus } from '../../core/enums'
 
 export const hashResult = new Obj({
   name: 'hashResult',
@@ -38,6 +32,14 @@ export const balanceDetail = new Obj({
       type: new List(hashResult),
       description: '账户信息详情',
     },
+  },
+})
+
+export const balanceFilter = new GraphQLInputObjectType({
+  name: 'balanceFilter',
+  description: 'Balance 查询过滤条件',
+  fields: {
+    ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
   },
 })
 

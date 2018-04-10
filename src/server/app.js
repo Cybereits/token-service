@@ -2,6 +2,7 @@ import Koa from 'koa'
 import cors from 'koa2-cors'
 
 import router from './routes'
+import startJobs from './jobs'
 
 const app = new Koa()
 
@@ -20,5 +21,7 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(router.routes(), router.allowedMethods())
+
+startJobs()
 
 export default app

@@ -106,21 +106,16 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
 
     let _sendAmount = _amount.times(multiplier)
 
-    console.info('读取代币合约')
     let tokenContract = await getTokenContract(connect)
       .catch((err) => {
         throw new Error(err.message)
       })
 
-    console.info('解锁账户')
     await unlockAccount(connect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
-    console.info(`开始发送代币 from ${fromAddress} to ${toAddress} amount ${_amount} gas ${gas} gasPrice ${gasPrice}`)
-
-    // 由于以太网络可能出现拥堵，所以现在只要发送过程中没有异常即视作成功
     return tokenContract
       .methods
       .transfer(toAddress, _sendAmount)
@@ -128,6 +123,10 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         from: fromAddress,
         gas: gas,
         gasPrice: gasPrice,
+      })
+      .then((data) => {
+        console.info(`广播代币转账信息\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${data.transactionHash}\n-------------`)
+        return data
       })
       .catch((err) => {
         throw new Error(err.message)

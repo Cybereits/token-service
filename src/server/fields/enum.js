@@ -2,7 +2,7 @@ import {
   GraphQLList as List,
 } from 'graphql'
 
-import { STATUS, PRIZE_TYPES } from '../../../core/enums'
+import { STATUS, PRIZE_TYPES } from '../../core/enums'
 import { hashResult } from '../types/plainTypes'
 
 const statusMatrix = Object.entries(STATUS)

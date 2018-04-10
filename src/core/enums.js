@@ -10,3 +10,9 @@ export const STATUS = {
 export const PRIZE_TYPES = {
   default: 'cre_token', // 默认奖励类型 - CRE 代币
 }
+
+const statusKeys = Object.keys(STATUS)
+
+export function getStatus(_value) {
+  return statusKeys.filter(t => STATUS[t] === _value)[0]
+}

@@ -3,22 +3,21 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAccount, getAccountList } from './fields/account'
-import { queryTokenBalance, queryEthBalance, queryAllBalance } from './fields/balance'
-import { initPrizeInfo, createPrizeInfo, getPrizeList } from './fields/prize'
+import { createAccount, createMultiAccount, queryAccountList } from './fields/account'
+import { queryAllBalance } from './fields/balance'
+import { initPrizeInfo, createPrizeInfo, queryPrizeList, handlePrizes } from './fields/prize'
 import { commonStatusEnum, prizeTypeEnum } from './fields/enum'
+import { queryContractAbi, deployTokenContract } from './fields/contract'
 
 // 通用的修改功能
 const queries = new Obj({
   name: 'Queries',
   description: '查询接口',
   fields: {
-    createAccount,
-    getAccountList,
-    queryTokenBalance,
-    queryEthBalance,
+    queryAccountList,
     queryAllBalance,
-    getPrizeList,
+    queryContractAbi,
+    queryPrizeList,
     commonStatusEnum,
     prizeTypeEnum,
   },
@@ -29,7 +28,11 @@ const mutations = new Obj({
   description: '修改接口',
   fields: {
     initPrizeInfo,
+    handlePrizes,
+    createAccount,
+    createMultiAccount,
     createPrizeInfo,
+    deployTokenContract,
   },
 })
 

@@ -53,18 +53,7 @@
 
 支持的任务有：
 
-- abiArguments 从 token.json 中获取合约 abi，从 const.js 中获取合约编译时的参数，生成 abi-encoded arguments
-- deployTokenContract 部署代币合约，即 `npm run dtc`
-- getBalance 扫描本地所有账户，并返回 eth 及 cre 余额
-- getTotal 通过 ehterscan.io 的 api 接口查询 addr.json 文件中指定钱包地址内的 eth 总量，即 `npm run total`
-- getTransaction 查询本地生成账户中的 eth 数量, 即 `npm run transaction`
-- getTransFromLocal 扫描本地生成账户和指定的区块区间，生成对应账户的 eth，cre 余额和所有的 transactions
-  - type 扫描的账户类型 默认 `account` 可以指定为 `contract` 则扫描代币合约地址的所有 transactions
-  - startBlockNumber 扫描的开始区块高度 默认为上一次扫描完成的位置
-  - endBlockNumber 扫描的结束区块高度 默认当前最新
-  - force 强制重新扫描已扫描的区块
 - returnBackEth 从服务器获取需要退回的以太钱包地址和数量 并批量退回
-- wallet 从 php 服务器获取要查询的地址列表，通过本地的 geth 客户端查询地址中的 eth 数量 (每五分钟一次的定时任务)，即 `npm run wallet`
 - sendETH 发起 eth 转账，接受参数 `toAddress, amount, fromAddress, secret` 分别代表:
   - toAddress 转到的钱包地址
   - amount 转出数量（eth 数量，不是 wei）

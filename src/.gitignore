@@ -5,7 +5,6 @@ node_modules/
 geth-node/
 
 config/const.js
-config/address.json
 config/env.js
 
 contracts/token.json
