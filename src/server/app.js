@@ -1,6 +1,7 @@
 import Koa from 'koa'
-import router from './routes'
 import cors from 'koa2-cors'
+
+import router from './routes'
 
 const app = new Koa()
 
