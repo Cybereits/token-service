@@ -1,5 +1,11 @@
 import { stringify } from 'qs';
+import ApolloClient from 'apollo-boost';
+import gql from 'graphql-tag';
 import request from '../utils/request';
+
+const client = new ApolloClient({
+  uri: 'http://192.168.3.200:8010/graphql',
+});
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -76,4 +82,46 @@ export async function fakeRegister(params) {
 
 export async function queryNotices() {
   return request('/api/notices');
+}
+
+export async function getAccountList() {
+  return client
+    .query({
+      query: gql`
+        {
+          getAccountList
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function queryAllBalance() {
+  return client
+    .query({
+      query: gql`
+        {
+          queryAllBalance {
+            pagination {
+              total
+              current
+              pageSize
+              pageCount
+            }
+            list {
+              ethAddress
+              balances {
+                name
+                value
+              }
+            }
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
 }
