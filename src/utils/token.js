@@ -111,11 +111,13 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         throw new Error(err.message)
       })
 
+    console.log('解锁账户')
     await unlockAccount(connect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
+    console.log('发送代币')
     return tokenContract
       .methods
       .transfer(toAddress, _sendAmount)
