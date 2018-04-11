@@ -8,7 +8,6 @@
     "dev": "NODE_ENV=development pm2 start config/pm2.config.js",
     "prd": "NODE_ENV=production pm2 start config/pm2.config.js",
     "test": "node ./test",
-    "dev-geth": "bash geth.dev.sh",
     "dev-task": "node ./tasks",
     "prd-task": "NODE_ENV=production node ./tasks",
     "exportTransactionsAsCsv": "mongoexport --db ethService --collection wallettransinfos --type=csv --fields address,eth,cre,trans --out walletTransactions.csv",

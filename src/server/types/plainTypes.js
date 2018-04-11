@@ -64,6 +64,10 @@ export const prizeInfo = new Obj({
       type: str,
       description: '奖励类型',
     },
+    txid: {
+      type: str,
+      description: '交易 id',
+    },
   },
 })
 

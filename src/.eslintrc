@@ -114,6 +114,7 @@
       "optionalDependencies": false,
       "peerDependencies": false
     }],
+    "import/prefer-default-export": 0,
     "import/no-dynamic-require": 0,
     "indent": 0,
     "new-parens": 2,

@@ -1,11 +1,10 @@
 {
   "name": "token-service",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
-    "start": "cd ./src; npm run dev",
-    "poststart": "cd ../app; npm run start",
+    "prd": "cd ./src; npm run prd",
     "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run start",
-    "dev-geth": "cd ./src; bash geth.dev.sh"
+    "dev-geth": "cd ./src; bash geth.dev.sh",
+    "init": "cd ./src; mkdir -p geth-node; npm install; cd ../app; npm install;"
   }
 }

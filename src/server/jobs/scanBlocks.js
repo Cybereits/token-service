@@ -2,6 +2,7 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { connect } from '../../framework/web3'
 import { decodeTransferInput } from '../../utils/token'
+import { beginBlockHeight } from '../../config/const'
 import Model from '../../core/schemas'
 
 /**
@@ -118,8 +119,9 @@ async function getTransactions(startBlockNumber = 0, endBlockNumber, force = fal
 export default async function (job, done) {
   console.log('开始扫描区块，同步交易信息')
   // 截止到当前区块高度
+  let startBlockNumber = beginBlockHeight || 5419531
   let endBlockNumber = await connect.eth.getBlockNumber()
-  let taskQueue = await getTransactions(0, endBlockNumber, false)
+  let taskQueue = await getTransactions(startBlockNumber, endBlockNumber, false)
   await taskQueue
     .consume()
     .then(() => {

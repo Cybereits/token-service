@@ -2,6 +2,7 @@ export const etherScanApi = 'https://api.etherscan.io/api'
 export const apikey = ''
 export const deployOwnerAddr = ''
 export const deployOwnerSecret = ''
+export const beginBlockHeight = 5410000
 export const gas = 3000000
 export const gasPrice = '300000000000'
 export const tokenSupply = 1000000000
