@@ -34,9 +34,9 @@ export const queryAllBalance = {
     let total = listAccounts.length
     listAccounts = listAccounts.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
     let result = []
-    let promises = listAccounts.map(address => new Promise(async (resolve, reject) => {
-      let amount = await connect.eth.getBalance(address).catch(reject)
-      let creAmount = await getTokenBalance(address).catch(reject)
+    let promises = listAccounts.map(address => new Promise(async (resolve) => {
+      let amount = await connect.eth.getBalance(address).catch((ex) => { throw ex })
+      let creAmount = await getTokenBalance(address).catch((ex) => { throw ex })
       let ethAmount = connect.eth.extend.utils.fromWei(amount, 'ether')
       result.push({
         ethAddress: address,
@@ -48,6 +48,6 @@ export const queryAllBalance = {
       resolve()
     }))
 
-    return Promise.all(promises).then(() => PaginationResult(result, pageIndex, pageSize, total))
+    return Promise.all(promises).then(() => PaginationResult(result, pageIndex, pageSize, total), (ex) => { throw ex })
   },
 }
