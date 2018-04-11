@@ -10,3 +10,5 @@ config/env.js
 contracts/token.json
 
 walletTransactions.*
+
+.DS_Store
