@@ -111,13 +111,35 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         throw new Error(err.message)
       })
 
-    console.log('解锁账户')
     await unlockAccount(connect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
-    console.log('发送代币')
+    if (!gas) {
+      gas = await estimateGasOfSendToken(toAddress, amount)
+        .then((gasUsed) => {
+          console.log(`实时油费: [${gasUsed}]`)
+          return gasUsed
+        })
+        .catch((ex) => {
+          console.error(ex)
+        })
+    }
+
+    if (!gasPrice) {
+      gasPrice = await connect
+        .eth
+        .getGasPrice()
+        .then((price) => {
+          console.log(`实时油价: [${price}]`)
+          return price
+        })
+        .catch((ex) => {
+          console.error(`get gas price failded: ${fromAddress}`)
+        })
+    }
+
     return tokenContract
       .methods
       .transfer(toAddress, _sendAmount)
@@ -127,7 +149,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         gasPrice: gasPrice,
       })
       .then((data) => {
-        console.info(`广播代币转账信息\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${data.transactionHash}\n-------------`)
+        console.info(`广播代币转账信息\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${data.transactionHash}\ngas ${gas}\ngasPrice ${gasPrice}\n-------------`)
         return data
       })
       .catch((err) => {
