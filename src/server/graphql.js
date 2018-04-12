@@ -8,6 +8,7 @@ import { queryAllBalance } from './fields/balance'
 import { initPrizeInfo, createPrizeInfo, queryPrizeList, handlePrizes } from './fields/prize'
 import { commonStatusEnum, prizeTypeEnum } from './fields/enum'
 import { queryContractAbi, deployTokenContract } from './fields/contract'
+import { queryBatchTrasactionTasks, queryTxOperationRecords } from './fields/transactions'
 
 // 通用的修改功能
 const queries = new Obj({
@@ -20,6 +21,8 @@ const queries = new Obj({
     queryPrizeList,
     commonStatusEnum,
     prizeTypeEnum,
+    queryBatchTrasactionTasks,
+    queryTxOperationRecords,
   },
 })
 

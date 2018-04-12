@@ -1,12 +1,12 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { connect } from '../../framework/web3'
-import Model from '../../core/schemas'
+import { prizeInfoModel, transactionInfoModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
 
 // 获取发送中的交易
 function getOnSendingTxs() {
-  return Model.prizeInfo().find({ status: STATUS.sending })
+  return prizeInfoModel.find({ status: STATUS.sending })
 }
 
 /**
@@ -15,7 +15,7 @@ function getOnSendingTxs() {
  * @param {string} txid 交易id
  */
 async function isValidTransaction(heightLimit, txid) {
-  let count = await Model.transactionInfo().find({ txid, block: { $lt: heightLimit } }).count()
+  let count = await transactionInfoModel.find({ txid, block: { $lt: heightLimit } }).count()
   return count > 0
 }
 

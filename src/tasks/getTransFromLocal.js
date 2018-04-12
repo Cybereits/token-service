@@ -4,7 +4,7 @@ import { connect } from '../framework/web3'
 import { postTransactions } from '../apis/phpApis'
 import { getTokenBalance, decodeTransferInput } from '../utils/token'
 import { address as contractAddress } from '../contracts/token.json'
-import Model from '../core/schemas'
+import { walletTransInfoModel, blockScanLogModel } from '../core/schemas'
 
 // 同步交易记录时每次交易数量的限制
 const step = 50
@@ -17,7 +17,6 @@ const postParallelLimitation = 2
  * @param {object} data 地址交易详情
  */
 async function saveTrans(data) {
-  let walletTransInfoModel = Model.walletTransInfo()
   let { address, eth, cre, trans } = data
   let existEntity = await walletTransInfoModel.findOne({ address })
   if (existEntity) {
@@ -46,7 +45,6 @@ async function saveTrans(data) {
  * @param {number} blockNum 区块高度
  */
 async function saveScanLog(blockNum) {
-  let blockScanLogModel = Model.blockScanLog()
   let existEntity = await blockScanLogModel.findOne({ blockNum })
   if (!existEntity) {
     return blockScanLogModel
@@ -65,7 +63,7 @@ async function saveScanLog(blockNum) {
  * 这时候最后一个完成的区块高度应该是 2
  */
 async function getScannedBlockNumbers() {
-  return Model.blockScanLog()
+  return blockScanLogModel
     .find({}, { blockNum: 1 })
     .then(res => res.map(t => t.blockNum))
     .catch((err) => {
@@ -217,7 +215,6 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
             })
         }
 
-        let walletTransInfoModel = Model.walletTransInfo()
         // 从本地存储中读取已经生成过的 walletTransInfo
         let existEntity = await walletTransInfoModel.findOne({ address: _addr })
 

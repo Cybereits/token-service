@@ -3,14 +3,13 @@ import { TaskCapsule, ParallelQueue, SerialQueue } from 'async-task-manager'
 import { connect } from '../../framework/web3'
 import { getTokenBalance, decodeTransferInput } from '../../utils/token'
 import { address as contractAddress } from '../../contracts/token.json'
-import Model from '../../core/schemas'
+import { walletTransInfoModel, blockScanLogModel, blockScanLogForContractModel } from '../../core/schemas'
 
 /**
  * 保存交易详情到本地
  * @param {object} data 地址交易详情
  */
 async function saveTrans(data) {
-  let walletTransInfoModel = Model.walletTransInfo()
   let { address, eth, cre, trans } = data
   let existEntity = await walletTransInfoModel.findOne({ address })
   if (existEntity) {
@@ -39,7 +38,6 @@ async function saveTrans(data) {
  * @param {number} blockNum 区块高度
  */
 async function saveScanLog(blockNum) {
-  let blockScanLogModel = Model.blockScanLogForContract()
   let block = await blockScanLogModel.findOne({ blockNum })
   if (block) {
     return true
@@ -55,7 +53,7 @@ async function saveScanLog(blockNum) {
  * 这时候最后一个完成的区块高度应该是 2
  */
 async function getScannedBlockNumbers() {
-  return Model.blockScanLogForContract()
+  return blockScanLogForContractModel
     .find({}, { blockNum: 1 })
     .then(res => res.map(t => t.blockNum))
     .catch((err) => {
@@ -187,7 +185,6 @@ function getTransactionsByAccounts(accounts, startBlockNumber = 0, endBlockNumbe
           })
         }
 
-        let walletTransInfoModel = Model.walletTransInfo()
         // 从本地存储中读取已经生成过的 walletTransInfo
         let existEntity = await walletTransInfoModel.findOne({ address: _addr })
 

@@ -4,10 +4,8 @@ import Checkbox from 'prompt-checkbox'
 
 import { connect } from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
-import Model from '../core/schemas'
+import { userReturnBackInfoModel } from '../core/schemas'
 import { getEthReturnBackInfo, syncReturnBackTransactionSentStatus } from '../apis/phpApis'
-
-const userReturnBackModel = Model.userReturnBackInfo()
 
 // 已发送过的地址
 let sentTransactions = []
@@ -76,12 +74,12 @@ const prepareTransInfo = () => new Promise(async (resolve) => {
         status: 0,
         txid: '',
       }
-      let existEntity = await userReturnBackModel.findOne({ refId: dataToSave.refId })
+      let existEntity = await userReturnBackInfoModel.findOne({ refId: dataToSave.refId })
       if (existEntity) {
         console.log(`用户 ${dataToSave.name} 数据重复获取，已忽略`)
         resolve()
       } else {
-        let savedData = await userReturnBackModel.create(dataToSave).catch(reject)
+        let savedData = await userReturnBackInfoModel.create(dataToSave).catch(reject)
         validData.push(savedData)
         resolve()
       }
@@ -96,7 +94,7 @@ const init = async (fetchDataFromServer, status) => {
   if (fetchDataFromServer) {
     transInfo = await prepareTransInfo()
   } else {
-    transInfo = await userReturnBackModel.find({ status: +status })
+    transInfo = await userReturnBackInfoModel.find({ status: +status })
   }
 
   walletAddress = await sendWalletPrompt.run()
@@ -129,7 +127,7 @@ const main = async (source = 'server', status = 0) => {
     let ignoreTrans = transInfo.filter(({ address }) => ignoreTransactions.filter(str => str.indexOf(address) > -1).length > 0)
 
     // 保存忽略的交易的状态
-    ignoreTrans.forEach(({ _id }) => userReturnBackModel
+    ignoreTrans.forEach(({ _id }) => userReturnBackInfoModel
       .findByIdAndUpdate(_id, { status: -1 })
       .catch((err) => { console.log(`标记忽略失败: ${_id} ${err}`) }))
 
@@ -200,7 +198,7 @@ const main = async (source = 'server', status = 0) => {
 
       transInfo.forEach(({ _id, name, address, amount }) =>
         queue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
-          await userReturnBackModel
+          await userReturnBackInfoModel
             .findByIdAndUpdate(_id, { status: 1 })
             .catch((err) => { console.log(`标记已发送状态失败: ${_id} ${err}`) })
 
@@ -215,7 +213,7 @@ const main = async (source = 'server', status = 0) => {
             }, walletSecret)
             .then(async (txid) => {
               console.log(`发送成功 钱包地址: ${address} 数量: ${amount} txid: ${txid}`)
-              await userReturnBackModel
+              await userReturnBackInfoModel
                 .findByIdAndUpdate(_id, { status: 2, txid })
                 .catch((err) => { console.log(`标记成功状态失败: ${_id} ${err}`) })
               succCollection.push({
@@ -228,7 +226,7 @@ const main = async (source = 'server', status = 0) => {
               resolve()
             })
             .catch(async (err) => {
-              await userReturnBackModel
+              await userReturnBackInfoModel
                 .findByIdAndUpdate(_id, { status: -2 })
                 .catch((_err) => { console.log(`标记成功状态失败: ${_id} ${_err}`) })
               console.error(err)

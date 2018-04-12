@@ -71,6 +71,62 @@ export const prizeInfo = new Obj({
   },
 })
 
+export const txOperationRecord = new Obj({
+  name: 'txOperationRecord',
+  description: '交易操作记录',
+  fields: {
+    from: {
+      type: str,
+      description: '出账地址',
+    },
+    to: {
+      type: str,
+      description: '入账地址',
+    },
+    amount: {
+      type: int,
+      description: '转账数量',
+    },
+    tokenType: {
+      type: str,
+      description: '代币类型',
+    },
+    comment: {
+      type: str,
+      description: '备注',
+    },
+  },
+})
+
+export const batchTransactionTask = new Obj({
+  name: 'batchTransactionTask',
+  description: '批量交易任务',
+  fields: {
+    id: {
+      type: str,
+      description: 'Identity',
+      resolve: t => t._id,
+    },
+    amount: {
+      type: int,
+      description: '交易数量',
+    },
+    details: {
+      type: new List(txOperationRecord),
+      description: '任务包含的交易细节',
+    },
+    type: {
+      type: str,
+      description: '任务类型',
+    },
+    createAt: {
+      type: str,
+      description: '创建时间',
+      resolve: t => t.createAt.toJSON(),
+    },
+  },
+})
+
 export const inputPrizeInfo = new GraphQLInputObjectType({
   name: 'inputPrizeInfo',
   description: '创建 PrizeInfo 的所需字段',

@@ -3,16 +3,15 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 import { connect } from '../../framework/web3'
 import { decodeTransferInput } from '../../utils/token'
 import { beginBlockHeight } from '../../config/const'
-import Model from '../../core/schemas'
+import { blockScanLogModel, transactionInfoModel } from '../../core/schemas'
 
 /**
  * 保存交易详情
  * @param {object} tx 交易详情
  */
 async function saveTrans(tx) {
-  let transaction = Model.transactionInfo()
-  await transaction.findOneAndRemove({ txid: tx.txid })
-  return transaction(tx).save()
+  await transactionInfoModel.findOneAndRemove({ txid: tx.txid })
+  return transactionInfoModel(tx).save()
 }
 
 /**
@@ -20,7 +19,6 @@ async function saveTrans(tx) {
  * @param {number} blockNum 区块高度
  */
 async function saveScanLog(blockNum) {
-  let blockScanLogModel = Model.blockScanLog()
   let block = await blockScanLogModel.findOne({ blockNum })
   if (block) {
     return true
@@ -36,7 +34,7 @@ async function saveScanLog(blockNum) {
  * 这时候最后一个完成的区块高度应该是 2
  */
 async function getScannedBlockNumbers() {
-  return Model.blockScanLog()
+  return blockScanLogModel
     .find({}, { blockNum: 1 })
     .then(res => res.map(t => t.blockNum))
 }

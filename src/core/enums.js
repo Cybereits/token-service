@@ -11,6 +11,14 @@ export const PRIZE_TYPES = {
   default: 'cre_token', // 默认奖励类型 - CRE 代币
 }
 
+// 代币类型
+export const TOKEN_TYPE = {
+  eth: 'eth',
+  cre: 'cre',
+  eos: 'eos',
+  gxs: 'gxs',
+}
+
 const statusKeys = Object.keys(STATUS)
 
 export function getStatus(_value) {

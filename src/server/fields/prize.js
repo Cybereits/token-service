@@ -2,18 +2,19 @@ import {
   GraphQLInt as int,
   GraphQLString as str,
   GraphQLNonNull as NotNull,
-  GraphQLList as List,
 } from 'graphql'
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import Model from '../../core/schemas'
+import { prizeInfoModel } from '../../core/schemas'
+import { saveBatchTransactionTask } from '../scenes/batchTask'
+
 import data0 from '../../../prize.json'
 import data1 from '../../../prize1.json'
 import { deployOwnerAddr, deployOwnerSecret } from '../../config/const'
 import { sendToken } from '../../utils/token'
 
-import { STATUS, PRIZE_TYPES } from '../../core/enums'
-import { prizeInfo, inputPrizeInfo, filterPrizeInfo } from '../types/plainTypes'
+import { TOKEN_TYPE, STATUS, PRIZE_TYPES } from '../../core/enums'
+import { prizeInfo, inputPrizeInfo, filterPrizeInfo, batchTransactionTask } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 export const createPrizeInfo = {
@@ -25,7 +26,7 @@ export const createPrizeInfo = {
     },
   },
   async resolve(root, { term: { ethAddress, prize = 0, type } }) {
-    return Model.prizeInfo().create({
+    return prizeInfoModel.create({
       ethAddress,
       prize,
       type: type || PRIZE_TYPES.default,
@@ -38,9 +39,9 @@ export const initPrizeInfo = {
   type: str,
   description: '从文件初始化奖励信息',
   async resolve() {
-    await Model.prizeInfo().remove()
-    await Model.prizeInfo().create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
-    await Model.prizeInfo().create(data1.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
+    await prizeInfoModel.remove()
+    await prizeInfoModel.create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
+    await prizeInfoModel.create(data1.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
     return 'success'
   },
 }
@@ -70,20 +71,15 @@ export const queryPrizeList = {
       throw new TypeError('pageSize 必须为有效正整数')
     }
 
-    if (filter) {
-      total = await Model.prizeInfo().find(filter).count()
-      result = await Model.prizeInfo().find(filter).skip(pageIndex * pageSize).limit(pageSize)
-    } else {
-      total = await Model.prizeInfo().find(filter).count()
-      result = await Model.prizeInfo().find(filter).skip(pageIndex * pageSize).limit(pageSize)
-    }
+    total = await prizeInfoModel.find(filter).count()
+    result = await prizeInfoModel.find(filter).skip(pageIndex * pageSize).limit(pageSize)
 
     return PaginationResult(result, pageIndex, pageSize, total)
   },
 }
 
 export const handlePrizes = {
-  type: new List(str),
+  type: batchTransactionTask,
   description: '开始处理奖励',
   args: {
     amount: {
@@ -109,9 +105,9 @@ export const handlePrizes = {
     let pendingTerms
     // 处理所有
     if (amount === -1) {
-      pendingTerms = await Model.prizeInfo().find({ status })
+      pendingTerms = await prizeInfoModel.find({ status })
     } else {
-      pendingTerms = await Model.prizeInfo().find({ status }).limit(amount)
+      pendingTerms = await prizeInfoModel.find({ status }).limit(amount)
     }
 
     if (pendingTerms) {
@@ -148,10 +144,20 @@ export const handlePrizes = {
         })
 
         // 消费队列
-        return queue
-          .consume()
-          .then(() => pendingTerms.map(t => t.ethAddress))
-          .catch(() => new Error(`处理未正常结束: 实际已发送 ${queue.succ} 条，失败 ${queue.fail} 条`))
+        queue.consume().catch((ex) => {
+          console.error(`处理未正常结束: 实际已发送 ${queue.succ} 条，失败 ${queue.fail} 条`)
+          console.error(ex)
+        })
+
+        return saveBatchTransactionTask(
+          pendingTerms.map(({ ethAddress, prize }) => ({
+            from: address,
+            to: ethAddress,
+            amount: prize,
+            tokenType: TOKEN_TYPE.cre,
+          })),
+          '社区邀请活动奖励',
+        )
       } else {
         throw new Error('没有要发送的代币奖励')
       }
