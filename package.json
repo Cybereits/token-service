@@ -2,8 +2,8 @@
   "name": "token-service",
   "version": "1.0.0",
   "scripts": {
-    "prd": "cd ./src; npm run prd",
-    "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run start",
+    "start": "cd ./src; npm run start; cd ../app; npm run start",
+    "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run dev",
     "dev-geth": "cd ./src; bash geth.dev.sh",
     "init": "cd ./src; mkdir -p geth-node; npm install; cd ../app; npm install;"
   }

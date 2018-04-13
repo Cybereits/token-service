@@ -5,7 +5,7 @@ import {
 
 import { createAccount, createMultiAccount, queryAccountList } from './fields/account'
 import { queryAllBalance } from './fields/balance'
-import { initPrizeInfo, createPrizeInfo, queryPrizeList, handlePrizes } from './fields/prize'
+import { createPrizeInfo, queryPrizeList, handlePrizes } from './fields/prize'
 import { commonStatusEnum, prizeTypeEnum } from './fields/enum'
 import { queryContractAbi, deployTokenContract } from './fields/contract'
 import { queryBatchTrasactionTasks, queryTxOperationRecords } from './fields/transactions'
@@ -30,7 +30,6 @@ const mutations = new Obj({
   name: 'Mutations',
   description: '修改接口',
   fields: {
-    initPrizeInfo,
     handlePrizes,
     createAccount,
     createMultiAccount,

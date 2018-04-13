@@ -7,8 +7,6 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 import { prizeInfoModel } from '../../core/schemas'
 import { saveBatchTransactionTask } from '../scenes/batchTask'
 
-import data0 from '../../../prize.json'
-import data1 from '../../../prize1.json'
 import { deployOwnerAddr, deployOwnerSecret } from '../../config/const'
 import { sendToken } from '../../utils/token'
 
@@ -38,9 +36,9 @@ export const initPrizeInfo = {
   type: str,
   description: '从文件初始化奖励信息',
   async resolve() {
-    await prizeInfoModel.remove()
-    await prizeInfoModel.create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
-    await prizeInfoModel.create(data1.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
+    // await prizeInfoModel.remove()
+    // await prizeInfoModel.create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
+    // await prizeInfoModel.create(data1.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
     return 'success'
   },
 }
@@ -102,7 +100,7 @@ export const handlePrizes = {
 
         // 创建发送任务队列
         let queue = new ParallelQueue({
-          limit: 5,
+          limit: 10,
           toleration: 0,
         })
 

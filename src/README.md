@@ -4,10 +4,8 @@
 
 #### 启动服务指令
 
-- `npm run prd` 正式环境启动 pm2 守护进程
-- `npm run prd-schedule` 正式环境下带有定时任务的 pm2 守护进程
+- `npm run start` 正式环境启动 pm2 守护进程
 - `npm run dev` 本地开发环境启动 pm2 守护进程
-- `npm run dev-schedule` 本地开发环境下带有定时任务的 pm2 守护进程
 - `npm run dev-geth` 本地开发环境启动钱包
 
 #### npm run  dtc

@@ -31,7 +31,12 @@ export const queryBatchTrasactionTasks = {
     }
 
     total = await batchTransactinTaskModel.find().count()
-    result = await batchTransactinTaskModel.find().skip(pageIndex * pageSize).limit(pageSize).populate('details')
+    result = await batchTransactinTaskModel
+      .find()
+      .sort({ createAt: -1 })
+      .skip(pageIndex * pageSize)
+      .limit(pageSize)
+      .populate('details')
 
     return PaginationResult(result, pageIndex, pageSize, total)
   },
@@ -62,9 +67,11 @@ export const queryTxOperationRecords = {
       throw new TypeError('pageSize 必须为有效正整数')
     }
 
-    result = await getTxOperationsByTaskID(taskID).skip(pageIndex * pageSize).limit(pageSize)
+    result = await getTxOperationsByTaskID(taskID)
+    total = result.details.length
+
     if (result) {
-      return PaginationResult(result.details, pageIndex, pageSize, total)
+      return PaginationResult(result.details.slice((pageIndex * pageSize), ((pageIndex + 1) * pageSize)), pageIndex, pageSize, total)
     } else {
       throw new Error('没有找到对应的任务')
     }

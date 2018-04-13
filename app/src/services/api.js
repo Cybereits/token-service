@@ -4,9 +4,11 @@ import gql from 'graphql-tag';
 import { errorMesage } from '../utils/networkErrorMsg';
 import request from '../utils/request';
 import { toGql } from '../utils/utils';
+import config from '../../config/env'
 
+const { host, port, baseUrl } = config
 const client = new ApolloClient({
-  uri: 'http://192.168.3.200:8010/graphql',
+  uri: `${host}${port ? `:${port}` : ''}${baseUrl}`,
 });
 
 export async function queryProjectNotice() {
@@ -116,8 +118,8 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
       query: gql`
         {
           queryAllBalance(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
-        newFilter
-      )}) {
+          newFilter
+        )}) {
             pagination {
               total
               current
@@ -184,8 +186,8 @@ export async function queryPrizeList({ pageIndex, pageSize, filter }) {
       query: gql`
         {
           queryPrizeList(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
-        newFilter
-      )}) {
+          newFilter
+        )}) {
             pagination {
               total
               current
@@ -316,7 +318,7 @@ export async function sendCoinOverview() {
               total
             }
           }
-          failure: queryPrizeList(filter: { status: 3 }) {
+          failure: queryPrizeList(filter: { status: -1 }) {
             pagination {
               total
             }

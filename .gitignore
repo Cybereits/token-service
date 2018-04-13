@@ -1,0 +1,33 @@
+node_modules/
+
+*.log
+
+geth-node/
+
+const.js
+env.js
+token.json
+
+walletTransactions.*
+
+.DS_Store
+
+# roadhog-api-doc ignore
+request-temp.js
+_roadhog-api-doc
+
+# production
+dist
+vscode
+
+# misc
+.DS_Store
+npm-debug.log*
+yarn-error.log
+
+coverage
+yarn.lock
+.idea
+package-lock.json
+*bak
+jsconfig.json

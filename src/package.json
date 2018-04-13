@@ -2,11 +2,9 @@
   "name": "token-management-service",
   "version": "1.0.0",
   "scripts": {
-    "start": "npm run dev",
-    "poststart": "cd ../app; npm run start",
+    "start": "NODE_ENV=production pm2 start config/pm2.config.js",
     "lint": "bash ./eslint.sh",
     "dev": "NODE_ENV=development pm2 start config/pm2.config.js",
-    "prd": "NODE_ENV=production pm2 start config/pm2.config.js",
     "test": "node ./test",
     "dev-task": "node ./tasks",
     "prd-task": "NODE_ENV=production node ./tasks",
