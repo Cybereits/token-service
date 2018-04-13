@@ -1,18 +1,10 @@
 {
   "name": "token-service",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
-    "start": "cd ./src; npm run dev",
-    "poststart": "cd ../app; npm run start",
-    "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run start"
-  },
-  "dependencies": {
-    "apollo-boost": "^0.1.4",
-    "apollo-cache-inmemory": "^1.1.12",
-    "apollo-client": "^2.2.8",
-    "apollo-link-http": "^1.5.3",
-    "graphql": "^0.13.2",
-    "graphql-tag": "^2.8.0"
+    "prd": "cd ./src; npm run prd",
+    "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run start",
+    "dev-geth": "cd ./src; bash geth.dev.sh",
+    "init": "cd ./src; mkdir -p geth-node; npm install; cd ../app; npm install;"
   }
 }

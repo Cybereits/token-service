@@ -26,7 +26,16 @@ async function getBalance() {
             console.error(`get address eth balance failded: ${address}`)
             reject(ex)
           })
-        let ethAmount = connect.eth.extend.utils.fromWei(amount, 'ether').toString().split('').concat(new Array(30).fill(' ')).slice(0, 30).join('')
+        let ethAmount = connect
+          .eth
+          .extend
+          .utils
+          .fromWei(amount, 'ether')
+          .toString()
+          .split('')
+          .concat(new Array(30).fill(' '))
+          .slice(0, 30)
+          .join('')
         console.log(`${address}\t${ethAmount}\t${creAmount}`)
         resolve()
       })
