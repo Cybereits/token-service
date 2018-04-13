@@ -13,6 +13,7 @@ export default class StepForm extends PureComponent {
     const { location } = this.props;
     const { pathname } = location;
     const pathList = pathname.split('/');
+    console.log(pathList[pathList.length - 1]);
     switch (pathList[pathList.length - 1]) {
       case 'info':
         return 0;
@@ -39,14 +40,17 @@ export default class StepForm extends PureComponent {
               <Step title="完成" />
             </Steps>
             <Switch>
-              {getRoutes(match.path, routerData).map(item => (
-                <Route
-                  key={item.key}
-                  path={item.path}
-                  component={item.component}
-                  exact={item.exact}
-                />
-              ))}
+              {getRoutes(match.path, routerData).map(item => {
+                console.log(item);
+                return (
+                  <Route
+                    key={item.key}
+                    path={item.path}
+                    component={item.component}
+                    exact={item.exact}
+                  />
+                );
+              })}
               <Redirect exact from="/form/step-form" to="/form/step-form/info" />
               <Route render={NotFound} />
             </Switch>

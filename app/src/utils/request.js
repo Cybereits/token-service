@@ -19,6 +19,7 @@ const codeMessage = {
   502: '网关错误。',
   503: '服务不可用，服务器暂时过载或维护。',
   504: '网关超时。',
+  'Failed to fetch': '获取数据失败',
 };
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {

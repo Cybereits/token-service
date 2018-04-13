@@ -131,7 +131,7 @@ export default class Analysis extends Component {
       salesType === 'all'
         ? salesTypeData
         : salesType === 'online' ? salesTypeDataOnline : salesTypeDataOffline;
-
+    console.log(salesPieData);
     const menu = (
       <Menu>
         <Menu.Item>操作一</Menu.Item>
@@ -252,7 +252,9 @@ export default class Analysis extends Component {
                   <Icon type="info-circle-o" />
                 </Tooltip>
               }
-              total={() => <span dangerouslySetInnerHTML={{ __html: yuan(126560) }} />}
+              total={() => (
+                /* eslint-disable */ <span dangerouslySetInnerHTML={{ __html: yuan(126560) }} />
+              )}
               footer={<Field label="日均销售额" value={`￥${numeral(12423).format('0,0')}`} />}
               contentHeight={46}
             >
@@ -453,6 +455,7 @@ export default class Analysis extends Component {
                 subTitle="销售额"
                 total={() => (
                   <span
+                    /* eslint-disable */
                     dangerouslySetInnerHTML={{
                       __html: yuan(salesPieData.reduce((pre, now) => now.y + pre, 0)),
                     }}
