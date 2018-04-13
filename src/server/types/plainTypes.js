@@ -4,7 +4,7 @@ import {
   GraphQLList as List,
   GraphQLInt as int,
   GraphQLInputObjectType,
-  GraphQLNonNull as notNull,
+  GraphQLNonNull as NotNull,
   // GraphQLFloat as float,
   // GraphQLBoolean as bool,
 } from 'graphql'
@@ -131,8 +131,8 @@ export const inputPrizeInfo = new GraphQLInputObjectType({
   name: 'inputPrizeInfo',
   description: '创建 PrizeInfo 的所需字段',
   fields: {
-    ethAddress: { type: notNull(str), description: '钱包地址' },
-    prize: { type: notNull(int), description: '奖励代币数量' },
+    ethAddress: { type: new NotNull(str), description: '钱包地址' },
+    prize: { type: new NotNull(int), description: '奖励代币数量' },
   },
 })
 
@@ -144,5 +144,29 @@ export const filterPrizeInfo = new GraphQLInputObjectType({
     prize: { type: int, description: '奖励代币数量' },
     status: { type: int, description: '发放状态' },
     type: { type: str, description: '奖励类型' },
+  },
+})
+
+export const handlePrizesParams = new GraphQLInputObjectType({
+  name: 'handlePrizezFilter',
+  description: 'HandlePrizes 参数',
+  fields: {
+    amount: {
+      type: new NotNull(int),
+      description: '本次处理的任务数量',
+      default: -1,
+    },
+    status: {
+      type: int,
+      description: '本次处理的任务类型: pending（0 待处理，默认）failure（-1 失败）',
+    },
+    address: {
+      type: str,
+      description: '出账的钱包地址，默认合约部署者的钱包地址',
+    },
+    secret: {
+      type: str,
+      description: '出账钱包地址的密钥，默认合约部署者的钱包密钥',
+    },
   },
 })

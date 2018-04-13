@@ -1,7 +1,6 @@
 import {
   GraphQLInt as int,
   GraphQLString as str,
-  GraphQLNonNull as NotNull,
 } from 'graphql'
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
@@ -14,7 +13,7 @@ import { deployOwnerAddr, deployOwnerSecret } from '../../config/const'
 import { sendToken } from '../../utils/token'
 
 import { TOKEN_TYPE, STATUS, PRIZE_TYPES } from '../../core/enums'
-import { prizeInfo, inputPrizeInfo, filterPrizeInfo, batchTransactionTask } from '../types/plainTypes'
+import { prizeInfo, inputPrizeInfo, filterPrizeInfo, handlePrizesParams, batchTransactionTask } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 export const createPrizeInfo = {
@@ -82,25 +81,13 @@ export const handlePrizes = {
   type: batchTransactionTask,
   description: '开始处理奖励',
   args: {
-    amount: {
-      type: new NotNull(int),
-      description: '本次处理的任务数量',
-      default: -1,
-    },
-    status: {
-      type: int,
-      description: '本次处理的任务类型: pending（0 待处理，默认）failure（-1 失败）',
-    },
-    address: {
-      type: str,
-      description: '出账的钱包地址，默认合约部署者的钱包地址',
-    },
-    secret: {
-      type: str,
-      description: '出账钱包地址的密钥，默认合约部署者的钱包密钥',
+    param: {
+      type: handlePrizesParams,
+      description: '处理奖励参数',
     },
   },
-  async resolve(root, { amount, status = STATUS.pending, address = deployOwnerAddr, secret = deployOwnerSecret }) {
+  async resolve(root, { param }) {
+    let { amount, status = STATUS.pending, address = deployOwnerAddr, secret = deployOwnerSecret } = param
     // 获取所有待处理的
     let pendingTerms
     // 处理所有
