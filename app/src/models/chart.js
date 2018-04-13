@@ -20,6 +20,7 @@ export default {
   effects: {
     *fetch(_, { call, put }) {
       const response = yield call(fakeChartData);
+      console.log(response);
       yield put({
         type: 'save',
         payload: response,

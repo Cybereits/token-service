@@ -108,26 +108,38 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, ['form'], () => import('../routes/Forms/AdvancedForm')),
     },
     '/wallet/wallet-list': {
-      component: dynamicWrapper(app, ['rule'], () => import('../routes/Wallet/WalletList')),
+      component: dynamicWrapper(app, ['wallet'], () => import('../routes/Wallet/WalletList')),
     },
-    '/list/basic-list': {
-      component: dynamicWrapper(app, ['list'], () => import('../routes/List/BasicList')),
+    '/coin/coin-send': {
+      component: dynamicWrapper(app, ['coin'], () => import('../routes/Coin/CoinSend')),
     },
-    '/list/card-list': {
-      component: dynamicWrapper(app, ['list'], () => import('../routes/List/CardList')),
+    '/coin/coin-overview': {
+      component: dynamicWrapper(app, ['coin'], () => import('../routes/Coin/CoinOverview')),
     },
-    '/list/search': {
-      component: dynamicWrapper(app, ['list'], () => import('../routes/List/List')),
+    '/coin/coin-overview/taskList': {
+      component: dynamicWrapper(app, ['coinTask'], () => import('../routes/Coin/CoinTaskList')),
     },
-    '/list/search/projects': {
-      component: dynamicWrapper(app, ['list'], () => import('../routes/List/Projects')),
+    '/coin/coin-overview/taskDetail/:taskid': {
+      component: dynamicWrapper(app, ['coinTask'], () => import('../routes/Coin/CoinTaskDetail')),
     },
-    '/list/search/applications': {
-      component: dynamicWrapper(app, ['list'], () => import('../routes/List/Applications')),
-    },
-    '/list/search/articles': {
-      component: dynamicWrapper(app, ['list'], () => import('../routes/List/Articles')),
-    },
+    // '/list/basic-list': {
+    //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/BasicList')),
+    // },
+    // '/list/card-list': {
+    //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/CardList')),
+    // },
+    // '/list/search': {
+    //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/List')),
+    // },
+    // '/list/search/projects': {
+    //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/Projects')),
+    // },
+    // '/list/search/applications': {
+    //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/Applications')),
+    // },
+    // '/list/search/articles': {
+    //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/Articles')),
+    // },
     '/profile/basic': {
       component: dynamicWrapper(app, ['profile'], () => import('../routes/Profile/BasicProfile')),
     },

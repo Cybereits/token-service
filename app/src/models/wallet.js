@@ -1,7 +1,7 @@
-import { queryRule, removeRule, addRule, getAccountList, queryAllBalance } from '../services/api';
+import { queryRule, removeRule, addRule, getAccountList, queryAllBalance, addWallet, createMultiAccount } from '../services/api';
 
 export default {
-  namespace: 'rule',
+  namespace: 'wallet',
 
   state: {
     data: {
@@ -31,8 +31,14 @@ export default {
         payload: data,
       });
     },
-    *queryAllBalance({ payload }, { call, put }) {
-      const response = yield call(queryAllBalance, payload);
+    *queryAllBalance({ params = {
+      pageIndex: 0,
+      pageSize: 10,
+      filter: {},
+    }, callback }, { call, put }) {
+      console.log(params)
+      const response = yield call(queryAllBalance, params);
+      console.log(response)
       const data = {};
       if (response) {
         data.list = response.data.queryAllBalance.list.map((value, index) => {
@@ -43,12 +49,14 @@ export default {
             key: index,
           };
         });
-        data.pagination = response.data.queryAllBalance.pagination;
+        data.pagination = response.data.queryAllBalance.pagination
+        console.log(data)
+        yield put({
+          type: 'save',
+          payload: data,
+        });
       }
-      yield put({
-        type: 'save',
-        payload: data,
-      });
+      if (callback) callback();
     },
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addRule, payload);
@@ -57,6 +65,28 @@ export default {
         payload: response,
       });
       if (callback) callback();
+    },
+    *addWallet({ params, callback }, { call, put }) {
+      const response = yield call(addWallet, params);
+      console.log(response)
+      if (response) {
+        // yield put({
+        //   type: 'save',
+        //   payload: response,
+        // });
+      }
+      if (callback) callback();
+    },
+    *createMultiAccount({ params, callback }, { call, put }) {
+      const response = yield call(createMultiAccount, params);
+      console.log(response)
+      if (response) {
+        // yield put({
+        //   type: 'save',
+        //   payload: response,
+        // });
+      }
+      if (callback) callback(response);
     },
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(removeRule, payload);
@@ -70,6 +100,8 @@ export default {
 
   reducers: {
     save(state, action) {
+      console.log(state)
+      console.log(action.payload)
       return {
         ...state,
         data: action.payload,

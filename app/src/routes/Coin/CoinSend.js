@@ -12,8 +12,8 @@ import {
   Select,
   Icon,
   Button,
-  Dropdown,
-  Menu,
+  // Dropdown,
+  // Menu,
   InputNumber,
   DatePicker,
   Modal,
@@ -23,7 +23,7 @@ import {
 } from 'antd';
 import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from './WalletList.less';
+import styles from './CoinSend.less';
 
 const { confirm } = Modal;
 const FormItem = Form.Item;
@@ -36,7 +36,7 @@ const { Option } = Select;
 // const status = ['关闭', '运行中', '已上线', '异常'];
 
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible, confirmLoading } = props;
+  const { modalVisible, form, sendCoin, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       console.log(fieldsValue);
@@ -45,19 +45,19 @@ const CreateForm = Form.create()(props => {
         // form.resetFields();
         return;
       }
-      handleAdd(fieldsValue);
+      sendCoin(fieldsValue);
     });
   };
   return (
     <Modal
-      title="批量创建钱包"
+      title="发送代币"
       visible={modalVisible}
       onOk={okHandle}
       confirmLoading={confirmLoading}
       onCancel={() => handleModalVisible()}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="钱包数量">
-        {form.getFieldDecorator('walletAmount', {
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="处理数量">
+        {form.getFieldDecorator('amount', {
           validateFirst: true,
           rules: [
             { required: true, message: '不能为空' },
@@ -70,15 +70,38 @@ const CreateForm = Form.create()(props => {
               },
             },
           ],
-        })(<Input style={{ width: '100%' }} placeholder="请输入所要创建的钱包数量" />)}
+        })(<Input style={{ width: '100%' }} placeholder="请输入所要发送到的钱包数量" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="任务类型">
+        {form.getFieldDecorator('status', {
+          validateFirst: true,
+          rules: [],
+        })(
+          <Select style={{ width: '100%' }} placeholder="请选择">
+            <Option value={0}>待处理</Option>
+            <Option value={-1}>失败</Option>
+          </Select>
+        )}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="出账钱包地址">
+        {form.getFieldDecorator('address', {
+          validateFirst: true,
+          rules: [],
+        })(<Input style={{ width: '100%' }} placeholder="请输入出账钱包地址" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="秘钥">
+        {form.getFieldDecorator('secret', {
+          validateFirst: true,
+          rules: [],
+        })(<Input style={{ width: '100%' }} placeholder="请输入出账钱包地址的秘钥" />)}
       </FormItem>
     </Modal>
   );
 });
 
-@connect(({ wallet, loading }) => ({
-  wallet,
-  loading: loading.models.wallet,
+@connect(({ coin, loading }) => ({
+  coin,
+  loading: loading.models.coin,
 }))
 @Form.create()
 export default class TableList extends PureComponent {
@@ -92,6 +115,10 @@ export default class TableList extends PureComponent {
 
   componentDidMount() {
     this.handleSearch(0, 10);
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'coin/commonStatusEnum',
+    });
   }
 
   handleStandardTableChange = pagination => {
@@ -119,8 +146,15 @@ export default class TableList extends PureComponent {
     //   type: 'rule/fetch',
     //   payload: params,
     // });
-
     this.handleSearch(pagination.current - 1, pagination.pageSize);
+    // dispatch({
+    //   type: 'coin/queryPrizeList',
+    //   params: {
+    //     pageIndex: pagination.current - 1,
+    //     pageSize: pagination.pageSize,
+    //     filter: this.state.formValues,
+    //   },
+    // });
   };
 
   handleFormReset = () => {
@@ -150,7 +184,7 @@ export default class TableList extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'wallet/remove',
+          type: 'coin/remove',
           payload: {
             no: selectedRows.map(row => row.no).join(','),
           },
@@ -175,46 +209,6 @@ export default class TableList extends PureComponent {
     });
   };
 
-  // handleSearch = (pageIndex, pageSize) => {
-  //   // dispatch({
-  //   //   type: 'rule/queryAllBalance',
-  //   // });
-  //   e.preventDefault();
-
-  //   const { dispatch, form } = this.props;
-
-  //   form.validateFields((err, fieldsValue) => {
-  //     if (err) return;
-  //     if (!fieldsValue.walletAddress) {
-  //       dispatch({
-  //         type: 'wallet/queryAllBalance',
-  //       });
-  //     } else {
-  //       dispatch({
-  //         type: 'wallet/queryAllBalance',
-  //         params: {
-  //           pageIndex: 0,
-  //           pageSize: 10,
-  //           filter: {
-  //             "ethAddresses": [fieldsValue.walletAddress],
-  //           },
-  //         },
-  //       });
-  //     }
-  //     console.log(fieldsValue)
-  //     console.log(fieldsValue)
-  //     // const values = {
-  //     //   ...fieldsValue,
-  //     //   updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-  //     // };
-
-  //     // this.setState({
-  //     //   formValues: values,
-  //     // });
-
-  //   });
-  // };
-
   handleSearch = (pageIndex, pageSize) => {
     // dispatch({
     //   type: 'rule/queryAllBalance',
@@ -230,7 +224,7 @@ export default class TableList extends PureComponent {
       // });
       // console.log(fieldsValue)
       dispatch({
-        type: 'wallet/queryAllBalance',
+        type: 'coin/queryPrizeList',
         params: {
           pageIndex,
           pageSize,
@@ -250,18 +244,22 @@ export default class TableList extends PureComponent {
     });
   };
 
-  handleAdd = fields => {
+  sendCoin = fields => {
     console.log(fields);
+    // this.props.dispatch({
+    //   type: 'coin/queryPrizeList',
+    //   params: {
+    //     filter: fields,
+    //   },
+    // });
     this.setState(
       {
         confirmLoading: true,
       },
       () => {
         this.props.dispatch({
-          type: 'wallet/createMultiAccount',
-          params: {
-            walletAmount: fields.walletAmount,
-          },
+          type: 'coin/handlePrizes',
+          params: fields,
           callback: res => {
             console.log(res);
             this.setState({
@@ -269,7 +267,7 @@ export default class TableList extends PureComponent {
               confirmLoading: false,
             });
             if (res) {
-              message.success(`成功创建 ${fields.walletAmount}个 钱包!`);
+              message.success(`成功创建 ${fields.amount}个 任务队列!`);
             }
           },
         });
@@ -284,7 +282,7 @@ export default class TableList extends PureComponent {
       onOk() {
         return new Promise(resolve => {
           dispatch({
-            type: 'wallet/addWallet',
+            type: 'coin/addWallet',
             params: {},
             callback: () => {
               message.success('创建钱包成功!');
@@ -299,31 +297,39 @@ export default class TableList extends PureComponent {
     });
   };
 
-  renderSimpleForm() {
+  renderSimpleForm(statusEnum) {
+    console.log(statusEnum);
     const { getFieldDecorator } = this.props.form;
     return (
       <Form
         onSubmit={() => {
           this.handleSearch(0, 10);
         }}
-        ayout="inline"
+        layout="inline"
       >
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="钱包地址">
-              {getFieldDecorator('ethAddresses')(<Input placeholder="请输入钱包地址" />)}
+              {getFieldDecorator('ethAddress')(<Input placeholder="请输入钱包地址" />)}
             </FormItem>
           </Col>
-          {/* <Col md={8} sm={24}>
-            <FormItem label="使用状态">
+          <Col md={8} sm={24}>
+            <FormItem label="发送状态">
               {getFieldDecorator('status')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+                  {statusEnum.map((item, index) => {
+                    return (
+                      /* eslint-disable */
+                      <Option key={index} value={item.value - 0}>
+                        {item.name}
+                      </Option>
+                    );
+                  })}
+                  {/* <Option value="1">运行中</Option> */}
                 </Select>
               )}
             </FormItem>
-          </Col> */}
+          </Col>
           <Col md={8} sm={24}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
@@ -414,12 +420,12 @@ export default class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
-    return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
+  renderForm(statusEnum) {
+    return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm(statusEnum);
   }
 
   render() {
-    const { wallet: { data }, loading } = this.props;
+    const { coin: { data, statusEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
     console.log(this.props);
     const columns = [
@@ -428,12 +434,20 @@ export default class TableList extends PureComponent {
         dataIndex: 'ethAddress',
       },
       {
-        title: 'eth余额',
-        dataIndex: 'ethAmount',
+        title: '发送代币数量',
+        dataIndex: 'prize',
       },
       {
-        title: 'cre余额',
-        dataIndex: 'creAmount',
+        title: '发送状态',
+        dataIndex: 'status',
+      },
+      {
+        title: '发送代币类型',
+        dataIndex: 'type',
+      },
+      {
+        title: 'txid',
+        dataIndex: 'txid',
       },
       // {
       //   title: '服务调用次数',
@@ -487,35 +501,41 @@ export default class TableList extends PureComponent {
       //   ),
       // },
     ];
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        {/* <Menu.Item key="remove">删除</Menu.Item> */}
-        <Menu.Item key="approval">批量创建</Menu.Item>
-      </Menu>
-    );
+    // const menu = (
+    //   <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
+    //     {/* <Menu.Item key="remove">删除</Menu.Item> */}
+    //     <Menu.Item key="approval">批量创建</Menu.Item>
+    //   </Menu>
+    // );
 
     const parentMethods = {
-      handleAdd: this.handleAdd,
+      sendCoin: this.sendCoin,
       handleModalVisible: this.handleModalVisible,
     };
 
     return (
-      <PageHeaderLayout title="钱包列表">
+      <PageHeaderLayout title="代币发放">
         <Card bordered={false}>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
+            <div className={styles.tableListForm}>{this.renderForm(statusEnum)}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={this.addWallet}>
-                创建钱包
+              <Button
+                icon="rocket"
+                type="primary"
+                onClick={() => {
+                  this.handleModalVisible(true);
+                }}
+              >
+                发送代币
               </Button>
-              <span>
-                {/* <Button>批量操作</Button> */}
+              {/* <span>
+                 <Button>批量操作</Button> 
                 <Dropdown overlay={menu}>
                   <Button>
                     更多操作 <Icon type="down" />
                   </Button>
                 </Dropdown>
-              </span>
+              </span> */}
             </div>
             <StandardTable
               selectedRows={selectedRows}

@@ -159,3 +159,17 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-
 export function isUrl(path) {
   return reg.test(path);
 }
+
+export function toGql(obj) {
+  return JSON.stringify(obj).replace(/\"(\w+)\":/ig, '$1:')
+}
+
+export function getQueryVariable(variable) {
+  const query = window.location.href.split('?')[window.location.href.split('?').length - 1]
+  const vars = query.split("&");
+  for (let i = 0; i < vars.length; i += 1) {
+    const pair = vars[i].split("=");
+    if (pair[0] === variable) { return pair[1]; }
+  }
+  return (false);
+}

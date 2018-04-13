@@ -1,7 +1,9 @@
 import { stringify } from 'qs';
 import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
+import { errorMesage } from '../utils/networkErrorMsg';
 import request from '../utils/request';
+import { toGql } from '../utils/utils';
 
 const client = new ApolloClient({
   uri: 'http://192.168.3.200:8010/graphql',
@@ -98,12 +100,24 @@ export async function getAccountList() {
     });
 }
 
-export async function queryAllBalance() {
+export async function queryAllBalance({ pageIndex, pageSize, filter }) {
+  console.log(JSON.stringify(filter));
+  const newFilter = { ...filter };
+  for (const key in newFilter) {
+    if (filter[key] === undefined) {
+      delete newFilter[key];
+    } else if (key === 'ethAddresses') {
+      newFilter[key] = [newFilter[key]];
+    }
+  }
   return client
     .query({
+      fetchPolicy: 'network-only',
       query: gql`
         {
-          queryAllBalance {
+          queryAllBalance(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
+        newFilter
+      )}) {
             pagination {
               total
               current
@@ -122,6 +136,259 @@ export async function queryAllBalance() {
       `,
     })
     .catch(err => {
-      console.log(err);
+      console.log(err.message);
+      errorMesage(err.message);
+    });
+}
+
+export async function addWallet() {
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          createAccount
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function createMultiAccount(parmas) {
+  console.log(parmas);
+  console.log(typeof parmas.walletAmount);
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+      createMultiAccount(amount: ${parmas.walletAmount})
+    }`,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function queryPrizeList({ pageIndex, pageSize, filter }) {
+  const newFilter = { ...filter };
+  for (const key in newFilter) {
+    if (filter[key] === undefined) {
+      delete newFilter[key];
+    }
+  }
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          queryPrizeList(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
+        newFilter
+      )}) {
+            pagination {
+              total
+              current
+              pageSize
+              pageCount
+            }
+            list {
+              ethAddress
+              prize
+              status
+              type
+              txid
+            }
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message);
+      console.log(err.name);
+      errorMesage(err.message);
+    });
+}
+
+// export async function createMultiAccount(parmas) {
+//   return client.mutate({
+//     fetchPolicy: "no-cache",
+//     mutation: gql`mutation {
+//       createMultiAccount(amount: ${parmas.walletAmount})
+//     }`,
+//   }).catch(err => {
+//     errorMesage(err.message)
+//   });
+// }
+
+// export async function handlePrizes(params) {
+//   const param = { ...params }
+//   for (const key in param) {
+//     if (param[key] === undefined) {
+//       delete param[key]
+//     }
+//   }
+//   console.log(toGql(param))
+//   return client
+//     .query({
+//       fetchPolicy: "no-cache",
+//       mutation: gql`mutation {
+//         createAccount
+//       }`,
+//     })
+//     .catch(err => {
+//       console.log(err.message)
+//       console.log(err.name)
+//       errorMesage(err.message)
+//     });
+// }
+
+export async function handlePrizes(params) {
+  const param = { ...params };
+  for (const key in param) {
+    if (param[key] === undefined) {
+      delete param[key];
+    } else if (key === 'amount') {
+      param[key] -= 0;
+    }
+  }
+  console.log(toGql(param));
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+      handlePrizes(param: ${toGql(param)}) {
+        id
+        amount
+        details {
+          from
+          to
+          amount
+          tokenType
+          comment
+        }
+        type
+        createAt
+      }
+    }`,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function commonStatusEnum() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          commonStatusEnum {
+            name
+            value
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function sendCoinOverview() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          pending: queryPrizeList(filter: { status: 0 }) {
+            pagination {
+              total
+            }
+          }
+          sending: queryPrizeList(filter: { status: 1 }) {
+            pagination {
+              total
+            }
+          }
+          success: queryPrizeList(filter: { status: 2 }) {
+            pagination {
+              total
+            }
+          }
+          failure: queryPrizeList(filter: { status: 3 }) {
+            pagination {
+              total
+            }
+          }
+          total: queryPrizeList(filter: {}) {
+            pagination {
+              total
+            }
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function queryBatchTrasactionTasks({ pageIndex, pageSize }) {
+  console.log(pageIndex, pageSize);
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          queryBatchTrasactionTasks(pageSize: ${pageSize}, pageIndex: ${pageIndex}) {
+            list {
+              id
+              amount
+              type
+              createAt
+            }
+            pagination {
+              total
+              current
+              pageSize
+              pageCount
+            }
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function queryTxOperationRecords({ pageIndex, pageSize, taskID }) {
+  console.log(pageIndex, pageSize, taskID);
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        query {
+          queryTxOperationRecords(pageIndex: ${pageIndex},pageSize: ${pageSize},taskID: "${taskID}") {
+            pagination {
+              total
+              current
+              pageSize
+              pageCount
+            }
+            list {
+              from
+              to
+              amount
+              tokenType
+              comment
+            }
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
     });
 }
