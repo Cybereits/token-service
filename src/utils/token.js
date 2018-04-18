@@ -116,16 +116,16 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         throw new Error(err.message)
       })
 
-    if (!gas) {
-      gas = await estimateGasOfSendToken(toAddress, amount)
-        .then((gasUsed) => {
-          console.log(`实时油费: [${gasUsed}]`)
-          return gasUsed
-        })
-        .catch((ex) => {
-          console.error(ex)
-        })
-    }
+    // if (!gas) {
+    //   gas = await estimateGasOfSendToken(toAddress, amount)
+    //     .then((gasUsed) => {
+    //       console.log(`实时油费: [${gasUsed}]`)
+    //       return gasUsed
+    //     })
+    //     .catch((ex) => {
+    //       console.error(ex)
+    //     })
+    // }
 
     if (!gasPrice) {
       gasPrice = await connect
