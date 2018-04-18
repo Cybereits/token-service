@@ -26,6 +26,7 @@
     "koa-bodyparser": "^3.2.0",
     "koa-router": "^7.1.1",
     "koa-session": "^5.8.1",
+    "koa-static": "^4.0.2",
     "koa2-cors": "^2.0.5",
     "mongoose": "^4.11.6",
     "node-schedule": "^1.2.5",

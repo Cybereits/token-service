@@ -5,7 +5,7 @@
   "scripts": {
     "precommit": "npm run lint-staged",
     "dev": "cross-env ESLINT=none NODE_ENV=development roadhog dev",
-    "start": "cross-env ESLINT=none NODE_ENV=production roadhog",
+    "start": "cross-env ESLINT=none NODE_ENV=production roadhog dev",
     "start:no-proxy": "cross-env NO_PROXY=true ESLINT=none roadhog dev",
     "build": "cross-env ESLINT=none roadhog build",
     "analyze": "cross-env ANALYZE=true roadhog build",

@@ -1,6 +1,7 @@
 import Koa from 'koa'
 import cors from 'koa2-cors'
 import session from 'koa-session'
+import serve from 'koa-static'
 
 import router from './routes'
 import startJobs from './jobs'
@@ -41,6 +42,7 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(router.routes(), router.allowedMethods())
+app.use(serve(`${__dirname}/../../app/dist`))
 
 startJobs()
 
