@@ -31,7 +31,7 @@ export default async function (job, done) {
   if (sendingTxs.length > 0) {
     // 创建任务队列
     let queue = new ParallelQueue({
-      limit: 5,
+      limit: 10,
       toleration: 0,
     })
 
