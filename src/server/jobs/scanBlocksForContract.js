@@ -218,9 +218,6 @@ export default async function (job, done) {
   let accounts = contractAddress
 
   // switch (type) {
-  //   case 'json':
-  //     accounts = require('../config/address.json')
-  //     break
   //   case 'contract':
   //     accounts = contractAddress
   //     break

@@ -298,9 +298,6 @@ export default async (type = 'account', startBlockNumber = 0, endBlockNumber, is
   let accounts
 
   switch (type) {
-    case 'json':
-      accounts = require('../config/address.json')
-      break
     case 'contract':
       accounts = contractAddress
       break
