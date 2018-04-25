@@ -8,7 +8,7 @@ export const syncTransaction = () => {
   console.log('add sync tx schedule task')
   agendaClient.define(TASKS.syncTxState, syncTransactionState)
   agendaClient.on('ready', () => {
-    agendaClient.every('2 minutes', TASKS.syncTxState).unique({ syncTxState: true })
+    agendaClient.every('10 minutes', TASKS.syncTxState).unique({ syncTxState: true })
     agendaClient.start()
   }).on('error', (ex) => {
     console.log(ex)
