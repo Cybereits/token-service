@@ -90,13 +90,13 @@ contract Token is ERC20 {
 
     assert(balances[from] >= value);
     assert(approvals[from][msg.sender] >= value);
-    
+
     approvals[from][msg.sender] = approvals[from][msg.sender].sub(value);
     balances[from] = balances[from].sub(value);
     balances[to] = balances[to].add(value);
-    
+
     Transfer(from, to, value);
-    
+
     return true;
   }
 
@@ -122,7 +122,7 @@ contract CybereitsToken is Token, Ownable {
 
   function CybereitsToken(
     uint256 total,
-    uint256 _decimals, 
+    uint256 _decimals,
     uint256 _teamLockPercent,
     address _teamAddr1,
     address _teamAddr2,

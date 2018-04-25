@@ -10,8 +10,6 @@ token.json
 
 walletTransactions.*
 
-.DS_Store
-
 # roadhog-api-doc ignore
 request-temp.js
 _roadhog-api-doc

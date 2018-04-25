@@ -96,9 +96,7 @@ export async function getTokenBalanceFullInfo(userAddress) {
  */
 export async function sendToken(fromAddress, passWord, toAddress, amount, gas, gasPrice) {
   let amountInt = +amount
-  if (amountInt > 100000000) {
-    throw new Error('单笔转账不得超过一亿代币')
-  } else if (amountInt <= 0) {
+  if (amountInt <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
 

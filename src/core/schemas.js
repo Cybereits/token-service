@@ -3,6 +3,42 @@ import mongoose from 'mongoose'
 import connection from '../framework/dbProviders/mongo'
 import { STATUS, PRIZE_TYPES, TOKEN_TYPE } from './enums'
 
+// 合约信息
+const contractInfo = mongoose.Schema({
+  // 合约名称
+  name: {
+    type: String,
+    index: true,
+    unique: true,
+  },
+  // 代币名称
+  tokenName: {
+    type: String,
+  },
+  // 合约 code
+  code: {
+    type: [String],
+  },
+  // 合约 abi
+  abi: {
+    type: [String],
+  },
+  // 合约部署地址
+  address: {
+    type: [String],
+    required: true,
+  },
+  // 子合约信息
+  subContracts: {
+    type: [contractInfo],
+  },
+  // 创建时间
+  createAt: {
+    type: Date,
+    default: new Date(),
+  },
+})
+
 // 钱包转账信息
 const walletTransInfo = mongoose.Schema({
   address: {
@@ -191,6 +227,7 @@ const batchTxTask = mongoose.Schema({
   },
 })
 
+export const contractInfoModel = connection.model('contractInfo', contractInfo)
 export const userReturnBackInfoModel = connection.model('userReturnBackInfo', userReturnBackInfo)
 export const walletTransInfoModel = connection.model('walletTransInfo', walletTransInfo)
 export const blockScanLogForContractModel = connection.model('blockScanLogForContract', blockScanLogForContract)

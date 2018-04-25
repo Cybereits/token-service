@@ -1,0 +1,5 @@
+# 导出待发送的 prizeinfos
+mongoexport --db ethService --collection prizeinfos --type=csv --fields ethAddress,prize,a,b,c --query='{status:0}'  --out prize.csv
+
+# 查询总共需要花费多少 cre
+db.prizeinfos.find({status:0}).toArray().reduce((prev,next)=>prev+next.prize,0)
