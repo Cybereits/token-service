@@ -25,8 +25,8 @@ async function isValidTransaction(heightLimit, txid) {
 export default async function (job, done) {
   console.log('开始同步交易状态')
   let currBlockNumber = await connect.eth.getBlockNumber()
-  // 30 个区块高度前的区块内的交易视作已确认
-  let confirmedBlockHeight = currBlockNumber - 30
+  // 60 个区块高度前的区块内的交易视作已确认
+  let confirmedBlockHeight = currBlockNumber - 60
   let sendingTxs = await getOnSendingTxs().catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
     done()
@@ -34,21 +34,27 @@ export default async function (job, done) {
   if (sendingTxs.length > 0) {
     // 创建任务队列
     let queue = new ParallelQueue({
-      limit: 10,
+      limit: 20,
       toleration: 0,
     })
 
     sendingTxs.forEach((transaction) => {
       queue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
         let { txid } = transaction
-        let isValid = await isValidTransaction(confirmedBlockHeight, txid).catch(reject)
-        if (isValid) {
-          // console.log(`${txid} 已成功确认`)
-          transaction.status = STATUS.success
-          transaction.save().then(resolve).catch(reject)
+        if (txid) {
+          let isValid = await isValidTransaction(confirmedBlockHeight, txid).catch(reject)
+          if (isValid) {
+            // console.log(`${txid} 已成功确认`)
+            transaction.status = STATUS.success
+            transaction.save().then(resolve).catch(reject)
+          } else {
+            // console.log(`${txid} 尚未确认`)
+            resolve()
+          }
         } else {
-          // console.log(`${txid} 尚未确认`)
-          resolve()
+          // 交易失败
+          transaction.status = STATUS.failure
+          transaction.save().then(resolve).catch(reject)
         }
       })))
     })

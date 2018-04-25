@@ -28,8 +28,8 @@ async function isValidTransaction(heightLimit, txid) {
 export default async function () {
   console.log('开始回溯交易状态')
   let currBlockNumber = await connect.eth.getBlockNumber()
-  // 30 个区块高度前的区块内的交易视作已确认
-  let confirmedBlockHeight = currBlockNumber - 30
+  // 60 个区块高度前的区块内的交易视作已确认
+  let confirmedBlockHeight = currBlockNumber - 60
   let sendingTxs = await getSuccTxs().catch((ex) => {
     console.error(`交易回溯交失败 ${ex}`)
   })

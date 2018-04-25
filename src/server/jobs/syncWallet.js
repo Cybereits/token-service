@@ -19,7 +19,7 @@ const postParallelLimitation = 2
  * @param {boolean} isContract 是否是合约地址
  */
 function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlockNumber, isContract) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
 
     let transactionSet = new Set(accounts)
 
@@ -28,24 +28,15 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
     // 所以限制区块扫描任务并发数量不得超过 30
     let taskQueue = new ParallelQueue({
       limit: 30,
-      onFinished: () => {
-        console.log('区块扫描完成，所有账户的交易记录匹配完毕!')
-        // 区块扫描完成后
-        resolve(transactionSet)
-      },
+      toleration: 0,
     })
 
     // 钱包信息任务队列
     // 由于获取钱包账户信息时并发数量过高会导致 missing trie node 错误
     // 所以限制任务并发数量不得超过 30
     let accountsQueue = new ParallelQueue({
-      limit: 30,
-      onFinished: async () => {
-        console.log('钱包地址信息扫描完毕...开始扫描区块')
-        await scanBlock()
-        // 钱包信息创建完成时 执行区块扫描任务队列
-        taskQueue.consume()
-      },
+      limit: 10,
+      toleration: 0,
     })
 
     // 扫描区块获得每个地址下的 transacation 的 hash 列表
@@ -58,7 +49,6 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
           }
           let block = await eth.getBlock(i, true).catch(reject)
           if (block != null && block.transactions != null) {
-            let updateAddr = []
             // 遍历区块内的交易记录
             let transQueue = new ParallelQueue({
               limit: 10,
@@ -98,14 +88,16 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
                         ethTransferred: connect.eth.extend.utils.fromWei(value, 'ether'),
                         tokenTransferred: decodeTransferInput(input)[2] || 0,
                       })
-                      updateAddr.push(accountAddr)
                       resolve()
                     })))
                   }
                 })
               })
 
-            transQueue.consume()
+            transQueue
+              .consume()
+              .then(resolve)
+              .catch(reject)
           } else {
             resolve()
           }
@@ -142,7 +134,22 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
         resolve()
       }))))
 
-    accountsQueue.consume()
+    accountsQueue
+      .consume()
+      .then(async () => {
+        console.log('钱包地址信息扫描完毕...开始扫描区块')
+        await scanBlock()
+        // 钱包信息创建完成时 执行区块扫描任务队列
+        taskQueue
+          .consume()
+          .then(() => {
+            console.log('区块扫描完成，所有账户的交易记录匹配完毕!')
+            // 区块扫描完成后
+            resolve(transactionSet)
+          })
+          .catch(reject)
+      })
+      .catch(reject)
   })
 }
 
@@ -216,7 +223,15 @@ export default async (job, done) => {
     })
 
   let transCollection = await getTransactionsByAccounts(connect.eth, accounts, startBlockNumber, currentHeight, false)
+    .catch((err) => {
+      console.error(err)
+      return false
+    })
 
+  if (!transCollection) {
+    done()
+    return
+  }
   console.log(`共计 ${transCollection.size} 个钱包账户:`)
 
   let submitQueue = new ParallelQueue({
