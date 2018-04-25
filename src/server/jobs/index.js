@@ -14,7 +14,7 @@ export const creServerSchedule = () => {
   agendaClient.define(TASKS.syncCreWallet, syncCreWallet)
   agendaClient.on('ready', () => {
     agendaClient.every('2 minutes', TASKS.syncTxState).unique({ syncTxState: true })
-    agendaClient.every('30 minutes', TASKS.syncCreWallet).unique({ syncCreWallet: true })
+    agendaClient.every('5 hours', TASKS.syncCreWallet).unique({ syncCreWallet: true })
     agendaClient.start()
   }).on('error', (ex) => {
     console.log(ex)
@@ -25,5 +25,5 @@ export const ethServerSchedule = () => {
   const Schedule = require('node-schedule')
   const syncEthWallet = require('./syncEthWallet').default
   console.log('start eth schedule task')
-  Schedule.scheduleJob('*/30 * * * *', syncEthWallet)
+  Schedule.scheduleJob('* */5 * * *', syncEthWallet)
 }

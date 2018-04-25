@@ -9,7 +9,7 @@ let fail_counter = 0
 let exception_counter = 0
 // 获取发送中的交易
 function getSuccTxs() {
-  return prizeInfoModel.find({ status: STATUS.success })
+  return prizeInfoModel.find({ txid: { $exists: true } })
 }
 
 /**
@@ -46,9 +46,9 @@ export default async function () {
         if (txid) {
           let isValid = await isValidTransaction(confirmedBlockHeight, txid).catch(reject)
           if (!isValid) {
-            transaction.status = STATUS.pending
+            transaction.status = STATUS.sending
             fail_counter += 1
-            console.log(`valid transaction fail sent ${fail_counter}`)
+            console.log(`invalid transaction sent ${fail_counter}`)
             transaction.save().then(resolve).catch(reject)
           }
           succ_counter += 1
