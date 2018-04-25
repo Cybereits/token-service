@@ -2,14 +2,16 @@ let env = process.env.NODE_ENV || 'development'
 
 const CONFIG = {
   production: {
-    apiServer: '',
     port: 8010,
+    apiServer: '',
     clientPort: 8545,
+    schedule: ['cre', 'eth'],
   },
   development: {
-    apiServer: '',
     port: 8010,
+    apiServer: '',
     clientPort: 8545,
+    schedule: ['cre', 'eth'],
   },
 }
 

@@ -4,7 +4,6 @@ import session from 'koa-session'
 import serve from 'koa-static'
 
 import router from './routes'
-import startJobs from './jobs'
 import env from '../config/env'
 
 const port = process.env.PORT || env.port
@@ -43,8 +42,6 @@ app.use(async (ctx, next) => {
 // routes
 app.use(router.routes(), router.allowedMethods())
 app.use(serve(`${__dirname}/../../app/dist`))
-
-startJobs()
 
 app.on('error', (error) => {
   if (error.syscall !== 'listen') {

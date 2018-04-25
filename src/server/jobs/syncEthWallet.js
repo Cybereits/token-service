@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { postBalances } from '../apis/phpApis'
-import { connect } from '../framework/web3'
+import { postBalances } from '../../apis/phpApis'
+import { connect } from '../../framework/web3'
 
 export default async function syncWallet() {
   let list = await connect.eth.getAccounts()
