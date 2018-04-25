@@ -26,7 +26,10 @@ const walletTransInfo = mongoose.Schema({
 
 // 扫描区块获得的交易记录信息
 const transactionInfo = mongoose.Schema({
-  // block: Number,
+  block: {
+    type: Number,
+    index: true,
+  },
   txid: {
     type: String,
     index: true,

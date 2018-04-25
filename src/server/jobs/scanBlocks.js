@@ -85,7 +85,7 @@ async function getTransactions(startBlockNumber = 0, endBlockNumber, force = fal
               // 将交易详情信息记录到数据库
               await saveTrans(
                 {
-                  block: block.number,
+                  block: i,
                   txid: hash,
                   // from: fromAddress,
                   // to,

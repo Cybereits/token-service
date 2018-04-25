@@ -4,7 +4,7 @@ import syncTransactionState from './syncTxState'
 // import scanBlocksForContractJob from './scanBlocksForContract'
 
 const TASKS = {
-  scanBlocks: 'scan blocks',
+  // scanBlocks: 'scan blocks',
   syncTxState: 'sync transaction state',
   // scanBlocksForContract: 'scan blocks for contract',
 }
