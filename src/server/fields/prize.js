@@ -110,7 +110,7 @@ export const handlePrizes = {
             new TaskCapsule(() => {
               let { ethAddress, prize } = term
               return sendToken(address, secret, ethAddress, prize)
-                .then(({ transactionHash }) => {
+                .then((transactionHash) => {
                   // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                   term.status = STATUS.sending
                   term.txid = transactionHash

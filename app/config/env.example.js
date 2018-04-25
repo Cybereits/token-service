@@ -13,6 +13,4 @@ const CONFIG = {
   },
 }
 
-console.log(`Environment : ${env}`)
-
-module.exports = Object.assign({}, CONFIG[env], { env })
+export default Object.assign({}, CONFIG[env], { env })

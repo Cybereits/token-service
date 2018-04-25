@@ -1,14 +1,12 @@
 import { EventEmitter } from 'events'
 
 import { subscribeContractAllEvents } from '../utils/contract'
-import { getTokenContract } from '../utils/token'
-import { connect } from '../framework/web3'
+import { tokenContract } from '../utils/token'
 
 const ContractEvents = new EventEmitter()
 
 export async function deployContractEventListeners() {
-  let contract = await getTokenContract(connect)
-  subscribeContractAllEvents(contract, (error, result) => {
+  subscribeContractAllEvents(tokenContract, (error, result) => {
     if (error) {
       console.error(`Contract event listeners get error: ${error}`)
     } else if (result) {

@@ -1,14 +1,11 @@
 import agendaClient from '../../framework/jobsManager'
 import syncTransactionState from './syncTxState'
-// import scanBlocksForContractJob from './scanBlocksForContract'
 
 const TASKS = {
   syncTxState: 'sync transaction state',
-  // scanBlocksForContract: 'scan blocks for contract',
 }
 
 agendaClient.define(TASKS.syncTxState, syncTransactionState)
-// agendaClient.define(TASKS.scanBlocksForContract, scanBlocksForContractJob)
 
 export default () => {
   agendaClient.on('ready', () => {

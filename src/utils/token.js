@@ -9,39 +9,27 @@ import {
   contractDecimals,
 } from '../config/const'
 
+import tokenContractData from '../contracts/token.json'
+
 const multiplier = 10 ** contractDecimals
+
+const tokenContractAbi = JSON.parse(tokenContractData.abi[1])
+const tokenContractAddress = tokenContractData.address[0]
+const lockContractAbi = JSON.parse(tokenContractData.abi[0])
+const tokenSubContractAddress = tokenContractData.subContractAddress[0]
+
+export const tokenContract = new connect.eth.Contract(tokenContractAbi, tokenContractAddress)
+export const tokenContractMethods = tokenContract.methods
+export const subContract = new connect.eth.Contract(lockContractAbi, tokenSubContractAddress)
 
 bignumber.config({ DECIMAL_PLACES: 5 })
 
 /**
- * 获取代币合约
- * @param {*} connect web3链接
- */
-export async function getTokenContract(connect) {
-  let tokenContractData = require('../contracts/token.json')
-  const tokenContractAbi = JSON.parse(tokenContractData.abi[1])
-  const tokenContractAddress = tokenContractData.address[0]
-  return new connect.eth.Contract(tokenContractAbi, tokenContractAddress)
-}
-
-/**
- * 获取锁仓合约
- * @param {*} connect web3链接
- */
-export async function getSubContract(connect) {
-  let tokenContractData = require('../contracts/token.json')
-  const lockContractAbi = JSON.parse(tokenContractData.abi[0])
-  const tokenSubContractAddress = tokenContractData.subContractAddress[0]
-  return new connect.eth.Contract(lockContractAbi, tokenSubContractAddress)
-}
-
-/**
  * 获取代币总量（调用totalSupply方法）
  * @param {*} connect web3链接
- * @param {*} contract 合约对象
  */
-export async function getTotal(connect, contract = null) {
-  let amount = await contract.methods.totalSupply().call(null)
+export async function getTotal(connect) {
+  let amount = await tokenContract.methods.totalSupply().call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
 
@@ -51,8 +39,8 @@ export async function getTotal(connect, contract = null) {
  * @param {*} contract 合约对象
  * @param {*} userAddress 用户地址
  */
-export async function balanceOf(connect, contract = null, userAddress) {
-  let amount = await contract.methods.balanceOf(userAddress).call(null)
+export async function balanceOf(connect, userAddress) {
+  let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
 
@@ -61,8 +49,7 @@ export async function balanceOf(connect, contract = null, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
-  let tokenContract = await getTokenContract(connect)
-  let userBalance = await balanceOf(connect, tokenContract, userAddress)
+  let userBalance = await balanceOf(connect, userAddress)
   return userBalance
 }
 
@@ -71,11 +58,8 @@ export async function getTokenBalance(userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
-  let tokenContractData = require('../contracts/token.json')
-  const tokenContractAddress = tokenContractData.address[0]
-  let tokenContract = await getTokenContract(connect)
-  let tokenTotalAmount = await getTotal(connect, tokenContract)
-  let userBalance = await balanceOf(connect, tokenContract, userAddress)
+  let tokenTotalAmount = await getTotal(connect)
+  let userBalance = await balanceOf(connect, userAddress)
   return {
     tokenContractAddress,
     total: tokenTotalAmount,
@@ -96,36 +80,18 @@ export async function getTokenBalanceFullInfo(userAddress) {
  */
 export async function sendToken(fromAddress, passWord, toAddress, amount, gas, gasPrice) {
   let amountInt = +amount
-  if (amountInt > 100000000) {
-    throw new Error('单笔转账不得超过一亿代币')
-  } else if (amountInt <= 0) {
+
+  if (amountInt <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
 
     let _amount = bignumber(amountInt.toFixed(5))
-
     let _sendAmount = _amount.times(multiplier)
-
-    let tokenContract = await getTokenContract(connect)
-      .catch((err) => {
-        throw new Error(err.message)
-      })
 
     await unlockAccount(connect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
-
-    // if (!gas) {
-    //   gas = await estimateGasOfSendToken(toAddress, amount)
-    //     .then((gasUsed) => {
-    //       console.log(`实时油费: [${gasUsed}]`)
-    //       return gasUsed
-    //     })
-    //     .catch((ex) => {
-    //       console.error(ex)
-    //     })
-    // }
 
     if (!gasPrice) {
       gasPrice = await connect
@@ -136,21 +102,23 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         })
     }
 
-    return tokenContract
-      .methods
-      .transfer(toAddress, _sendAmount)
-      .send({
-        from: fromAddress,
-        gas: gas,
-        gasPrice: gasPrice,
-      })
-      .then((data) => {
-        console.info(`广播代币转账信息\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${data.transactionHash}\ngas ${gas}\ngasPrice ${gasPrice}\n-------------`)
-        return data
-      })
-      .catch((err) => {
-        throw new Error(err.message)
-      })
+    return new Promise((resolve, reject) => {
+      tokenContract
+        .methods
+        .transfer(toAddress, _sendAmount)
+        .send({
+          from: fromAddress,
+          gas: gas,
+          gasPrice: gasPrice,
+        })
+        .on('transactionHash', (hash) => {
+          console.info(`广播代币转账信息\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}\ngas ${gas}\ngasPrice ${gasPrice}\n-------------`)
+          resolve(hash)
+        })
+        .on('error', (err) => {
+          reject(err)
+        })
+    })
   }
 }
 
@@ -159,16 +127,10 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
  * @param {string} toAddress 转入地址
  * @param {number} amount 发送代币数量
  */
-export async function estimateGasOfSendToken(toAddress, amount) {
-
-  let tokenContract = await getTokenContract(connect)
-    .catch((err) => {
-      throw new Error(err.message)
-    })
-
+export function estimateGasOfSendToken(toAddress, amount) {
   return tokenContract
     .methods
-    .transfer(toAddress, amount)
+    .Transfer(toAddress, amount)
     .estimateGas()
 }
 
@@ -196,26 +158,3 @@ export function getTokenAmountByBigNumber(inputBigNumber) {
   return _bigNumber / multiplier
 }
 
-/**
- * 解析交易记录中的 input 参数
- * @param {string} inputStr input 参数字符串
- * @returns {Array} 解析后的参数数组
- */
-export function decodeTransferInput(inputStr) {
-  // Transfer转账的数据格式
-  // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
-  let str = inputStr.toString()
-  let seperator = '00000000000000000000000'  // 23个0
-  if (str.length >= 10) {
-    let arr = str.split(seperator)
-    // 参数解析后
-    // 第一个参数是函数的id 16进制格式，不需要改变
-    // 第二个参数是转入地址，加 0x 前缀转换成有效地址
-    arr[1] = `0x${arr[1]}`
-    // 第三个参数是交易的代币数量 需要转换成有效数值
-    arr[2] = getTokenAmountByBigNumber(arr[2])
-    return arr
-  } else {
-    return [str]
-  }
-}
