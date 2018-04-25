@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { connect } from '../../framework/web3'
-import { prizeInfoModel, transactionInfoModel } from '../../core/schemas'
+import { prizeInfoModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
 
 // 获取发送中的交易
@@ -11,12 +11,15 @@ function getOnSendingTxs() {
 
 /**
  * 是否是已验证的交易
- * @param {number} heightLimit 区块高度
+ * @param {number} heightLimit 已确认的区块高度限制（小于该高度为确认）
  * @param {string} txid 交易id
  */
 async function isValidTransaction(heightLimit, txid) {
-  let count = await transactionInfoModel.find({ txid, block: { $lt: heightLimit } }).count()
-  return count > 0
+  let txInfo = await connect.eth.getTransaction(txid).catch(() => false)
+  if (txInfo && txInfo.blockNumber < heightLimit) {
+    return true
+  }
+  return false
 }
 
 export default async function (job, done) {
@@ -24,8 +27,6 @@ export default async function (job, done) {
   let currBlockNumber = await connect.eth.getBlockNumber()
   // 30 个区块高度前的区块内的交易视作已确认
   let confirmedBlockHeight = currBlockNumber - 30
-  // 200 个区块高度钱的区块视作过期区块清理
-  let outdatedBlockHeight = currBlockNumber - 200
   let sendingTxs = await getOnSendingTxs().catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
     done()
@@ -57,7 +58,6 @@ export default async function (job, done) {
       .consume()
       .then(async () => {
         console.log('交易状态同步完毕')
-        await transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
         done()
       })
       .catch((ex) => {
@@ -65,7 +65,6 @@ export default async function (job, done) {
         done()
       })
   } else {
-    await transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
     console.log('没有需要同步的交易状态')
     done()
   }

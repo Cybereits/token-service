@@ -131,10 +131,6 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
       gasPrice = await connect
         .eth
         .getGasPrice()
-        .then((price) => {
-          console.log(`实时油价: [${price}]`)
-          return price
-        })
         .catch((ex) => {
           console.error(`get gas price failded: ${fromAddress}`)
         })
