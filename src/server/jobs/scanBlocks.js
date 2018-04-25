@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { connect } from '../../framework/web3'
-import { decodeTransferInput } from '../../utils/token'
+// import { decodeTransferInput } from '../../utils/token'
 import { beginBlockHeight } from '../../config/const'
 import { blockScanLogModel, transactionInfoModel } from '../../core/schemas'
 

@@ -1,9 +1,9 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { postBalances } from '../../apis/phpApis'
-import { connect } from '../../framework/web3'
+import { postBalances } from '../apis/phpApis'
+import { connect } from '../framework/web3'
 
-export default async function syncWallet(job, done) {
+export default async function syncWallet() {
   let list = await connect.eth.getAccounts()
   let balanceArr = []
   let total = 0
@@ -33,14 +33,14 @@ export default async function syncWallet(job, done) {
         postBalances(balanceArr)
           .then((res) => {
             console.log(`钱包信息查询完毕，提交到 php 服务器: ${JSON.stringify(res, null, 4)}`)
-            done()
           })
           .catch((err) => {
-            console.log(`定时任务队列执行错误: ${err.message}`)
-            done()
+            console.log(`任务队列执行错误: ${err.message}`)
           })
       })
-      .catch(() => { done() })
+      .catch((err) => {
+        console.log(err)
+      })
   } else {
     throw new Error('地址数组为空')
   }
