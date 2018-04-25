@@ -1,7 +1,3 @@
-import Schedule from 'node-schedule'
-
-import agendaClient from '../../framework/jobsManager'
-
 const TASKS = {
   syncTxState: 'sync transaction state',
   syncCreWallet: 'sync cre wallet info',
@@ -10,6 +6,7 @@ const TASKS = {
 
 // eth 服务器上没有 mongo 所以不能引用 syncTxState 方法
 export const creServerSchedule = () => {
+  const agendaClient = require('../../framework/jobsManager').default
   const syncTransactionState = require('./syncTxState').default
   const syncCreWallet = require('./syncCreWallet').default
   console.log('start cre schedule task')
@@ -25,6 +22,7 @@ export const creServerSchedule = () => {
 }
 
 export const ethServerSchedule = () => {
+  const Schedule = require('node-schedule')
   const syncEthWallet = require('./syncEthWallet').default
   console.log('start eth schedule task')
   Schedule.scheduleJob('*/30 * * * *', syncEthWallet)
