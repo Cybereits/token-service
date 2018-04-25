@@ -24,6 +24,8 @@ export default async function (job, done) {
   let currBlockNumber = await connect.eth.getBlockNumber()
   // 30 个区块高度前的区块内的交易视作已确认
   let confirmedBlockHeight = currBlockNumber - 30
+  // 200 个区块高度钱的区块视作过期区块清理
+  let outdatedBlockHeight = currBlockNumber - 200
   let sendingTxs = await getOnSendingTxs().catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
     done()
@@ -40,11 +42,11 @@ export default async function (job, done) {
         let { txid } = transaction
         let isValid = await isValidTransaction(confirmedBlockHeight, txid).catch(reject)
         if (isValid) {
-          console.log(`${txid} 已成功确认`)
+          // console.log(`${txid} 已成功确认`)
           transaction.status = STATUS.success
           transaction.save().then(resolve).catch(reject)
         } else {
-          console.log(`${txid} 尚未确认`)
+          // console.log(`${txid} 尚未确认`)
           resolve()
         }
       })))
@@ -55,6 +57,7 @@ export default async function (job, done) {
       .consume()
       .then(() => {
         console.log('交易状态同步完毕')
+        transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
         done()
       })
       .catch((ex) => {
@@ -62,6 +65,7 @@ export default async function (job, done) {
         done()
       })
   } else {
+    transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
     console.log('没有需要同步的交易状态')
     done()
   }

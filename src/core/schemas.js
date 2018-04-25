@@ -32,14 +32,8 @@ const transactionInfo = mongoose.Schema({
     index: true,
     unique: true,
   },
-  from: {
-    type: String,
-    index: true,
-  },
-  to: {
-    type: String,
-    index: true,
-  },
+  from: String,
+  to: String,
   cumulativeGasUsed: Number,
   gasUsed: Number,
   ethTransferred: Number,

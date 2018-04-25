@@ -18,9 +18,9 @@ agendaClient.define(TASKS.syncWallet, syncWallet)
 
 export default () => {
   agendaClient.on('ready', () => {
-    agendaClient.every('2 minutes', TASKS.scanBlocks).unique({ scanBlock: true })
-    agendaClient.every('5 minutes', TASKS.syncTxState).unique({ syncTxState: true })
-    agendaClient.every('5 minutes', TASKS.syncWallet).unique({ syncWallet: true })
+    agendaClient.every('10 minutes', TASKS.scanBlocks).unique({ scanBlock: true })
+    agendaClient.every('20 minutes', TASKS.syncTxState).unique({ syncTxState: true })
+    agendaClient.every('12 hours', TASKS.syncWallet).unique({ syncWallet: true })
     agendaClient.start()
   }).on('error', (ex) => {
     console.log(ex)
