@@ -5,13 +5,13 @@ const CONFIG = {
     port: 8010,
     apiServer: '',
     clientPort: 8545,
-    schedule: ['cre', 'eth'],
+    schedule: ['wallet', 'tx'],
   },
   development: {
     port: 8010,
     apiServer: '',
     clientPort: 8545,
-    schedule: ['cre', 'eth'],
+    schedule: ['tx'],
   },
 }
 

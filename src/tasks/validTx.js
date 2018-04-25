@@ -50,9 +50,10 @@ export default async function () {
             fail_counter += 1
             console.log(`invalid transaction sent ${fail_counter}`)
             transaction.save().then(resolve).catch(reject)
+          } else {
+            succ_counter += 1
+            console.log(`valid transaction succ sent ${succ_counter}`)
           }
-          succ_counter += 1
-          console.log(`valid transaction succ sent ${succ_counter}`)
           resolve()
         } else {
           exception_counter += 1

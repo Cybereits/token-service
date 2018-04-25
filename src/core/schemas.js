@@ -122,39 +122,39 @@ const userReturnBackInfo = mongoose.Schema({
   },
 })
 
-// 钱包转账信息
-const walletTransInfo = mongoose.Schema({
-  address: {
-    type: String,
-    index: true,
-    unique: true,
-  },
-  eth: Number,
-  cre: Number,
-  trans: [{
-    block: Number,
-    txid: String,
-    from: String,
-    to: String,
-    cumulativeGasUsed: Number,
-    gasUsed: Number,
-    ethTransferred: Number,
-    tokenTransferred: Number,
-  }],
-})
+// // 钱包转账信息
+// const walletTransInfo = mongoose.Schema({
+//   address: {
+//     type: String,
+//     index: true,
+//     unique: true,
+//   },
+//   eth: Number,
+//   cre: Number,
+//   trans: [{
+//     block: Number,
+//     txid: String,
+//     from: String,
+//     to: String,
+//     cumulativeGasUsed: Number,
+//     gasUsed: Number,
+//     ethTransferred: Number,
+//     tokenTransferred: Number,
+//   }],
+// })
 
-// 扫描区块的记录
-const blockScanLog = mongoose.Schema({
-  blockNum: {
-    type: Number,
-    index: true,
-    unique: true,
-  },
-})
+// // 扫描区块的记录
+// const blockScanLog = mongoose.Schema({
+//   blockNum: {
+//     type: Number,
+//     index: true,
+//     unique: true,
+//   },
+// })
 
-export const blockScanLogModel = connection.model('blockScanInfo', blockScanLog)
+// export const blockScanLogModel = connection.model('blockScanInfo', blockScanLog)
 export const batchTransactinTaskModel = connection.model('batchTransactionTask', batchTxTask)
 export const prizeInfoModel = connection.model('prizeInfo', prizeInfo)
 export const txOperationRecordModel = connection.model('transactionOperationRecord', txOperationRecord)
 export const userReturnBackInfoModel = connection.model('userReturnBackInfo', userReturnBackInfo)
-export const walletTransInfoModel = connection.model('walletTransInfo', walletTransInfo)
+// export const walletTransInfoModel = connection.model('walletTransInfo', walletTransInfo)

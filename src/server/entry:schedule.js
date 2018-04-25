@@ -4,10 +4,10 @@ require('babel-register')({
 
 const { schedule } = require('../config/env')
 
-if (schedule.includes('cre')) {
-  require('./jobs').creServerSchedule()
+if (schedule.includes('wallet')) {
+  require('./jobs').syncWallet()
 }
 
-if (schedule.includes('eth')) {
-  require('./jobs').ethServerSchedule()
+if (schedule.includes('tx')) {
+  require('./jobs').syncTransaction()
 }
