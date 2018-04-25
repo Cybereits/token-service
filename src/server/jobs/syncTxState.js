@@ -55,9 +55,9 @@ export default async function (job, done) {
     // 消费任务队列
     await queue
       .consume()
-      .then(() => {
+      .then(async () => {
         console.log('交易状态同步完毕')
-        transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
+        await transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
         done()
       })
       .catch((ex) => {
@@ -65,7 +65,7 @@ export default async function (job, done) {
         done()
       })
   } else {
-    transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
+    await transactionInfoModel.deleteMany({ block: { $lt: outdatedBlockHeight } })
     console.log('没有需要同步的交易状态')
     done()
   }

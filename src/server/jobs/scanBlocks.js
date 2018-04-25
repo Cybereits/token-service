@@ -5,6 +5,8 @@ import { connect } from '../../framework/web3'
 import { beginBlockHeight } from '../../config/const'
 import { blockScanLogModel, transactionInfoModel } from '../../core/schemas'
 
+let execEnable = true
+
 /**
  * 保存交易详情
  * @param {object} tx 交易详情
@@ -115,6 +117,11 @@ async function getTransactions(startBlockNumber = 0, endBlockNumber, force = fal
 
 // 扫描代币合约下的所有转账交易信息
 export default async function (job, done) {
+  if (!execEnable) {
+    console.log('上一次任务未完成...')
+    done()
+  }
+  execEnable = false
   console.log('开始扫描区块，同步交易信息')
   // 截止到当前区块高度
   let startBlockNumber = beginBlockHeight
@@ -124,10 +131,12 @@ export default async function (job, done) {
     .consume()
     .then(() => {
       console.log(`区块扫描完成，所有账户的交易记录匹配完毕!当前高度${endBlockNumber}`)
+      execEnable = true
       done()
     })
     .catch((ex) => {
       console.error(`区块扫描失败: ${ex}`)
+      execEnable = true
       done()
     })
 }
