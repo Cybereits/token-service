@@ -112,12 +112,15 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
           gasPrice: gasPrice,
         })
         .on('transactionHash', (hash) => {
-          console.info(`广播代币转账信息\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}\ngas ${gas}\ngasPrice ${gasPrice}\n-------------`)
+          console.info(`Transfer Token:\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}`)
           resolve(hash)
         })
         .on('error', (err) => {
           reject(err)
         })
+        // 忽略 tx 没有被确认的错误
+        // 因为我们是通过区块查询 txid 的方式去确认交易是否成功
+        .catch(() => { })
     })
   }
 }
