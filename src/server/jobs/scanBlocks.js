@@ -50,7 +50,7 @@ async function getTransactions(startBlockNumber = 0, endBlockNumber, force = fal
   // 扫描区块的任务队列
   // 由于获取区块时并发数量过高会导致 missing trie node 错误
   // 所以限制区块扫描任务并发数量不得超过 10
-  let taskQueue = new ParallelQueue({ limit: 10 })
+  let taskQueue = new ParallelQueue({ limit: 10, toleration: 0 })
   let scannedBlocks = await getScannedBlockNumbers()
   for (let i = startBlockNumber; i <= endBlockNumber; i += 1) {
     if (force || !~scannedBlocks.indexOf(i)) {
@@ -61,36 +61,36 @@ async function getTransactions(startBlockNumber = 0, endBlockNumber, force = fal
         let block = await connect.eth.getBlock(i, true)
         if (block != null && block.transactions != null) {
           // 遍历区块内的交易记录
-          let transQueue = new ParallelQueue({ limit: 10 })
+          let transQueue = new ParallelQueue({ limit: 30, toleration: 0 })
 
           block.transactions.forEach(({ from: fromAddress, to, hash, value, input }) => {
             // 将该转账记录添加到交易记录集合中
+            // 因为只是确认用 所以把除了
             transQueue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
-              let {
-                from: fromAddress,
-                to,
-                cumulativeGasUsed,
-                gasUsed,
-                blockNumber,
-              } = await connect
-                .eth
-                .getTransactionReceipt(hash)
-                .catch((err) => {
-                  console.error(`获取转账明细失败: ${err.message}`)
-                  reject(err)
-                })
+              // let {
+              //   from: fromAddress,
+              //   to,
+              //   cumulativeGasUsed,
+              //   gasUsed,
+              // } = await connect
+              //   .eth
+              //   .getTransactionReceipt(hash)
+              //   .catch((err) => {
+              //     console.error(`获取转账明细失败: ${err.message}`)
+              //     reject(err)
+              //   })
 
               // 将交易详情信息记录到数据库
               await saveTrans(
                 {
-                  block: blockNumber,
+                  block: block.number,
                   txid: hash,
-                  from: fromAddress,
-                  to,
-                  cumulativeGasUsed,
-                  gasUsed,
-                  ethTransferred: connect.eth.extend.utils.fromWei(value, 'ether'),
-                  tokenTransferred: decodeTransferInput(input)[2] || 0,
+                  // from: fromAddress,
+                  // to,
+                  // cumulativeGasUsed,
+                  // gasUsed,
+                  // ethTransferred: connect.eth.extend.utils.fromWei(value, 'ether'),
+                  // tokenTransferred: decodeTransferInput(input)[2] || 0,
                 }
               )
                 .then(resolve)

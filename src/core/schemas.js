@@ -26,18 +26,18 @@ const walletTransInfo = mongoose.Schema({
 
 // 扫描区块获得的交易记录信息
 const transactionInfo = mongoose.Schema({
-  block: Number,
+  // block: Number,
   txid: {
     type: String,
     index: true,
     unique: true,
   },
-  from: String,
-  to: String,
-  cumulativeGasUsed: Number,
-  gasUsed: Number,
-  ethTransferred: Number,
-  tokenTransferred: Number,
+  // from: String,
+  // to: String,
+  // cumulativeGasUsed: Number,
+  // gasUsed: Number,
+  // ethTransferred: Number,
+  // tokenTransferred: Number,
 })
 
 // 用户退币信息
