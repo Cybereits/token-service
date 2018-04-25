@@ -16,7 +16,7 @@ function getOnSendingTxs() {
  */
 async function isValidTransaction(heightLimit, txid) {
   let txInfo = await connect.eth.getTransaction(txid).catch(() => false)
-  if (txInfo && txInfo.blockNumber < heightLimit) {
+  if (txInfo && txInfo.blockNumber && txInfo.blockNumber < heightLimit) {
     return true
   }
   return false
