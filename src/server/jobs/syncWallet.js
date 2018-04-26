@@ -108,20 +108,12 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
     accounts.map(_addr => accountsQueue.add(new TaskCapsule(() =>
       new Promise(async (resolve, reject) => {
 
-        let ethBalance = await eth.getBalance(_addr)
-          .catch((ex) => {
-            console.log(`get address eth balance failded: ${_addr}`)
-            reject(ex)
-          })
+        let ethBalance = await eth.getBalance(_addr).catch(reject)
 
         let creBalance = 0
 
         if (!isContract) {
-          creBalance = await getTokenBalance(_addr)
-            .catch((ex) => {
-              console.log(`get address cre balance failded: ${_addr}`)
-              reject(ex)
-            })
+          creBalance = await getTokenBalance(_addr).catch(reject)
         }
 
         transactionSet[_addr] = {
@@ -137,7 +129,6 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
     accountsQueue
       .consume()
       .then(async () => {
-        console.log('钱包地址信息扫描完毕...开始扫描区块')
         await scanBlock()
         // 钱包信息创建完成时 执行区块扫描任务队列
         taskQueue
@@ -185,13 +176,12 @@ function submitTransInfo(info, callback) {
       let _trans = info.trans.slice(_start, _end)
       // 生成同步的数据体
       let data = Object.assign({}, info, { trans: _trans })
-      console.log(`同步地址信息: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
       // 同步数据
       postTransactions(data)
         .then((res) => {
           if (+res.code === 0) {
             // 同步成功
-            console.log(`同步成功，地址: ${info.address} 从 ${_start} 到 ${_end} 共计 ${_trans.length} 笔交易信息`)
+            console.log(`同步成功，地址: ${info.address}`)
             resolve()
           } else {
             // 同步失败
@@ -216,11 +206,14 @@ export default async (job, done) => {
   let currentHeight = await connect.eth.getBlockNumber()
   let startBlockNumber = currentHeight - 300
 
-  let accounts = await connect.eth.getAccounts()
-    .catch((err) => {
-      console.error(`获取本地账户信息失败: ${err.message}`)
-      process.exit(0)
-    })
+  let accounts = await connect.eth.getAccounts().catch((err) => {
+    console.error(`获取本地账户信息失败: ${err.message}`)
+  })
+
+  if (!accounts) {
+    done()
+    return
+  }
 
   let transCollection = await getTransactionsByAccounts(connect.eth, accounts, startBlockNumber, currentHeight, false)
     .catch((err) => {
@@ -232,11 +225,12 @@ export default async (job, done) => {
     done()
     return
   }
+
   console.log(`共计 ${transCollection.size} 个钱包账户:`)
 
   let submitQueue = new ParallelQueue({
     limit: postParallelLimitation,
-    toleration: 1,
+    toleration: 0,
   })
 
   transCollection
