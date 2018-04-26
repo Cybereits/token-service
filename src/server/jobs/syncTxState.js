@@ -26,7 +26,7 @@ async function isValidTransaction(heightLimit, txid) {
 
 export default async function (job, done) {
   if (!executable) {
-    console.info('尚有未完成任务...')
+    console.info('尚有未完成交易状态同步任务...')
     done()
   }
   executable = false

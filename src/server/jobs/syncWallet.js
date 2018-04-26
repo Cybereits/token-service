@@ -211,7 +211,7 @@ function submitTransInfo(info, callback) {
 
 export default async () => {
   if (!executable) {
-    console.info('尚有未完成任务...')
+    console.info('尚有未完成钱包同步任务...')
   }
   executable = false
   // 只扫描最近的 300 个区块
