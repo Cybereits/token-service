@@ -20,6 +20,6 @@ export const syncWallet = () => {
   const syncWallet = require('./syncWallet').default
   const syncAddress = require('./syncAddress').default
   console.log('add sync wallet schedule task')
-  Schedule.scheduleJob('* 2 * * *', syncWallet) // 每天凌晨 2 点执行同步钱包余额的任务
-  Schedule.scheduleJob('* 1 * * *', syncAddress) // 每天凌晨 1 点执行同步钱包地址的任务
+  Schedule.scheduleJob('* * 2 * * *', syncWallet) // 每天凌晨 2 点执行同步钱包余额的任务
+  Schedule.scheduleJob('* * 1 * * *', syncAddress) // 每天凌晨 1 点执行同步钱包地址的任务
 }
