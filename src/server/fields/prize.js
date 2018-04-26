@@ -127,9 +127,8 @@ export const handlePrizes = {
         })
 
         // 消费队列
-        queue.consume().catch((ex) => {
+        queue.consume().catch(() => {
           console.error(`处理未正常结束: 实际已发送 ${queue.succ} 条，失败 ${queue.fail} 条`)
-          console.error(ex)
         })
 
         return saveBatchTransactionTask(

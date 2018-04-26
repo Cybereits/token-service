@@ -19,5 +19,5 @@ export const syncWallet = () => {
   const Schedule = require('node-schedule')
   const syncWallet = require('./syncWallet').default
   console.log('add sync wallet schedule task')
-  Schedule.scheduleJob('* */4 * * *', syncWallet)
+  Schedule.scheduleJob('* 2 * * *', syncWallet) // 每天凌晨 2 点执行同步钱包的任务
 }
