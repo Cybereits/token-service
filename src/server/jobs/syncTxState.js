@@ -33,7 +33,7 @@ export default async function (job, done) {
   console.log('开始同步交易状态')
   let currBlockNumber = await connect.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
-  let confirmedBlockHeight = currBlockNumber - 60
+  let confirmedBlockHeight = currBlockNumber - 30
   let sendingTxs = await getOnSendingTxs().catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
     executable = true
