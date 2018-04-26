@@ -117,6 +117,7 @@ export const handlePrizes = {
                   return term.save()
                 })
                 .catch(async (ex) => {
+                  console.error(ex.message)
                   // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
                   term.status = STATUS.failure
                   term.txid = null

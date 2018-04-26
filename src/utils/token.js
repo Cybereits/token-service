@@ -112,17 +112,10 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
           gasPrice: gasPrice,
         })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer ${_amount} Token to ${toAddress}\ntxid ${hash}`)
+          console.info(`Transfer [${_amount}] tokens to [${toAddress}] [txid ${hash}]`)
           resolve(hash)
         })
-        .on('error', (err) => {
-          console.error(`发送出错 ${toAddress} ${amount}`)
-          reject(err)
-        })
-        .catch((err) => {
-          console.error(`发送失败 ${toAddress} ${amount}`)
-          reject(err)
-        })
+        .on('error', reject)
     })
   }
 }
