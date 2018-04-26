@@ -102,7 +102,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         })
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       tokenContract
         .methods
         .transfer(toAddress, _sendAmount)
@@ -112,15 +112,13 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
           gasPrice: gasPrice,
         })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer Token:\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}`)
+          // console.info(`Transfer Token:\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}`)
           resolve(hash)
         })
-        .on('error', (err) => {
-          reject(err)
+        .catch((err) => {
+          console.error(err)
+          resolve(null)
         })
-        // 忽略 tx 没有被确认的错误
-        // 因为我们是通过区块查询 txid 的方式去确认交易是否成功
-        .catch(() => { })
     })
   }
 }

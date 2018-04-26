@@ -32,9 +32,9 @@ export const createPrizeInfo = {
   },
 }
 
-export const initPrizeInfo = {
+export const batchCreate = {
   type: str,
-  description: '从文件初始化奖励信息',
+  description: '批量创建',
   async resolve() {
     // await prizeInfoModel.remove()
     // await prizeInfoModel.create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
