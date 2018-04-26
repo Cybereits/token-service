@@ -4,6 +4,8 @@ import { connect } from '../../framework/web3'
 import { prizeInfoModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
 
+let executable = true
+
 // 获取发送中的交易
 function getOnSendingTxs() {
   return prizeInfoModel.find({ status: STATUS.sending })
@@ -23,12 +25,18 @@ async function isValidTransaction(heightLimit, txid) {
 }
 
 export default async function (job, done) {
+  if (!executable) {
+    console.info('尚有未完成任务...')
+    done()
+  }
+  executable = false
   console.log('开始同步交易状态')
   let currBlockNumber = await connect.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
   let confirmedBlockHeight = currBlockNumber - 60
   let sendingTxs = await getOnSendingTxs().catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
+    executable = true
     done()
   })
   if (sendingTxs.length > 0) {
@@ -64,14 +72,17 @@ export default async function (job, done) {
       .consume()
       .then(async () => {
         console.log('交易状态同步完毕')
+        executable = true
         done()
       })
       .catch((ex) => {
         console.error(`交易状态同步失败 ${ex}`)
+        executable = true
         done()
       })
   } else {
     console.log('没有需要同步的交易状态')
+    executable = true
     done()
   }
 }

@@ -102,7 +102,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         })
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       tokenContract
         .methods
         .transfer(toAddress, _sendAmount)
@@ -115,9 +115,8 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
           // console.info(`Transfer Token:\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}`)
           resolve(hash)
         })
-        .catch((err) => {
-          console.error(err)
-          resolve(null)
+        .on('error', (err) => {
+          reject(err)
         })
     })
   }

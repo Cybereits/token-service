@@ -4,6 +4,8 @@ import { connect } from '../../framework/web3'
 import { postTransactions } from '../../apis/phpApis'
 import { getTokenBalance, decodeTransferInput } from '../../utils/token'
 
+let executable = true
+
 // 同步交易记录时每次交易数量的限制
 const step = 50
 
@@ -202,6 +204,11 @@ function submitTransInfo(info, callback) {
 }
 
 export default async (job, done) => {
+  if (!executable) {
+    console.info('尚有未完成任务...')
+    done()
+  }
+  executable = false
   // 只扫描最近的 300 个区块
   let currentHeight = await connect.eth.getBlockNumber()
   let startBlockNumber = currentHeight - 300
@@ -211,6 +218,7 @@ export default async (job, done) => {
   })
 
   if (!accounts) {
+    executable = true
     done()
     return
   }
@@ -222,6 +230,7 @@ export default async (job, done) => {
     })
 
   if (!transCollection) {
+    executable = true
     done()
     return
   }
@@ -244,5 +253,14 @@ export default async (job, done) => {
       })))
     })
 
-  submitQueue.consume().then(done).catch(done)
+  submitQueue
+    .consume()
+    .then(() => {
+      executable = true
+      done()
+    })
+    .catch(() => {
+      executable = true
+      done()
+    })
 }

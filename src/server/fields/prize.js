@@ -121,8 +121,6 @@ export const handlePrizes = {
                   term.status = STATUS.failure
                   term.txid = null
                   await term.save()
-                  console.error(ex)
-                  throw ex
                 })
             })
           )
