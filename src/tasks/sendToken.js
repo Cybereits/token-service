@@ -20,11 +20,8 @@ export default (
 
   sendToken(fromAddress, secret, toAddress, amount, gas, gasPrice)
     .then((res) => {
-      console.log('success!')
-      console.log(res)
-      setTimeout(() => {
-        process.exit(0)
-      }, 3000)
+      console.log(`Sent succeed, txid:${res}`)
+      process.exit(0)
     })
     .catch((err) => {
       console.error(err)
