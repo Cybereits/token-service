@@ -1,14 +1,15 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { connect } from '../../framework/web3'
-import { prizeInfoModel } from '../../core/schemas'
-import { STATUS } from '../../core/enums'
+import { connect } from '../framework/web3'
+import { prizeInfoModel } from '../core/schemas'
+import { STATUS } from '../core/enums'
 
-let executable = true
-
+let succ_counter = 0
+let fail_counter = 0
+let exception_counter = 0
 // 获取发送中的交易
-function getOnSendingTxs() {
-  return prizeInfoModel.find({ status: STATUS.sending })
+function getSuccTxs() {
+  return prizeInfoModel.find({ txid: { $exists: true } })
 }
 
 /**
@@ -24,25 +25,18 @@ async function isValidTransaction(heightLimit, txid) {
   return false
 }
 
-export default async function (job, done) {
-  if (!executable) {
-    console.info('尚有未完成交易状态同步任务...')
-    done()
-  }
-  executable = false
-  console.log('开始同步交易状态')
+export default async function () {
+  console.log('开始回溯交易状态')
   let currBlockNumber = await connect.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
   let confirmedBlockHeight = currBlockNumber - 30
-  let sendingTxs = await getOnSendingTxs().catch((ex) => {
-    console.error(`交易状态同步失败 ${ex}`)
-    executable = true
-    done()
+  let sendingTxs = await getSuccTxs().catch((ex) => {
+    console.error(`交易回溯交失败 ${ex}`)
   })
   if (sendingTxs.length > 0) {
     // 创建任务队列
     let queue = new ParallelQueue({
-      limit: 50,
+      limit: 20,
       toleration: 0,
     })
 
@@ -51,18 +45,20 @@ export default async function (job, done) {
         let { txid } = transaction
         if (txid) {
           let isValid = await isValidTransaction(confirmedBlockHeight, txid).catch(reject)
-          if (isValid) {
-            // console.log(`${txid} 已成功确认`)
-            transaction.status = STATUS.success
+          if (!isValid) {
+            transaction.status = STATUS.sending
+            fail_counter += 1
+            console.log(`invalid transaction sent ${fail_counter}`)
             transaction.save().then(resolve).catch(reject)
           } else {
-            // console.log(`${txid} 尚未确认`)
-            resolve()
+            succ_counter += 1
+            console.log(`valid transaction succ sent ${succ_counter}`)
           }
+          resolve()
         } else {
-          // 交易失败
-          transaction.status = STATUS.failure
-          transaction.save().then(resolve).catch(reject)
+          exception_counter += 1
+          console.log(`no txid ${exception_counter}`)
+          resolve()
         }
       })))
     })
@@ -71,18 +67,14 @@ export default async function (job, done) {
     await queue
       .consume()
       .then(async () => {
-        console.log('交易状态同步完毕')
-        executable = true
-        done()
+        console.log('交易回溯完毕')
+        process.exit(0)
       })
       .catch((ex) => {
-        console.error(`交易状态同步失败 ${ex}`)
-        executable = true
-        done()
+        console.error(`交易回溯失败 ${ex}`)
+        process.exit(0)
       })
   } else {
-    console.log('没有需要同步的交易状态')
-    executable = true
-    done()
+    console.log('没有需要回溯的交易')
   }
 }

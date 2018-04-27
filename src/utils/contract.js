@@ -1,10 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import { unlockAccount } from './basic'
-import {
-  gas,
-  gasPrice,
-} from '../config/const'
 import { connect } from '../framework/web3'
 
 /**
@@ -135,11 +131,7 @@ export async function createAndDeployContract(contractCode, contractAbi, deployA
   let result = await deploy(connect, compiledContract, contractCode, deployAccount, accountPwd, contractArguments)
   // 合约部署后的实例对象
   let newContractInstance = await result
-    .send({
-      from: deployAccount,
-      gas,
-      gasPrice,
-    })
+    .send({ from: deployAccount })
 
   // 锁定部署合约的钱包地址
   connect.eth.personal.lockAccount(deployAccount)

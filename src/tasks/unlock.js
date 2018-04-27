@@ -2,13 +2,9 @@ import { connect } from '../framework/web3'
 
 import { unlockAccount } from '../utils/basic'
 
-import {
-  getSubContract,
-} from '../utils/token'
+import { subContract } from '../utils/token'
 
 import {
-  gas,
-  gasPrice,
   teamAddr01,
   teamAddr02,
   teamAddr03,
@@ -43,21 +39,14 @@ export default async (index) => {
       break
   }
 
-  // 获取锁定合约实例
-  let lockContractInstance = await getSubContract(connect)
-
   await unlockAccount(connect, deployOwnerAddr, deployOwnerSecret)
   console.log(`unlock ${unlockAddr}`)
 
   // 解锁锁定的代币
-  let unlockResult = await lockContractInstance
+  let unlockResult = await subContract
     .methods
     .unlock(unlockAddr)
-    .send({
-      from: deployOwnerAddr,
-      gas,
-      gasPrice,
-    })
+    .send({ from: deployOwnerAddr })
     .catch((err) => {
       throw new Error(err.message)
     })

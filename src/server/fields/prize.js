@@ -32,9 +32,9 @@ export const createPrizeInfo = {
   },
 }
 
-export const initPrizeInfo = {
+export const batchCreate = {
   type: str,
-  description: '从文件初始化奖励信息',
+  description: '批量创建',
   async resolve() {
     // await prizeInfoModel.remove()
     // await prizeInfoModel.create(data0.map(({ eth_address, prize }) => ({ ethAddress: eth_address, prize })))
@@ -110,29 +110,25 @@ export const handlePrizes = {
             new TaskCapsule(() => {
               let { ethAddress, prize } = term
               return sendToken(address, secret, ethAddress, prize)
-                .then(({ transactionHash }) => {
+                .then((transactionHash) => {
                   // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                   term.status = STATUS.sending
                   term.txid = transactionHash
                   return term.save()
                 })
                 .catch(async (ex) => {
+                  console.error(ex.message)
                   // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
                   term.status = STATUS.failure
                   term.txid = null
                   await term.save()
-                  console.error(ex)
-                  throw ex
                 })
             })
           )
         })
 
         // 消费队列
-        queue.consume().catch((ex) => {
-          console.error(`处理未正常结束: 实际已发送 ${queue.succ} 条，失败 ${queue.fail} 条`)
-          console.error(ex)
-        })
+        queue.consume()
 
         return saveBatchTransactionTask(
           pendingTerms.map(({ ethAddress, prize }) => ({

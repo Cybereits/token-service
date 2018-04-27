@@ -11,36 +11,6 @@ export const postTransactions = transactionList => request.post(`${apiServer}/tr
   data: transactionList,
 })
 
-// 获取要分发的代币数据
-export const getDistributeTokenInfo = () => request.get(`${apiServer}/dicoin`)
-  .then((res) => {
-    if (+res.code === 0) {
-      return res['data']
-    } else {
-      throw new Error(`请求代币分发信息接口出错:${JSON.stringify(res, null, 4)}`)
-    }
-  })
-
-// 获取已分发的代币数据
-export const getDistributeSentInfo = () => request.get(`${apiServer}/cresending`)
-  .then((res) => {
-    if (+res.code === 0) {
-      return res['data']
-    } else {
-      throw new Error(`请求代币分发信息接口出错:${JSON.stringify(res, null, 4)}`)
-    }
-  })
-
-// 同步代币已发送信息
-export const syncTokenSent = addrCollection => request.post(`${apiServer}/cresending`, {
-  data: addrCollection,
-})
-
-// 同步代币发送成功信息
-export const syncTokenSendingSucc = addrCollection => request.post(`${apiServer}/cresuccess`, {
-  data: addrCollection,
-})
-
 // 获取退回 eth 的用户信息
 export const getEthReturnBackInfo = () => request.get(`${apiServer}/eth_return`)
   .then((res) => {

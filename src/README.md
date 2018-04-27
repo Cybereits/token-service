@@ -72,8 +72,6 @@
 - apiKey: etherscan.io 授权 key
 - deployOwnerAddr: 合约部署的钱包地址
 - deployOwnerSecret: 合约部署钱包的密码
-- gas: ethereum 网络油量
-- gasPrice: ethereum 网络油价
 - tokenSupply: 代币总量
 - contractDecimals: 代币精度
 - teamLockPercent: 团队锁仓比例
