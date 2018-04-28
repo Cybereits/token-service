@@ -7,9 +7,7 @@
     "dev": "NODE_ENV=development pm2 start config/pm2.config.js",
     "test": "node ./test",
     "dev-task": "node ./tasks",
-    "prd-task": "NODE_ENV=production node ./tasks",
-    "exportTransactionsAsCsv": "mongoexport --db ethService --collection wallettransinfos --type=csv --fields address,eth,cre,trans --out walletTransactions.csv",
-    "exportTransactionsAsJson": "mongoexport --db ethService --collection wallettransinfos --fields address,eth,cre,trans --out walletTransactions.json"
+    "prd-task": "NODE_ENV=production node ./tasks"
   },
   "dependencies": {
     "agenda": "^1.0.3",
