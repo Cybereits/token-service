@@ -66,7 +66,6 @@
 
 ## 常量配置说明
 
-- etherScanApi: ehterscan.io 的公共接口地址
 - apiKey: etherscan.io 授权 key
 - deployOwnerAddr: 合约部署的钱包地址
 - deployOwnerSecret: 合约部署钱包的密码

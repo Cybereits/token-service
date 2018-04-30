@@ -1,3 +1,23 @@
-require('babel-register')
+require('babel-register')({
+  presets: ['es2015', 'stage-0'],
+})
 
-let tokenConfig = require('../contracts/token.json')
+const { contractMetaModel } = require('../core/schemas')
+
+let {
+  name,
+  code,
+  abi,
+  address,
+  subContractAddress,
+} = require('../contracts/token.json')
+
+contractMetaModel.insertMany([
+  {
+    name,
+    code,
+    abi,
+    address,
+    subContractAddress,
+  },
+])

@@ -4,7 +4,6 @@ import { connect } from '../../framework/web3'
 import { postTransactions } from '../../apis/phpApis'
 import {
   getTokenBalance,
-  // decodeTransferInput,
 } from '../../utils/token'
 
 let executable = true
@@ -44,72 +43,6 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
       toleration: 0,
     })
 
-    // 扫描区块获得每个地址下的 transacation 的 hash 列表
-    // let scanBlock = async function () {
-    //   // eslint-disable-next-line
-    //   for (let i = startBlockNumber; i <= endBlockNumber; i++) {
-    //     taskQueue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
-    //       if (i % 50 === 0) {
-    //         console.log(`Searching block ${i}`)
-    //       }
-    //       let block = await eth.getBlock(i, true).catch(reject)
-    //       if (block != null && block.transactions != null) {
-    //         // 遍历区块内的交易记录
-    //         let transQueue = new ParallelQueue({
-    //           limit: 10,
-    //           toleration: 0,
-    //         })
-
-    //         block
-    //           .transactions
-    //           .forEach(({ from: fromAddress, to, hash, value, input }) => {
-    //             // 如果该交易的转入或转出地址与指定钱包有任何一则匹配
-    //             // 则将该转账记录添加到对应钱包下的交易记录集合中
-    //             accounts.forEach((accountAddr) => {
-    //               if (fromAddress === accountAddr || to === accountAddr) {
-    //                 transQueue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
-    //                   let {
-    //                     from: fromAddress,
-    //                     to,
-    //                     cumulativeGasUsed,
-    //                     gasUsed,
-    //                     blockNumber,
-    //                   } = await connect
-    //                     .eth
-    //                     .getTransactionReceipt(hash)
-    //                     .catch((err) => {
-    //                       console.error(`获取转账明细失败: ${err.message}`)
-    //                       reject(err)
-    //                     })
-
-    //                   // 将交易详情信息添加到队列中
-    //                   transactionSet[accountAddr].trans.push({
-    //                     block: blockNumber,
-    //                     txid: hash,
-    //                     from: fromAddress,
-    //                     to,
-    //                     cumulativeGasUsed,
-    //                     gasUsed,
-    //                     ethTransferred: connect.eth.extend.utils.fromWei(value, 'ether'),
-    //                     tokenTransferred: decodeTransferInput(input)[2] || 0,
-    //                   })
-    //                   resolve()
-    //                 })))
-    //               }
-    //             })
-    //           })
-
-    //         transQueue
-    //           .consume()
-    //           .then(resolve)
-    //           .catch(reject)
-    //       } else {
-    //         resolve()
-    //       }
-    //     })))
-    //   }
-    // }
-
     accounts.map(_addr => accountsQueue.add(new TaskCapsule(() =>
       new Promise(async (resolve, reject) => {
 
@@ -134,20 +67,7 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
     accountsQueue
       .consume()
       .then(() => {
-
-        // fxxk 那个傻逼根本没用到 transaction 信息
         resolve(transactionSet)
-
-        // 钱包信息创建完成时 执行区块扫描任务队列
-        // await scanBlock()
-        // taskQueue
-        //   .consume()
-        //   .then(() => {
-        //     console.log('区块扫描完成，所有账户的交易记录匹配完毕!')
-        //     // 区块扫描完成后
-        //     resolve(transactionSet)
-        //   })
-        //   .catch(reject)
       })
       .catch(reject)
   })

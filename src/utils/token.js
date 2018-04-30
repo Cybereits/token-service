@@ -1,13 +1,8 @@
 import bignumber from 'bignumber.js'
 import { connect } from '../framework/web3'
 
-import {
-  unlockAccount,
-} from './basic'
-
-import {
-  contractDecimals,
-} from '../config/const'
+import { unlockAccount } from './basic'
+import { contractDecimals } from '../config/const'
 
 import tokenContractData from '../contracts/token.json'
 
@@ -160,6 +155,7 @@ export function getTokenAmountByBigNumber(inputBigNumber) {
 
 /*
  * 解析交易记录中的 input 参数
+ * warning: unsafe
  * @param { string } inputStr input 参数字符串
  * @returns { Array } 解析后的参数数组
 */
