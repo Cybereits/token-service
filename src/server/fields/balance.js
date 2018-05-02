@@ -3,7 +3,7 @@ import {
 } from 'graphql'
 
 import { connect } from '../../framework/web3'
-import { getTokenBalance } from '../../utils/token'
+import { getTokenBalance } from '../../core/scenes/token'
 import { balanceDetail, balanceFilter } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 

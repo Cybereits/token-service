@@ -5,7 +5,7 @@ import {
 } from 'graphql'
 
 import { batchTransactinTaskModel } from '../../core/schemas'
-import { getTxOperationsByTaskID } from '../scenes/batchTask'
+import { getTxOperationsByTaskID } from '../../core/scenes/batchTask'
 import { batchTransactionTask, txOperationRecord } from '../types/plainTypes'
 import { PaginationResult, PaginationWrapper } from '../types/complexTypes'
 

@@ -4,7 +4,7 @@ import { connect } from '../../framework/web3'
 import { postTransactions } from '../../apis/phpApis'
 import {
   getTokenBalance,
-} from '../../utils/token'
+} from '../../core/scenes/token'
 
 let executable = true
 

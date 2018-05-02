@@ -5,10 +5,10 @@ import {
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { prizeInfoModel } from '../../core/schemas'
-import { saveBatchTransactionTask } from '../scenes/batchTask'
+import { saveBatchTransactionTask } from '../../core/scenes/batchTask'
 
 import { deployOwnerAddr, deployOwnerSecret } from '../../config/const'
-import { sendToken } from '../../utils/token'
+import { sendToken } from '../../core/scenes/token'
 
 import { TOKEN_TYPE, STATUS, PRIZE_TYPES } from '../../core/enums'
 import { prizeInfo, inputPrizeInfo, filterPrizeInfo, handlePrizesParams, batchTransactionTask } from '../types/plainTypes'

@@ -1,10 +1,6 @@
-import ContractEvents, { deployContractEventListeners } from '../core/contractListeners'
-import { sendToken } from '../utils/token'
-import {
-  deployOwnerAddr,
-  deployOwnerSecret,
-  teamAddr01,
-} from '../config/const'
+import ContractEvents, { deployContractEventListeners } from '../core/scenes/contractListeners'
+import { sendToken } from '../core/scenes/token'
+import { deployOwnerAddr, deployOwnerSecret, teamAddr01 } from '../config/const'
 
 export default () => {
   // 添加转账事件监听

@@ -3,7 +3,7 @@ import {
   deployOwnerSecret,
 } from '../config/const'
 
-import { sendToken } from '../utils/token'
+import { sendToken } from '../core/scenes/token'
 
 export default (
   toAddress,

@@ -22,7 +22,7 @@ import {
   seriliazeContractData,
   updateContractData,
   createAndDeployContract,
-} from '../../utils/contract'
+} from '../../core/scenes/contract'
 
 export const queryContractAbi = {
   type: str,

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import { unlockAccount } from './basic'
-import { connect } from '../framework/web3'
+import { unlockAccount } from './account'
+import { connect } from '../../framework/web3'
 
 /**
  * 记录智能合约编译后的 json 数据
@@ -78,7 +78,7 @@ export function subscribeContractAllEvents(contract, handlerFunc) {
   if (typeof handlerFunc !== 'function') {
     return
   }
-  contract.events.allEvents({ fromBlock: 0, toBlock: 'latest' }, handlerFunc)
+  contract.events.allEvents({ toBlock: 'latest' }, handlerFunc)
 }
 
 /**
