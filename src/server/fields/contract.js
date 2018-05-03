@@ -1,5 +1,8 @@
 import abi from 'ethereumjs-abi'
-import { GraphQLString as str } from 'graphql'
+import {
+  GraphQLString as str,
+  GraphQLNonNull as NotNull,
+} from 'graphql'
 import solc from 'solc'
 import fs from 'fs'
 import path from 'path'
@@ -20,7 +23,6 @@ import {
 
 import {
   seriliazeContractData,
-  updateContractData,
   createAndDeployContract,
 } from '../../core/scenes/contract'
 
@@ -56,18 +58,27 @@ export const queryContractAbi = {
   },
 }
 
-// todo
-// 部署合约应该以调用时传入的形式
-// 并且应该可以支持多个合约
 export const deployTokenContract = {
   type: str,
   description: '部署代币、锁仓合约',
-  async resolve() {
-    const contractName = 'token'
-    const name = 'Cybereits Token'
+  args: {
+    name: {
+      type: new NotNull(str),
+      description: '合约唯一标志',
+    },
+    contractSourceFileName: {
+      type: new NotNull(str),
+      description: '合约源码文件名称',
+    },
+  },
+  async resolve(root, { name, contractSourceFileName }) {
+    const filepath = path.resolve(__dirname, `../../contracts/${contractSourceFileName}.sol`)
+    if (!fs.existsSync(filepath)) {
+      throw new Error('未找到对应的合约文件')
+    }
     const meta = {
       sources: {
-        'CybereitsToken.sol': fs.readFileSync(path.resolve(__dirname, '../../../contracts/CybereitsToken.sol')).toString(),
+        'contract.sol': fs.readFileSync(filepath).toString(),
       },
       settings: {
         optimizer: {
@@ -76,7 +87,6 @@ export const deployTokenContract = {
         },
       },
     }
-
     // 编译合约
     const output = solc.compile(meta, 1)
 
@@ -101,17 +111,7 @@ export const deployTokenContract = {
           contractAbi.push(output.contracts[contractName].interface)
         })
 
-      // 持久化合约信息
-      await seriliazeContractData(contractName, {
-        name,
-        createTimeStamp: Date.now(),
-        code: contractCode,
-        abi: contractAbi,
-      }).catch((err) => {
-        throw new Error(`合约编译失败 ${err.message}`)
-      })
-
-      return createAndDeployContract(
+      let [compiledContract, contractInstance] = await createAndDeployContract(
         `0x${contractCode[1]}`,
         JSON.parse(contractAbi[1]),
         deployOwnerAddr,
@@ -131,26 +131,29 @@ export const deployTokenContract = {
           teamAddr05,
           teamAddr06,
         ]
+      ).catch((err) => {
+        throw new Error(`合约部署失败 ${err.message}`)
+      })
+
+      let lockContractAddr = await compiledContract
+        .methods
+        .teamLockAddr()
+        .call(null)
+
+      // 持久化合约信息
+      return seriliazeContractData(
+        name,
+        contractCode,
+        contractAbi,
+        [contractInstance.options.address],
+        [lockContractAddr],
       )
-        .then(async ([compiledContract, contractInstance]) => {
+        .then(() => {
           console.log('合约部署成功!')
-          // console.log('compiledContract', compiledContract.methods)
-          let lockContractAddr = await compiledContract
-            .methods
-            .teamLockAddr()
-            .call(null)
-
-          await updateContractData(contractName, (data) => {
-            let temp = data
-            temp.address = [contractInstance.options.address]
-            temp.subContractAddress = [lockContractAddr]
-            return temp
-          })
-
           return 'success'
         })
         .catch((err) => {
-          throw new Error(`合约部署失败 ${err.message}`)
+          throw new Error(`合约保存失败 ${err.message}`)
         })
     } else {
       throw new Error('合约编译失败')

@@ -1,4 +1,4 @@
-import ContractEvents, { deployContractEventListeners } from '../core/scenes/contractListeners'
+import ContractEvents, { deployContractEventListeners } from '../core/scenes/listener'
 import { sendToken } from '../core/scenes/token'
 import { deployOwnerAddr, deployOwnerSecret, teamAddr01 } from '../config/const'
 

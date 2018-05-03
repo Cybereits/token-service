@@ -5,6 +5,9 @@ import { getContractInstance } from './token'
 
 const ContractEvents = new EventEmitter()
 
+/**
+ * 部署合约事件监听器
+ */
 export async function deployContractEventListeners() {
   let tokenContract = await getContractInstance()
   subscribeContractAllEvents(tokenContract, (error, result) => {

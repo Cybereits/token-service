@@ -135,8 +135,8 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         .catch((ex) => {
           console.error(`get gas price failded: ${fromAddress}`)
         })
-      // gasPrice 给 double
-      gasPrice *= 2
+      // gasPrice 多给 50%
+      gasPrice *= 1.5
     }
 
     return new Promise(async (resolve, reject) => {
