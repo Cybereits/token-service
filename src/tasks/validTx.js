@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { connect } from '../framework/web3'
-import { prizeInfoModel } from '../core/schemas'
+import { txRecordModel } from '../core/schemas'
 import { STATUS } from '../core/enums'
 
 let succ_counter = 0
@@ -9,7 +9,7 @@ let fail_counter = 0
 let exception_counter = 0
 // 获取发送中的交易
 function getSuccTxs() {
-  return prizeInfoModel.find({ txid: { $exists: true } })
+  return txRecordModel.find({ txid: { $exists: true } })
 }
 
 /**

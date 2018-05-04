@@ -1,4 +1,4 @@
-// web3应定要装^1.0.0-beta.24版本！！！！
+// web3 need ^1.0.0-beta.24
 import Web3 from 'web3'
 import { clientPort } from '../../config/env'
 

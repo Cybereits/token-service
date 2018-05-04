@@ -64,26 +64,6 @@ switch (NODE_ENV) {
           NODE_ENV,
         },
       },
-      {
-        name: 'schedule-task',
-        script: './server/entry:schedule.js',
-        instances: 1,
-        cwd: './',
-        error_file: 'logs/schedule-err.log',
-        out_file: 'logs/schedule-out.log',
-        merge_logs: true,
-        watch: [
-          'server/jobs',
-          'config',
-        ],
-        ignore_watch: [
-          'node_modules',
-          'geth-node',
-        ],
-        env: {
-          NODE_ENV,
-        },
-      },
     ]
     break
 }

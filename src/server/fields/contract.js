@@ -58,7 +58,7 @@ export const queryContractAbi = {
   },
 }
 
-export const deployTokenContract = {
+export const createAndDeployTokenContract = {
   type: str,
   description: '部署代币、锁仓合约',
   args: {

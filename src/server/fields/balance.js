@@ -48,6 +48,6 @@ export const queryAllBalance = {
       resolve()
     }))
 
-    return Promise.all(promises).then(() => PaginationResult(result, pageIndex, pageSize, total), (ex) => { throw ex })
+    return Promise.all(promises).then(() => PaginationResult(result, pageIndex, pageSize, total))
   },
 }

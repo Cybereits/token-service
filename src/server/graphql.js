@@ -5,24 +5,28 @@ import {
 
 import { createAccount, createMultiAccount, queryAccountList } from './fields/account'
 import { queryAllBalance } from './fields/balance'
-import { createPrizeInfo, queryPrizeList, handlePrizes } from './fields/prize'
-import { commonStatusEnum, prizeTypeEnum } from './fields/enum'
-import { queryContractAbi, deployTokenContract } from './fields/contract'
-import { queryBatchTrasactionTasks, queryTxOperationRecords } from './fields/transactions'
+import { commonStatusEnum } from './fields/enum'
+import { queryContractAbi, createAndDeployTokenContract } from './fields/contract'
+import {
+  queryBatchTrasactionTasks,
+  queryTxRecordsViaTaskId,
+  queryTx,
+  createTransaction,
+  createBatchTransactions,
+} from './fields/transactions'
 
 // 通用的修改功能
 const queries = new Obj({
   name: 'Queries',
   description: '查询接口',
   fields: {
+    commonStatusEnum,
     queryAccountList,
     queryAllBalance,
     queryContractAbi,
-    queryPrizeList,
-    commonStatusEnum,
-    prizeTypeEnum,
     queryBatchTrasactionTasks,
-    queryTxOperationRecords,
+    queryTx,
+    queryTxRecordsViaTaskId,
   },
 })
 
@@ -30,11 +34,11 @@ const mutations = new Obj({
   name: 'Mutations',
   description: '修改接口',
   fields: {
-    handlePrizes,
     createAccount,
+    createBatchTransactions,
     createMultiAccount,
-    createPrizeInfo,
-    deployTokenContract,
+    createTransaction,
+    createAndDeployTokenContract,
   },
 })
 

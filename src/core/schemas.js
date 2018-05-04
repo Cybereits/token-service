@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 import connection from '../framework/dbProviders/mongo'
-import { STATUS, PRIZE_TYPES, TOKEN_TYPE } from './enums'
+import { STATUS, TOKEN_TYPE } from './enums'
 
 // 批量交易任务（发送cre、eth）等
 const batchTask = mongoose.Schema({
@@ -10,8 +10,8 @@ const batchTask = mongoose.Schema({
     type: Number,
     required: true,
   },
-  // 任务类型
-  type: {
+  // 任务备注
+  comment: {
     type: String,
     required: true,
   },
@@ -22,6 +22,25 @@ const batchTask = mongoose.Schema({
   },
 })
 export const batchTransactinTaskModel = connection.model('batchTransactionTask', batchTask)
+
+// 合约元数据
+const contractMeta = mongoose.Schema({
+  name: {
+    type: String,
+    unique: true,
+    index: true,
+    required: true,
+  },
+  code: [String],
+  abi: [String],
+  address: [String],
+  subContractAddress: [String],
+  createAt: {
+    type: Date,
+    default: new Date(),
+  },
+})
+export const contractMetaModel = connection.model('contractMeta', contractMeta)
 
 // 交易操作记录
 const transactionRecord = mongoose.Schema({
@@ -62,10 +81,12 @@ const transactionRecord = mongoose.Schema({
   txid: String,
   // 备注
   comment: String,
-  // 发送时间
+  // 交易发送时间
   sendTime: Date,
+  // 交易确认时间
+  confirmTime: Date,
 })
-export const txOperationRecordModel = connection.model('transactionOperationRecord', transactionRecord)
+export const txRecordModel = connection.model('transactionRecord', transactionRecord)
 
 // 奖励信息
 const prizeInfo = mongoose.Schema({
@@ -86,46 +107,7 @@ const prizeInfo = mongoose.Schema({
     default: STATUS.pending,
     required: true,
   },
-  // 奖励类型
-  type: {
-    type: String,
-    default: PRIZE_TYPES.default,
-    required: true,
-  },
   // 发送的转账交易 ID
   txid: String,
 })
 export const prizeInfoModel = connection.model('prizeInfo', prizeInfo)
-
-// 钱包信息
-const walletInfo = mongoose.Schema({
-  address: {
-    type: String,
-    unique: true,
-    index: true,
-    required: true,
-  },
-  balance_eth: Number,
-  balance_cre: Number,
-  lastUpdate: Date,
-})
-export const balanceModel = connection.model('walletInfo', walletInfo)
-
-// 合约元数据
-const contractMeta = mongoose.Schema({
-  name: {
-    type: String,
-    unique: true,
-    index: true,
-    required: true,
-  },
-  code: [String],
-  abi: [String],
-  address: [String],
-  subContractAddress: [String],
-  createAt: {
-    type: Date,
-    default: new Date(),
-  },
-})
-export const contractMetaModel = connection.model('contractMeta', contractMeta)

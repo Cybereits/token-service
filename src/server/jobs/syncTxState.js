@@ -1,14 +1,14 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { connect } from '../../framework/web3'
-import { prizeInfoModel } from '../../core/schemas'
+import { txRecordModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
 
 let executable = true
 
 // 获取发送中的交易
 function getOnSendingTxs() {
-  return prizeInfoModel.find({ status: STATUS.sending })
+  return txRecordModel.find({ status: STATUS.sending })
 }
 
 /**

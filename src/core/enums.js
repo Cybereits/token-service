@@ -6,11 +6,6 @@ export const STATUS = {
   failure: -1,  // 失败
 }
 
-// 奖励类型
-export const PRIZE_TYPES = {
-  default: 'cre_token', // 默认奖励类型 - CRE 代币
-}
-
 // 代币类型
 export const TOKEN_TYPE = {
   eth: 'eth',
