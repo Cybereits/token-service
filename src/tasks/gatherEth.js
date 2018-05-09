@@ -1,9 +1,9 @@
 import { SerialQueue, TaskCapsule } from 'async-task-manager'
 
 import { deployOwnerSecret } from '../config/const'
-import { getEthGatherAddrList } from '../apis/phpApis'
 import transferAllEth from './transferAllEth'
 
+let addrList = [] // todo 获取要归集的地址
 let handleAddrList = []
 
 const logResult = () => {
@@ -12,7 +12,7 @@ const logResult = () => {
 本次进程中归集的地址列表:
 ------------------------
 ${handleAddrList.join('\n')}
-------------------------  
+------------------------
 
 `)
 }
@@ -33,13 +33,6 @@ export default async (gatherAddress, amount, secret = deployOwnerSecret) => {
   }
 
   console.log(`本次处理数量为 ${_amount}\n`)
-
-  let addrList = await getEthGatherAddrList(_amount).catch(errLogAndExit)
-
-  // let addrList = [
-  //   '0x357d20f90365a1b783150161e6678B5Ff2ef4009',
-  //   '0x2D4C38968CADa3138A1C10Fa3416C429c9b574b3',
-  // ]
 
   let queue = new SerialQueue({
     toleration: 0,

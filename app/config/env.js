@@ -2,15 +2,17 @@ const env = process.env.NODE_ENV || 'development'
 
 const CONFIG = {
   production: {
-    host: 'localhost',
-    port: 8086,
+    host: 'http://localhost',
+    port: 8092,
     baseUrl: '/graphql',
   },
   development: {
-    host: 'http://192.168.3.200',
+    host: 'http://localhost',
     port: 8010,
     baseUrl: '/graphql',
   },
 }
+
+console.log(`Environment : ${env}`)
 
 export default Object.assign({}, CONFIG[env], { env })

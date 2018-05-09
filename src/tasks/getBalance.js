@@ -1,6 +1,6 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { connect } from '../framework/web3'
+import { ethWalletConnect } from '../framework/web3'
 import { getTokenBalance } from '../core/scenes/token'
 
 let taskQueue = new ParallelQueue({
@@ -12,11 +12,11 @@ let taskQueue = new ParallelQueue({
 })
 
 async function getBalance() {
-  let listAccounts = await connect.eth.getAccounts()
+  let listAccounts = await ethWalletConnect.eth.getAccounts()
   listAccounts.forEach((address) => {
     taskQueue.add(new TaskCapsule(() =>
       new Promise(async (resolve, reject) => {
-        let amount = await connect.eth.getBalance(address)
+        let amount = await ethWalletConnect.eth.getBalance(address)
           .catch((ex) => {
             console.error(`get address eth balance failded: ${address}`)
             reject(ex)
@@ -26,7 +26,7 @@ async function getBalance() {
             console.error(`get address eth balance failded: ${address}`)
             reject(ex)
           })
-        let ethAmount = connect
+        let ethAmount = ethWalletConnect
           .eth
           .extend
           .utils

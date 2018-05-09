@@ -1,7 +1,7 @@
 import BN from 'bignumber.js'
 import schedule from 'node-schedule'
 
-import { connect } from '../framework/web3'
+import { creWalletConnect } from '../framework/web3'
 import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
 import { getTokenBalance, sendToken, estimateGasOfSendToken } from '../core/scenes/token'
 
@@ -14,17 +14,17 @@ export default async (
 ) => {
   console.assert(gatherAddress, '归集地址不能为空!')
 
-  let total = await connect.eth.getBalance(fromAddress).catch((ex) => {
+  let total = await creWalletConnect.eth.getBalance(fromAddress).catch((ex) => {
     console.error(`get address eth balance failded: ${fromAddress}`)
     process.exit(-1)
   })
 
-  let gPrice = await connect.eth.getGasPrice().catch((ex) => {
+  let gPrice = await creWalletConnect.eth.getGasPrice().catch((ex) => {
     console.error(`get gas price failded: ${fromAddress}`)
     process.exit(-1)
   })
 
-  let gUsed = await connect.eth.estimateGas({ from: fromAddress }).catch((ex) => {
+  let gUsed = await creWalletConnect.eth.estimateGas({ from: fromAddress }).catch((ex) => {
     console.error(`get estimate gas failded: ${fromAddress}`)
     process.exit(-1)
   })
@@ -48,7 +48,7 @@ export default async (
 总花费\t${txCost.toString(10)}\n
 实际发送数量\t${transAmount.toString(10)}`)
 
-  let txid = await connect
+  let txid = await creWalletConnect
     .eth
     .personal
     .sendTransaction({
@@ -67,7 +67,7 @@ export default async (
 
   schedule.scheduleJob('*/5 * * * * *', async () => {
     console.log('执行检验...')
-    let ethAmount = await connect.eth.getBalance(targetAddress)
+    let ethAmount = await creWalletConnect.eth.getBalance(targetAddress)
     if (+ethAmount >= +transAmount.toString(10)) {
       console.log(`检验成功,油费已到账,执行归集 from ${targetAddress} to ${gatherAddress}`)
       sendToken(targetAddress, targetAddrSecret, gatherAddress, creAmount, gUsed.toString(10), gPrice.toString(10))

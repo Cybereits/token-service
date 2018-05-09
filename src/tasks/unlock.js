@@ -1,4 +1,4 @@
-import { connect } from '../framework/web3'
+import { creWalletConnect } from '../framework/web3'
 
 import { unlockAccount } from '../core/scenes/account'
 
@@ -39,7 +39,7 @@ export default async (index) => {
       break
   }
 
-  await unlockAccount(connect, deployOwnerAddr, deployOwnerSecret)
+  await unlockAccount(creWalletConnect, deployOwnerAddr, deployOwnerSecret)
   console.log(`unlock ${unlockAddr}`)
 
   let subContract = await getSubContractInstance()

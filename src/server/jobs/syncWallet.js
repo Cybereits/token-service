@@ -1,10 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { connect } from '../../framework/web3'
 import { postTransactions } from '../../apis/phpApis'
-import {
-  getTokenBalance,
-} from '../../core/scenes/token'
+import { getTokenBalance } from '../../core/scenes/token'
 
 let executable = true
 
@@ -19,10 +16,8 @@ const postParallelLimitation = 2
  * @param {*} eth 钱包客户端链接
  * @param {*} accounts 钱包地址数组
  * @param {*} startBlockNumber 扫描起始区块高度
- * @param {*} endBlockNumber 扫描截止区块高度
- * @param {boolean} isContract 是否是合约地址
  */
-function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlockNumber, isContract) {
+function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0) {
   return new Promise((resolve, reject) => {
 
     let transactionSet = new Set(accounts)
@@ -48,11 +43,7 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0, endBlock
 
         let ethBalance = await eth.getBalance(_addr).catch(reject)
 
-        let creBalance = 0
-
-        if (!isContract) {
-          creBalance = await getTokenBalance(_addr).catch(reject)
-        }
+        let creBalance = await getTokenBalance(_addr).catch(reject)
 
         transactionSet[_addr] = {
           address: _addr,
@@ -129,16 +120,16 @@ function submitTransInfo(info, callback) {
   queue.consume() // 执行同步任务队列
 }
 
-export default async () => {
+export default conn => async () => {
   if (!executable) {
     console.info('尚有未完成钱包同步任务...')
   }
   executable = false
   // 只扫描最近的 300 个区块
-  let currentHeight = await connect.eth.getBlockNumber()
+  let currentHeight = await conn.eth.getBlockNumber()
   let startBlockNumber = currentHeight - 300
 
-  let accounts = await connect.eth.getAccounts().catch((err) => {
+  let accounts = await conn.eth.getAccounts().catch((err) => {
     console.error(`获取本地账户信息失败: ${err.message}`)
   })
 
@@ -147,7 +138,7 @@ export default async () => {
     return
   }
 
-  let transCollection = await getTransactionsByAccounts(connect.eth, accounts, startBlockNumber, currentHeight, false)
+  let transCollection = await getTransactionsByAccounts(conn.eth, accounts, startBlockNumber, currentHeight, false)
     .catch((err) => {
       console.error(err)
       return false

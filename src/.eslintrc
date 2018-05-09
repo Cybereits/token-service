@@ -1,14 +1,16 @@
 {
+  "globals": {
+    "document": true,
+    "window": true,
+    "React": true,
+    "describe": true,
+    "it": true
+  },
   "env": {
     "browser": true,
     "node": true,
     "commonjs": true,
     "es6": true
-  },
-  "globals": {
-    "document": true,
-    "window": true,
-    "React": true
   },
   "extends": "airbnb",
   "parser": "babel-eslint",

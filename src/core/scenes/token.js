@@ -1,5 +1,5 @@
 import bignumber from 'bignumber.js'
-import { connect } from '../../framework/web3'
+import { ethWalletConnect, creWalletConnect } from '../../framework/web3'
 
 import { unlockAccount } from './account'
 import { contractDecimals } from '../../config/const'
@@ -41,7 +41,7 @@ export async function getTokenContractMeta() {
 export async function getContractInstance() {
   if (!Instances.token) {
     const { tokenContractAbi, tokenContractAddress } = await getTokenContractMeta()
-    Instances.token = new connect.eth.Contract(tokenContractAbi, tokenContractAddress)
+    Instances.token = new ethWalletConnect.eth.Contract(tokenContractAbi, tokenContractAddress)
   }
   return Instances.token
 }
@@ -52,7 +52,7 @@ export async function getContractInstance() {
 export async function getSubContractInstance() {
   if (!Instances.lock) {
     const { lockContractAbi, tokenSubContractAddress } = await getTokenContractMeta()
-    Instances.lock = new connect.eth.Contract(lockContractAbi, tokenSubContractAddress)
+    Instances.lock = new ethWalletConnect.eth.Contract(lockContractAbi, tokenSubContractAddress)
   }
   return Instances.lock
 }
@@ -84,7 +84,7 @@ export async function balanceOf(connect, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
-  let userBalance = await balanceOf(connect, userAddress)
+  let userBalance = await balanceOf(ethWalletConnect, userAddress)
   return userBalance
 }
 
@@ -93,8 +93,8 @@ export async function getTokenBalance(userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
-  const tokenTotalAmount = await getTotal(connect)
-  const userBalance = await balanceOf(connect, userAddress)
+  const tokenTotalAmount = await getTotal(ethWalletConnect)
+  const userBalance = await balanceOf(ethWalletConnect, userAddress)
   const { tokenContractAddress } = await getTokenContractMeta()
   return {
     tokenContractAddress,
@@ -123,20 +123,20 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
     let _amount = bignumber(amountInt.toFixed(5))
     let _sendAmount = _amount.times(multiplier)
 
-    await unlockAccount(connect, fromAddress, passWord)
+    await unlockAccount(creWalletConnect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
     if (!gasPrice) {
-      gasPrice = await connect
+      gasPrice = await creWalletConnect
         .eth
         .getGasPrice()
         .catch((ex) => {
           console.error(`get gas price failded: ${fromAddress}`)
         })
-      // gasPrice 多给 50%
-      gasPrice *= 1.5
+      // gasPrice 多给 30%
+      gasPrice *= 1.3
     }
 
     return new Promise(async (resolve, reject) => {
