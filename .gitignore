@@ -25,6 +25,5 @@ yarn-error.log
 coverage
 yarn.lock
 .idea
-package-lock.json
 *bak
 jsconfig.json
