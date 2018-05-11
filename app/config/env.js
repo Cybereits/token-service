@@ -3,7 +3,7 @@ const env = process.env.NODE_ENV || 'development'
 const CONFIG = {
   production: {
     host: 'http://localhost',
-    port: 8092,
+    port: 8082,
     baseUrl: '/graphql',
   },
   development: {
