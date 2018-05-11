@@ -6,6 +6,7 @@ geth-node/
 
 const.js
 token.json
+env.js
 
 walletTransactions.*
 

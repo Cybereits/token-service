@@ -2,7 +2,7 @@ let env = process.env.NODE_ENV || 'development'
 
 if (env === 'production') {
   module.exports = {
-    apiServer: 'https://api.cybereits.com/api',
+    apiServer: '',
     port: 8092,
     schedule: ['wallet', 'tx'],
     env,
