@@ -5,12 +5,10 @@ node_modules/
 geth-node/
 
 const.js
-env.js
 token.json
+env.js
 
 walletTransactions.*
-
-.DS_Store
 
 # roadhog-api-doc ignore
 request-temp.js
@@ -28,6 +26,5 @@ yarn-error.log
 coverage
 yarn.lock
 .idea
-package-lock.json
 *bak
 jsconfig.json

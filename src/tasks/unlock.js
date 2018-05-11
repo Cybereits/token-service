@@ -1,8 +1,8 @@
-import { connect } from '../framework/web3'
+import { creWalletConnect } from '../framework/web3'
 
-import { unlockAccount } from '../utils/basic'
+import { unlockAccount } from '../core/scenes/account'
 
-import { subContract } from '../utils/token'
+import { getSubContractInstance } from '../core/scenes/token'
 
 import {
   teamAddr01,
@@ -39,9 +39,10 @@ export default async (index) => {
       break
   }
 
-  await unlockAccount(connect, deployOwnerAddr, deployOwnerSecret)
+  await unlockAccount(creWalletConnect, deployOwnerAddr, deployOwnerSecret)
   console.log(`unlock ${unlockAddr}`)
 
+  let subContract = await getSubContractInstance()
   // 解锁锁定的代币
   let unlockResult = await subContract
     .methods

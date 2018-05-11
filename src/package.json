@@ -5,11 +5,9 @@
     "start": "NODE_ENV=production pm2 start config/pm2.config.js",
     "lint": "bash ./eslint.sh",
     "dev": "NODE_ENV=development pm2 start config/pm2.config.js",
-    "test": "node ./test",
     "dev-task": "node ./tasks",
     "prd-task": "NODE_ENV=production node ./tasks",
-    "exportTransactionsAsCsv": "mongoexport --db ethService --collection wallettransinfos --type=csv --fields address,eth,cre,trans --out walletTransactions.csv",
-    "exportTransactionsAsJson": "mongoexport --db ethService --collection wallettransinfos --fields address,eth,cre,trans --out walletTransactions.json"
+    "test": "./node_modules/.bin/mocha -t 20s test/**/*.spec.js"
   },
   "dependencies": {
     "agenda": "^1.0.3",
@@ -40,6 +38,7 @@
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "babel-plugin-transform-runtime": "^6.23.0",
+    "chai": "^4.1.2",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.0",
     "eslint-config-standard": "^6.2.1",
@@ -47,6 +46,7 @@
     "eslint-plugin-jsx-a11y": "^5.0.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-react": "^7.0.1",
-    "eslint-plugin-standard": "^2.0.1"
+    "eslint-plugin-standard": "^2.0.1",
+    "mocha": "^5.1.1"
   }
 }

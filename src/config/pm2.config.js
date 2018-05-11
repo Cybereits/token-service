@@ -29,6 +29,7 @@ switch (NODE_ENV) {
         error_file: 'logs/schedule-err.log',
         out_file: 'logs/schedule-out.log',
         merge_logs: true,
+        log_date_format: 'YYYY-MM-DD HH:mm:ss',
         env: {
           NODE_ENV,
         },
@@ -55,26 +56,6 @@ switch (NODE_ENV) {
           'bin',
           'core',
           'framework',
-        ],
-        ignore_watch: [
-          'node_modules',
-          'geth-node',
-        ],
-        env: {
-          NODE_ENV,
-        },
-      },
-      {
-        name: 'schedule-task',
-        script: './server/entry:schedule.js',
-        instances: 1,
-        cwd: './',
-        error_file: 'logs/schedule-err.log',
-        out_file: 'logs/schedule-out.log',
-        merge_logs: true,
-        watch: [
-          'server/jobs',
-          'config',
         ],
         ignore_watch: [
           'node_modules',

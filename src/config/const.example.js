@@ -1,5 +1,3 @@
-export const etherScanApi = 'https://api.etherscan.io/api'
-export const apikey = ''
 export const deployOwnerAddr = ''
 export const deployOwnerSecret = ''
 export const tokenSupply = 1000000000

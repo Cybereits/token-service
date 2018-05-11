@@ -8,7 +8,7 @@
 - `npm run dev` 本地开发环境启动 pm2 守护进程
 - `npm run dev-geth` 本地开发环境启动钱包
 
-#### npm run  dtc
+#### npm run dtc
 
 > 部署代币合约
 
@@ -28,7 +28,7 @@
 >
 > 并且在后续的接口、任务中将持续使用这些变量进行计算，例如查询指定地址的代币数量等
 
-#### npm run  dev-task _taskFileName_ _params_
+#### npm run dev-task _taskFileName_ _params_
 
     开发环境下运行任务脚本（把 dev-task 替换成 prd-task，即可在生产环境下运行任务脚本）
     第一个参数必填，任务文件名（即 ./tasks 目录中的文件名)
@@ -48,8 +48,6 @@
   - fromAddress 转出钱包的地址（默认是 deployOwnerAddr）
   - secret 转出钱包的秘钥（默认是 deployOwnerSecret）
 - unlock 解锁团队锁仓份额, 接受参数 index 表示解锁团队钱包地址的序号：1-6
-- exportTransactionsAsCsv 以 csv 格式导出本地数据库存储的钱包地址转账数据到项目根目录的 walletTransactions.csv
-- exportTransactionsAsJson 以 json 格式导出本地数据库存储的钱包地址转账数据到项目根目录的 walletTransactions.json
 - transferAllEth 归集 eth 到指定钱包地址
   - toAddress 归集接收钱包地址
   - fromAddress 转出钱包的地址（默认是 deployOwnerAddr）
@@ -68,7 +66,6 @@
 
 ## 常量配置说明
 
-- etherScanApi: ehterscan.io 的公共接口地址
 - apiKey: etherscan.io 授权 key
 - deployOwnerAddr: 合约部署的钱包地址
 - deployOwnerSecret: 合约部署钱包的密码
@@ -76,3 +73,11 @@
 - contractDecimals: 代币精度
 - teamLockPercent: 团队锁仓比例
 - teamAddr01...06: 团队解锁钱包地址
+
+## 数据导出
+
+```bash
+mongoexport --db DbName --collection TableName --type=csv --fields Fields --out walletTransactions.csv
+
+mongoexport --db DbName --collection TableName --fields Fields --out walletTransactions.json
+```

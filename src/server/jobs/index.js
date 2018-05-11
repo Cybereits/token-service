@@ -1,3 +1,5 @@
+import { ethWalletConnect, creWalletConnect } from '../../framework/web3'
+
 // eth 服务器上没有 mongo 所以不能引用 syncTxState 方法
 export const syncTransaction = () => {
   const TASKS = {
@@ -17,7 +19,11 @@ export const syncTransaction = () => {
 
 export const syncWallet = () => {
   const Schedule = require('node-schedule')
-  const syncWallet = require('./syncWallet').default
+  const syncEthWallet = require('./syncWallet').default(ethWalletConnect)
+  const syncCreWallet = require('./syncWallet').default(creWalletConnect)
+  const syncAddress = require('./syncAddress').default
   console.log('add sync wallet schedule task')
-  Schedule.scheduleJob('* */4 * * *', syncWallet)
+  Schedule.scheduleJob('0 0 2 * * *', syncEthWallet) // 每天凌晨 2 点执行同步 eth 钱包余额的任务
+  Schedule.scheduleJob('0 30 2 * * *', syncCreWallet) // 每天凌晨 2:30 执行同步 cre 钱包余额的任务
+  Schedule.scheduleJob('0 0 1 * * *', syncAddress) // 每天凌晨 1 点执行同步钱包地址的任务
 }

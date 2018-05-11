@@ -1,34 +1,68 @@
 import bignumber from 'bignumber.js'
-import { connect } from '../framework/web3'
+import { ethWalletConnect, creWalletConnect } from '../../framework/web3'
 
-import {
-  unlockAccount,
-} from './basic'
-
-import {
-  contractDecimals,
-} from '../config/const'
-
-import tokenContractData from '../contracts/token.json'
+import { unlockAccount } from './account'
+import { contractDecimals } from '../../config/const'
+import { contractMetaModel } from '../../core/schemas'
 
 const multiplier = 10 ** contractDecimals
-
-const tokenContractAbi = JSON.parse(tokenContractData.abi[1])
-const tokenContractAddress = tokenContractData.address[0]
-const lockContractAbi = JSON.parse(tokenContractData.abi[0])
-const tokenSubContractAddress = tokenContractData.subContractAddress[0]
-
-export const tokenContract = new connect.eth.Contract(tokenContractAbi, tokenContractAddress)
-export const tokenContractMethods = tokenContract.methods
-export const subContract = new connect.eth.Contract(lockContractAbi, tokenSubContractAddress)
-
 bignumber.config({ DECIMAL_PLACES: 5 })
+
+const Instances = {
+  token: null,
+  lock: null,
+}
+
+/**
+ * 获取代币合约元信息
+ */
+export async function getTokenContractMeta() {
+  let meta = await contractMetaModel
+    .findOne({ name: 'Cybereits Token' })
+    .then((res) => {
+      let contractMeta = {}
+      contractMeta.tokenContractAbi = JSON.parse(res.abi[1])
+      contractMeta.tokenContractAddress = res.address[0]
+      contractMeta.lockContractAbi = JSON.parse(res.abi[0])
+      contractMeta.tokenSubContractAddress = res.subContractAddress[0]
+      return contractMeta
+    })
+    .catch((ex) => {
+      console.error(ex)
+      return null
+    })
+
+  return meta
+}
+
+/**
+ * 获取合约实例
+ */
+export async function getContractInstance() {
+  if (!Instances.token) {
+    const { tokenContractAbi, tokenContractAddress } = await getTokenContractMeta()
+    Instances.token = new ethWalletConnect.eth.Contract(tokenContractAbi, tokenContractAddress)
+  }
+  return Instances.token
+}
+
+/**
+ * 获取子合约实例
+ */
+export async function getSubContractInstance() {
+  if (!Instances.lock) {
+    const { lockContractAbi, tokenSubContractAddress } = await getTokenContractMeta()
+    Instances.lock = new ethWalletConnect.eth.Contract(lockContractAbi, tokenSubContractAddress)
+  }
+  return Instances.lock
+}
 
 /**
  * 获取代币总量（调用totalSupply方法）
  * @param {*} connect web3链接
  */
 export async function getTotal(connect) {
+  let tokenContract = await getContractInstance()
   let amount = await tokenContract.methods.totalSupply().call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
@@ -40,6 +74,7 @@ export async function getTotal(connect) {
  * @param {*} userAddress 用户地址
  */
 export async function balanceOf(connect, userAddress) {
+  let tokenContract = await getContractInstance()
   let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
@@ -49,7 +84,7 @@ export async function balanceOf(connect, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
-  let userBalance = await balanceOf(connect, userAddress)
+  let userBalance = await balanceOf(ethWalletConnect, userAddress)
   return userBalance
 }
 
@@ -58,8 +93,9 @@ export async function getTokenBalance(userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
-  let tokenTotalAmount = await getTotal(connect)
-  let userBalance = await balanceOf(connect, userAddress)
+  const tokenTotalAmount = await getTotal(ethWalletConnect)
+  const userBalance = await balanceOf(ethWalletConnect, userAddress)
+  const { tokenContractAddress } = await getTokenContractMeta()
   return {
     tokenContractAddress,
     total: tokenTotalAmount,
@@ -80,7 +116,6 @@ export async function getTokenBalanceFullInfo(userAddress) {
  */
 export async function sendToken(fromAddress, passWord, toAddress, amount, gas, gasPrice) {
   let amountInt = +amount
-
   if (amountInt <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
@@ -88,21 +123,24 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
     let _amount = bignumber(amountInt.toFixed(5))
     let _sendAmount = _amount.times(multiplier)
 
-    await unlockAccount(connect, fromAddress, passWord)
+    await unlockAccount(creWalletConnect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
     if (!gasPrice) {
-      gasPrice = await connect
+      gasPrice = await creWalletConnect
         .eth
         .getGasPrice()
         .catch((ex) => {
           console.error(`get gas price failded: ${fromAddress}`)
         })
+      // gasPrice 多给 30%
+      gasPrice *= 1.3
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      let tokenContract = await getContractInstance()
       tokenContract
         .methods
         .transfer(toAddress, _sendAmount)
@@ -112,15 +150,11 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
           gasPrice: gasPrice,
         })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer Token:\nfrom ${fromAddress}\nto ${toAddress}\namount ${_amount}\ntxid ${hash}`)
+          console.info(`Transfer [${_amount}] tokens to [${toAddress}] [txid ${hash}]`)
           resolve(hash)
         })
-        .on('error', (err) => {
-          reject(err)
-        })
-        // 忽略 tx 没有被确认的错误
-        // 因为我们是通过区块查询 txid 的方式去确认交易是否成功
-        .catch(() => { })
+        .on('error', reject)
+        .catch(reject)
     })
   }
 }
@@ -130,7 +164,8 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
  * @param {string} toAddress 转入地址
  * @param {number} amount 发送代币数量
  */
-export function estimateGasOfSendToken(toAddress, amount) {
+export async function estimateGasOfSendToken(toAddress, amount) {
+  let tokenContract = await getContractInstance()
   return tokenContract
     .methods
     .Transfer(toAddress, amount)
@@ -163,6 +198,7 @@ export function getTokenAmountByBigNumber(inputBigNumber) {
 
 /*
  * 解析交易记录中的 input 参数
+ * warning: unsafe
  * @param { string } inputStr input 参数字符串
  * @returns { Array } 解析后的参数数组
 */

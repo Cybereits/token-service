@@ -1,6 +1,6 @@
 import BN from 'bignumber.js'
 
-import { connect } from '../framework/web3'
+import { ethWalletConnect } from '../framework/web3'
 
 import {
   deployOwnerAddr,
@@ -19,17 +19,17 @@ export default async (
 ) => {
   console.assert(toAddress, '接收地址不能为空!')
 
-  let total = await connect.eth.getBalance(fromAddress).catch((ex) => {
+  let total = await ethWalletConnect.eth.getBalance(fromAddress).catch((ex) => {
     console.error(`get address eth balance failded: ${fromAddress}`)
     process.exit(-1)
   })
 
-  let gPrice = await connect.eth.getGasPrice().catch((ex) => {
+  let gPrice = await ethWalletConnect.eth.getGasPrice().catch((ex) => {
     console.error(`get gas price failded: ${fromAddress}`)
     process.exit(-1)
   })
 
-  let gUsed = await connect.eth.estimateGas({ from: fromAddress }).catch((ex) => {
+  let gUsed = await ethWalletConnect.eth.estimateGas({ from: fromAddress }).catch((ex) => {
     console.error(`get estimate gas failded: ${fromAddress}`)
     process.exit(-1)
   })
@@ -47,7 +47,7 @@ export default async (
 总花费\t${txCost.toString(10)}\n
 实际发送数量\t${transAmount.toString(10)}`)
 
-  return connect
+  return ethWalletConnect
     .eth
     .personal
     .sendTransaction({

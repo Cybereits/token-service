@@ -1,22 +1,17 @@
 import mongoose from 'mongoose'
 
 import connection from '../framework/dbProviders/mongo'
-import { STATUS, PRIZE_TYPES, TOKEN_TYPE } from './enums'
+import { STATUS, TOKEN_TYPE } from './enums'
 
 // 批量交易任务（发送cre、eth）等
-const batchTxTask = mongoose.Schema({
+const batchTask = mongoose.Schema({
   // 批处理数量
   amount: {
     type: Number,
     required: true,
   },
-  // 细节内容
-  details: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'transactionOperationRecord' }],
-    required: true,
-  },
-  // 任务类型
-  type: {
+  // 任务备注
+  comment: {
     type: String,
     required: true,
   },
@@ -26,6 +21,72 @@ const batchTxTask = mongoose.Schema({
     default: new Date(),
   },
 })
+export const batchTransactinTaskModel = connection.model('batchTransactionTask', batchTask)
+
+// 合约元数据
+const contractMeta = mongoose.Schema({
+  name: {
+    type: String,
+    unique: true,
+    index: true,
+    required: true,
+  },
+  code: [String],
+  abi: [String],
+  address: [String],
+  subContractAddress: [String],
+  createAt: {
+    type: Date,
+    default: new Date(),
+  },
+})
+export const contractMetaModel = connection.model('contractMeta', contractMeta)
+
+// 交易操作记录
+const transactionRecord = mongoose.Schema({
+  // 转账数量
+  amount: {
+    type: Number,
+    required: true,
+  },
+  // 转出地址
+  from: {
+    type: String,
+    index: true,
+    required: true,
+  },
+  // 转入地址
+  to: {
+    type: String,
+    index: true,
+    required: true,
+  },
+  // 发放状态
+  status: {
+    type: Number,
+    default: STATUS.pending,
+    required: true,
+  },
+  // 代币类型
+  tokenType: {
+    type: String,
+    required: true,
+    default: TOKEN_TYPE.cre,
+  },
+  // 关联任务 ID
+  taskid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'batchTransactionTask',
+  },
+  txid: String,
+  // 备注
+  comment: String,
+  // 交易发送时间
+  sendTime: Date,
+  // 交易确认时间
+  confirmTime: Date,
+})
+export const txRecordModel = connection.model('transactionRecord', transactionRecord)
 
 // 奖励信息
 const prizeInfo = mongoose.Schema({
@@ -46,115 +107,7 @@ const prizeInfo = mongoose.Schema({
     default: STATUS.pending,
     required: true,
   },
-  // 奖励类型
-  type: {
-    type: String,
-    default: PRIZE_TYPES.default,
-    required: true,
-  },
   // 发送的转账交易 ID
-  txid: {
-    type: String,
-  },
-})
-
-// 交易操作记录
-const txOperationRecord = mongoose.Schema({
-  // 转出地址
-  from: {
-    type: String,
-    index: true,
-    required: true,
-  },
-  // 转入地址
-  to: {
-    type: String,
-    index: true,
-    required: true,
-  },
-  // 转账数量
-  amount: {
-    type: Number,
-    required: true,
-  },
-  // 代币类型
-  tokenType: {
-    type: String,
-    required: true,
-    default: TOKEN_TYPE.cre,
-  },
-  // 备注
-  comment: String,
-})
-
-// 用户退币信息
-const userReturnBackInfo = mongoose.Schema({
-  // 引用id
-  refId: {
-    type: Number,
-    index: true,
-  },
-  // 钱包地址
-  address: String,
-  // 返还数量
-  amount: Number,
-  // 用户姓名
-  name: String,
-  // 邮箱地址
-  email: String,
-  // 手机
-  mobile: String,
-  // 代币类型
-  coinType: String,
-  // 状态
-  // 0 表示待发送
-  // 1 表示已发送
-  // 2 表示已成功
-  // -1 表示取消发送
-  // -2 表示发送失败
-  status: Number,
-  // transaction hash
   txid: String,
-  // 用户创建日期
-  createdate: {
-    type: Date,
-    default: new Date(),
-  },
 })
-
-// // 钱包转账信息
-// const walletTransInfo = mongoose.Schema({
-//   address: {
-//     type: String,
-//     index: true,
-//     unique: true,
-//   },
-//   eth: Number,
-//   cre: Number,
-//   trans: [{
-//     block: Number,
-//     txid: String,
-//     from: String,
-//     to: String,
-//     cumulativeGasUsed: Number,
-//     gasUsed: Number,
-//     ethTransferred: Number,
-//     tokenTransferred: Number,
-//   }],
-// })
-
-// // 扫描区块的记录
-// const blockScanLog = mongoose.Schema({
-//   blockNum: {
-//     type: Number,
-//     index: true,
-//     unique: true,
-//   },
-// })
-
-// export const blockScanLogModel = connection.model('blockScanInfo', blockScanLog)
-export const batchTransactinTaskModel = connection.model('batchTransactionTask', batchTxTask)
 export const prizeInfoModel = connection.model('prizeInfo', prizeInfo)
-export const txOperationRecordModel = connection.model('transactionOperationRecord', txOperationRecord)
-export const userReturnBackInfoModel = connection.model('userReturnBackInfo', userReturnBackInfo)
-// export const walletTransInfoModel = connection.model('walletTransInfo', walletTransInfo)

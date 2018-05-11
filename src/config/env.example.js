@@ -1,20 +1,25 @@
 let env = process.env.NODE_ENV || 'development'
 
-const CONFIG = {
-  production: {
-    port: 8010,
+if (env === 'production') {
+  module.exports = {
     apiServer: '',
-    clientPort: 8545,
+    port: 8092,
     schedule: ['wallet', 'tx'],
-  },
-  development: {
-    port: 8010,
+    env,
+    ws: {
+      eth: 'ws://127.0.0.1:8546',
+      cre: 'ws://127.0.0.1:8546',
+    },
+  }
+} else {
+  module.exports = {
     apiServer: '',
-    clientPort: 8545,
+    port: 8010,
     schedule: ['tx'],
-  },
+    env,
+    ws: {
+      eth: 'ws://127.0.0.1:8546',
+      cre: 'ws://127.0.0.1:8546',
+    },
+  }
 }
-
-console.log(`Environment : ${env}`)
-
-module.exports = Object.assign({}, CONFIG[env], { env })

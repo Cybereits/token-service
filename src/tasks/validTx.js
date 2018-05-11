@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { connect } from '../framework/web3'
-import { prizeInfoModel } from '../core/schemas'
+import { ethWalletConnect } from '../framework/web3'
+import { txRecordModel } from '../core/schemas'
 import { STATUS } from '../core/enums'
 
 let succ_counter = 0
@@ -9,7 +9,7 @@ let fail_counter = 0
 let exception_counter = 0
 // 获取发送中的交易
 function getSuccTxs() {
-  return prizeInfoModel.find({ txid: { $exists: true } })
+  return txRecordModel.find({ txid: { $exists: true } })
 }
 
 /**
@@ -18,7 +18,7 @@ function getSuccTxs() {
  * @param {string} txid 交易id
  */
 async function isValidTransaction(heightLimit, txid) {
-  let txInfo = await connect.eth.getTransaction(txid).catch(() => false)
+  let txInfo = await ethWalletConnect.eth.getTransaction(txid).catch(() => false)
   if (txInfo && txInfo.blockNumber && txInfo.blockNumber < heightLimit) {
     return true
   }
@@ -27,9 +27,9 @@ async function isValidTransaction(heightLimit, txid) {
 
 export default async function () {
   console.log('开始回溯交易状态')
-  let currBlockNumber = await connect.eth.getBlockNumber()
+  let currBlockNumber = await ethWalletConnect.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
-  let confirmedBlockHeight = currBlockNumber - 60
+  let confirmedBlockHeight = currBlockNumber - 30
   let sendingTxs = await getSuccTxs().catch((ex) => {
     console.error(`交易回溯交失败 ${ex}`)
   })

@@ -2,7 +2,7 @@
   "name": "token-service",
   "version": "1.0.0",
   "scripts": {
-    "prestart": "cd ./app; npm install --production; npm run build;",
+    "prestart": "cd ./app; npm install; npm run build;",
     "start": "cd ./src; npm run start;",
     "dev": "cd ./src; NODE_ENV=development pm2 start config/pm2.config.js; cd ../app; npm run dev",
     "dev-geth": "cd ./src; bash geth.dev.sh",

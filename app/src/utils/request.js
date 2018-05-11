@@ -41,7 +41,7 @@ function checkStatus(response) {
  *
  * @param  {string} url       The URL we want to request
  * @param  {object} [options] The options we want to pass to "fetch"
- * @return {object}           An object containing either "data" or "err"
+ * @returns {object}           An object containing either "data" or "err"
  */
 export default function request(url, options) {
   const defaultOptions = {
