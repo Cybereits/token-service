@@ -29,6 +29,7 @@ switch (NODE_ENV) {
         error_file: 'logs/schedule-err.log',
         out_file: 'logs/schedule-out.log',
         merge_logs: true,
+        log_date_format: 'YYYY-MM-DD HH:mm:ss',
         env: {
           NODE_ENV,
         },

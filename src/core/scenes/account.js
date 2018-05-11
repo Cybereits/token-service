@@ -10,7 +10,7 @@ export function lockAccount(connect, lockAccount) {
 
 /**
  * 获取所有客户端下创建的钱包地址
- * @returns Promise<Array<string>> 所有的钱包地址
+ * @returns {Array<string>} 所有的钱包地址
  */
 export async function getAllAccounts() {
   let ethAccounts = await ethWalletConnect.eth.getAccounts()

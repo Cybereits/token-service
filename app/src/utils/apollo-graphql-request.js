@@ -6,7 +6,7 @@ import ApolloClient from 'apollo-boost';
 
 const client = new ApolloClient({
   uri: 'http://192.168.3.200:8010/graphql',
-})
+});
 
 // const codeMessage = {
 //   200: '服务器成功返回请求的数据。',
@@ -45,7 +45,7 @@ const client = new ApolloClient({
  *
  * @param  {string} url       The URL we want to request
  * @param  {object} [options] The options we want to pass to "fetch"
- * @return {object}           An object containing either "data" or "err"
+ * @returns {object}           An object containing either "data" or "err"
  */
 export default function request(gql) {
   // const defaultOptions = {
@@ -102,7 +102,7 @@ export default function request(gql) {
 
   return client.query({
     query: gql,
-  })
+  });
 
   // return fetch(url, newOptions)
   //   .then(checkStatus)
