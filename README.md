@@ -14,3 +14,18 @@
 - graphiql 调试地址 `http://localhost:8010/data`
 - graphql Api 地址 `http://localhost:8010/graphql`
 - 控制台地址 `http://localhost:8000`
+
+## geth 命令行使用说明
+
+### 调用其它合约的方法
+
+```javascript
+// ABI_OBJECT 合约 ABI
+// DEPLOY_ADDR 合约部署地址
+// 两者都可以在 etherscan 查询到
+var contract = eth.contract(ABI_OBJECT).at(DEPLOY_ADDR)
+// 解锁转出钱包（转账才需要 查询不需要）
+web3.personal.unlockAccount("转出钱包地址","钱包密钥",300)  // 解锁 300 秒
+// 调用 ERC-20 标准的 transfer 方法
+contract.transfer.sendTransaction("收款地址","代币数量 * 合约 decimal", { from: "转出钱包地址" })
+```

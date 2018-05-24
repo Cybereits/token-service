@@ -25,16 +25,27 @@ export const batchTransactinTaskModel = connection.model('batchTransactionTask',
 
 // 合约元数据
 const contractMeta = mongoose.Schema({
+  // 合约名称
   name: {
     type: String,
     unique: true,
     index: true,
     required: true,
   },
-  code: [String],
-  abi: [String],
-  address: [String],
-  subContractAddress: [String],
+  // ERC20 代币精度 (可选)
+  contractDecimals: {
+    type: Number,
+    default: 18,
+  },
+  // Contract Creation Code
+  code: String,
+  // Contract ABI
+  abi: String,
+  // 合约拥有者地址
+  owner: String,
+  // 合约部署地址
+  address: String,
+  // 创建时间
   createAt: {
     type: Date,
     default: new Date(),

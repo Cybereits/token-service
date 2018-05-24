@@ -16,7 +16,7 @@ const Instances = {
 /**
  * 获取代币合约元信息
  */
-export async function getTokenContractMeta() {
+async function getTokenContractMeta() {
   let meta = await contractMetaModel
     .findOne({ name: 'Cybereits Token' })
     .then((res) => {
