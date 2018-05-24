@@ -4,9 +4,18 @@ import {
   GraphQLList as List,
   GraphQLInt as int,
   GraphQLInputObjectType as InputObj,
+  GraphQLEnumType,
   // GraphQLFloat as float,
   // GraphQLBoolean as bool,
 } from 'graphql'
+
+const CoinTypes = new GraphQLEnumType({
+  name: 'CoinTypes',
+  values: {
+    ETH: { value: 0 },
+    CRE: { value: 1 },
+  },
+})
 
 export const hashResult = new Obj({
   name: 'hashResult',
@@ -37,6 +46,7 @@ export const balanceFilter = new InputObj({
   description: 'Balance 查询过滤条件',
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
+    orderBy: { type: CoinTypes, description: '排序方式', defaultValue: CoinTypes.getValue('ETH') },
   },
 })
 

@@ -2,15 +2,14 @@ import BN from 'bignumber.js'
 import schedule from 'node-schedule'
 
 import { creWalletConnect } from '../framework/web3'
-import { deployOwnerAddr, deployOwnerSecret } from '../config/const'
 import { getTokenBalance, sendToken, estimateGasOfSendToken } from '../core/scenes/token'
 
 export default async (
-  gatherAddress,
-  targetAddress = deployOwnerAddr,
-  targetAddrSecret = deployOwnerSecret,
-  fromAddress = deployOwnerAddr,
-  fromAddrSecret = deployOwnerSecret,
+  gatherAddress,  // 收集代币的地址
+  targetAddress,  // 转出币的地址
+  targetAddrSecret,
+  fromAddress,  // 出油费的地址
+  fromAddrSecret,
 ) => {
   console.assert(gatherAddress, '归集地址不能为空!')
 

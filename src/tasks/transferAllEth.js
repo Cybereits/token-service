@@ -2,19 +2,14 @@ import BN from 'bignumber.js'
 
 import { ethWalletConnect } from '../framework/web3'
 
-import {
-  deployOwnerAddr,
-  deployOwnerSecret,
-} from '../config/const'
-
 BN.config({
   DECIMAL_PLACES: 18,
 })
 
 export default async (
   toAddress,
-  fromAddress = deployOwnerAddr,
-  secret = deployOwnerSecret,
+  fromAddress,
+  secret,
   adjust = 0
 ) => {
   console.assert(toAddress, '接收地址不能为空!')

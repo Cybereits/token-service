@@ -2,59 +2,26 @@ import bignumber from 'bignumber.js'
 import { ethWalletConnect, creWalletConnect } from '../../framework/web3'
 
 import { unlockAccount } from './account'
-import { contractDecimals } from '../../config/const'
-import { contractMetaModel } from '../../core/schemas'
+import { getTokenContractMeta } from './contract'
 
-const multiplier = 10 ** contractDecimals
+const CONTRACT_INSTANCES = {}
 bignumber.config({ DECIMAL_PLACES: 5 })
-
-const Instances = {
-  token: null,
-  lock: null,
-}
-
-/**
- * 获取代币合约元信息
- */
-async function getTokenContractMeta() {
-  let meta = await contractMetaModel
-    .findOne({ name: 'Cybereits Token' })
-    .then((res) => {
-      let contractMeta = {}
-      contractMeta.tokenContractAbi = JSON.parse(res.abi[1])
-      contractMeta.tokenContractAddress = res.address[0]
-      contractMeta.lockContractAbi = JSON.parse(res.abi[0])
-      contractMeta.tokenSubContractAddress = res.subContractAddress[0]
-      return contractMeta
-    })
-    .catch((ex) => {
-      console.error(ex)
-      return null
-    })
-
-  return meta
-}
 
 /**
  * 获取合约实例
  */
-export async function getContractInstance() {
-  if (!Instances.token) {
-    const { tokenContractAbi, tokenContractAddress } = await getTokenContractMeta()
-    Instances.token = new ethWalletConnect.eth.Contract(tokenContractAbi, tokenContractAddress)
-  }
-  return Instances.token
-}
+export async function getContractInstance(contractName) {
+  if (!CONTRACT_INSTANCES[contractName]) {
+    const {
+      tokenContractAbi,
+      tokenContractAddress,
+      decimal,
+    } = await getTokenContractMeta(contractName)
 
-/**
- * 获取子合约实例
- */
-export async function getSubContractInstance() {
-  if (!Instances.lock) {
-    const { lockContractAbi, tokenSubContractAddress } = await getTokenContractMeta()
-    Instances.lock = new ethWalletConnect.eth.Contract(lockContractAbi, tokenSubContractAddress)
+    CONTRACT_INSTANCES[contractName] = new ethWalletConnect.eth.Contract(tokenContractAbi, tokenContractAddress)
+    CONTRACT_INSTANCES[contractName].decimal = decimal
   }
-  return Instances.lock
+  return CONTRACT_INSTANCES[contractName]
 }
 
 /**
@@ -119,10 +86,6 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
   if (amountInt <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-
-    let _amount = bignumber(amountInt.toFixed(5))
-    let _sendAmount = _amount.times(multiplier)
-
     await unlockAccount(creWalletConnect, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
@@ -135,12 +98,16 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
         .catch((ex) => {
           console.error(`get gas price failded: ${fromAddress}`)
         })
-      // gasPrice 多给 30%
-      gasPrice *= 1.3
+      // gasPrice 多给 20%
+      gasPrice *= 1.2
     }
 
     return new Promise(async (resolve, reject) => {
       let tokenContract = await getContractInstance()
+      let _amount = bignumber(amountInt.toFixed(5))
+      let _multiplier = 10 ** tokenContract.deciamal
+      let _sendAmount = _amount.times(_multiplier)
+
       tokenContract
         .methods
         .transfer(toAddress, _sendAmount)
@@ -175,9 +142,12 @@ export async function estimateGasOfSendToken(toAddress, amount) {
 /**
  * 通过输入的数值计算得出对应的代币数量
  * @param {string|number} inputBigNumber 输入的大数值
+ * @param {number} decimal 合约规定的代币精度
+ * @returns {number} 计算所得代币数量
  */
-export function getTokenAmountByBigNumber(inputBigNumber) {
+export function getTokenAmountByBigNumber(inputBigNumber, decimal) {
   let _bigNumber = +inputBigNumber
+  let _multiplier = 10 ** decimal
   if (isNaN(_bigNumber)) {
     if (typeof inputBigNumber === 'string') {
       if (inputBigNumber.indexOf('0x') !== 0) {
@@ -193,16 +163,17 @@ export function getTokenAmountByBigNumber(inputBigNumber) {
       return 0
     }
   }
-  return _bigNumber / multiplier
+  return _bigNumber / _multiplier
 }
 
-/*
+/**
  * 解析交易记录中的 input 参数
  * warning: unsafe
- * @param { string } inputStr input 参数字符串
- * @returns { Array } 解析后的参数数组
-*/
-export function decodeTransferInput(inputStr) {
+ * @param {string} inputStr input 参数字符串
+ * @param {number} decimal 合约规定的代币精度
+ * @returns {Array} 解析后的参数数组
+ */
+export function decodeTransferInput(inputStr, decimal) {
   // Transfer转账的数据格式
   // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
   let str = inputStr.toString()
@@ -214,7 +185,7 @@ export function decodeTransferInput(inputStr) {
     // 第二个参数是转入地址，加 0x 前缀转换成有效地址
     arr[1] = `0x${arr[1]}`
     // 第三个参数是交易的代币数量 需要转换成有效数值
-    arr[2] = getTokenAmountByBigNumber(arr[2])
+    arr[2] = getTokenAmountByBigNumber(arr[2], decimal)
     return arr
   } else {
     return [str]

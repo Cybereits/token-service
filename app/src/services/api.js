@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import { errorMesage } from '../utils/networkErrorMsg';
 import request from '../utils/request';
 import { toGql } from '../utils/utils';
-import config from '../../config/env'
+import config from '../../config/env.json'
 
 const { host, port, baseUrl } = config
 const client = new ApolloClient({

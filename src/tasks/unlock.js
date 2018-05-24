@@ -2,7 +2,7 @@ import { creWalletConnect } from '../framework/web3'
 
 import { unlockAccount } from '../core/scenes/account'
 
-import { getSubContractInstance } from '../core/scenes/token'
+import { getContractInstance } from '../core/scenes/token'
 
 import {
   teamAddr01,
@@ -13,7 +13,7 @@ import {
   teamAddr06,
   deployOwnerAddr,
   deployOwnerSecret,
-} from '../config/const'
+} from '../config/const.json'
 
 export default async (index) => {
   let unlockAddr = ''
@@ -42,7 +42,8 @@ export default async (index) => {
   await unlockAccount(creWalletConnect, deployOwnerAddr, deployOwnerSecret)
   console.log(`unlock ${unlockAddr}`)
 
-  let subContract = await getSubContractInstance()
+  let subContract = await getContractInstance('Cybereits Team Lock')
+
   // 解锁锁定的代币
   let unlockResult = await subContract
     .methods

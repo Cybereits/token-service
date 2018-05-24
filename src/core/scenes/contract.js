@@ -3,6 +3,37 @@ import { creWalletConnect } from '../../framework/web3'
 import { contractMetaModel } from '../schemas'
 
 /**
+ * 获取合约元信息
+ * @param {string} contractName 合约名称
+ * @returns {object|null} 合约元信息对象
+ */
+export function getTokenContractMeta(contractName = 'Cybereits Token') {
+  return contractMetaModel
+    .findOne({ name: contractName })
+    .then(({
+      name,
+      decimal,
+      code,
+      abi,
+      owner,
+      address,
+      args,
+    }) => ({
+      name,
+      decimal,
+      code,
+      owner,
+      abi: JSON.parse(abi),
+      address,
+      args: JSON.parse(args),
+    }))
+    .catch((ex) => {
+      console.error(ex)
+      return null
+    })
+}
+
+/**
  * 记录智能合约编译后的 json 数据
  * @param {*} contractData 写入的合约数据
  */

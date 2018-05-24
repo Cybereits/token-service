@@ -1,17 +1,16 @@
 import { SerialQueue, TaskCapsule } from 'async-task-manager'
 
-import { deployOwnerSecret } from '../config/const'
 import transferAllEth from './transferAllEth'
 
-let addrList = [] // todo 获取要归集的地址
-let handleAddrList = []
+let addrList = [] // 获取要归集的地址
+let handledAddrList = []
 
 const logResult = () => {
   console.info(`
 
 本次进程中归集的地址列表:
 ------------------------
-${handleAddrList.join('\n')}
+${handledAddrList.join('\n')}
 ------------------------
 
 `)
@@ -25,7 +24,7 @@ const errLogAndExit = (err) => {
   process.exit(-1)
 }
 
-export default async (gatherAddress, amount, secret = deployOwnerSecret) => {
+export default async (gatherAddress, amount, secret) => {
   let _amount = +amount
 
   if (isNaN(_amount) || _amount <= 0) {
@@ -44,7 +43,7 @@ export default async (gatherAddress, amount, secret = deployOwnerSecret) => {
 
   addrList.forEach((addr) => {
     queue.add(new TaskCapsule(() => transferAllEth(gatherAddress, addr, secret).then(() => {
-      handleAddrList.push(addr)
+      handledAddrList.push(addr)
     }).catch(errLogAndExit)))
   })
 

@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import connection from '../framework/dbProviders/mongo'
 import { STATUS, TOKEN_TYPE } from './enums'
 
-// 批量交易任务（发送cre、eth）等
+// 批量交易任务
 const batchTask = mongoose.Schema({
   // 批处理数量
   amount: {
@@ -33,18 +33,20 @@ const contractMeta = mongoose.Schema({
     required: true,
   },
   // ERC20 代币精度 (可选)
-  contractDecimals: {
+  decimal: {
     type: Number,
     default: 18,
   },
   // Contract Creation Code
-  code: String,
+  codes: String,
   // Contract ABI
-  abi: String,
+  abis: String,
   // 合约拥有者地址
   owner: String,
   // 合约部署地址
   address: String,
+  // 合约部署时的参数列表
+  args: String,
   // 创建时间
   createAt: {
     type: Date,
@@ -98,27 +100,3 @@ const transactionRecord = mongoose.Schema({
   confirmTime: Date,
 })
 export const txRecordModel = connection.model('transactionRecord', transactionRecord)
-
-// 奖励信息
-const prizeInfo = mongoose.Schema({
-  // 钱包地址
-  ethAddress: {
-    type: String,
-    index: true,
-    required: true,
-  },
-  // 奖励数量
-  prize: {
-    type: Number,
-    required: true,
-  },
-  // 发放状态
-  status: {
-    type: Number,
-    default: STATUS.pending,
-    required: true,
-  },
-  // 发送的转账交易 ID
-  txid: String,
-})
-export const prizeInfoModel = connection.model('prizeInfo', prizeInfo)

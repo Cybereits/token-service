@@ -1,5 +1,5 @@
 import request from '../framework/request'
-import { apiServer } from '../config/env'
+import { apiServer } from '../config/env.json'
 
 // 同步本地 geth 客户端记录到的钱包 eth 账户信息
 export const postBalances = balanceArr => request.post(`${apiServer}/walet`, { data: balanceArr })

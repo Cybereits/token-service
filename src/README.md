@@ -2,33 +2,32 @@
 
 ## 使用说明
 
-#### 启动服务指令
+### 启动服务指令
 
 - `npm run start` 正式环境启动 pm2 守护进程
 - `npm run dev` 本地开发环境启动 pm2 守护进程
 - `npm run dev-geth` 本地开发环境启动钱包
 
-#### npm run dtc
+### npm run dtc
 
-> 部署代币合约
+在实现时分为两个合约：CybereitsToken(代币合约)，CybereitsTeamLock(锁仓合约)
 
-在实现时分为两个合约：CybereitsToken(代币合约)，CybereitsTeamLock(锁仓合约)  
+具体实现如下:
 
-具体实现如下
+- 在初始化代币合约的 balances 时，预留锁仓的份额记录在锁仓合约地址对应的 balance 中。
+- 锁仓合约中记录 6 个团队钱包地址，每个地址对应的锁仓时间不同。
+- 锁仓合约中提供一个公开的解锁方法，可以在指定团队钱包地址冻结期结束后解锁锁仓合约 balance 中的份额到指定的团队钱包地址。
 
- - 在初始化代币合约的 balances 时，预留锁仓的份额记录在锁仓合约地址对应的 balance 中。
- - 锁仓合约中记录 6 个团队钱包地址，每个地址对应的锁仓时间不同。
- - 锁仓合约中提供一个公开的解锁方法，可以在指定团队钱包地址冻结期结束后解锁锁仓合约 balance 中的份额到指定的团队钱包地址。
+在部署代币将从根目录的 `config/const.js` 中读取:
 
-> 在部署代币将从根目录的 `config/const.js` 中读取:
-> 1. 代币总数(tokenSupply)
-> 2. 代币精度(contractDecimals)
-> 3. 团队锁定百分比(teamLockPercent)
-> 4. 团队钱包地址1-6(teamAddr01 - teamAddr06)
->
-> 并且在后续的接口、任务中将持续使用这些变量进行计算，例如查询指定地址的代币数量等
+1. 代币总数 (tokenSupply)
+2. 代币精度 (contractDecimals)
+3. 团队锁定百分比 (teamLockPercent)
+4. 团队钱包地址 1 - 6 (teamAddr01 - teamAddr06)
 
-#### npm run dev-task _taskFileName_ _params_
+并且在后续的接口、任务中将持续使用这些变量进行计算，例如查询指定地址的代币数量等
+
+### npm run dev-task _taskFileName_ _params_
 
     开发环境下运行任务脚本（把 dev-task 替换成 prd-task，即可在生产环境下运行任务脚本）
     第一个参数必填，任务文件名（即 ./tasks 目录中的文件名)
@@ -66,7 +65,6 @@
 
 ## 常量配置说明
 
-- apiKey: etherscan.io 授权 key
 - deployOwnerAddr: 合约部署的钱包地址
 - deployOwnerSecret: 合约部署钱包的密码
 - tokenSupply: 代币总量
@@ -77,7 +75,7 @@
 ## 数据导出
 
 ```bash
-mongoexport --db DbName --collection TableName --type=csv --fields Fields --out walletTransactions.csv
+mongoexport --db DatabaseName --collection TableName --type=csv --fields Fields --out OutFilename.csv
 
-mongoexport --db DbName --collection TableName --fields Fields --out walletTransactions.json
+mongoexport --db DatabaseName --collection TableName --fields Fields --out OutFilename.json
 ```

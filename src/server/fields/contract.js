@@ -19,7 +19,7 @@ import {
   teamAddr04,
   teamAddr05,
   teamAddr06,
-} from '../../config/const'
+} from '../../config/const.json'
 
 import {
   seriliazeContractData,

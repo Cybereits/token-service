@@ -4,7 +4,7 @@ import session from 'koa-session'
 import serve from 'koa-static'
 
 import router from './routes'
-import env from '../config/env'
+import env from '../config/env.json'
 
 const port = process.env.PORT || env.port
 

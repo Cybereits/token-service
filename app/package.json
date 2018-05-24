@@ -4,8 +4,7 @@
   "description": "Web applications for manage token",
   "scripts": {
     "precommit": "npm run lint-staged",
-    "dev": "ESLINT=none NODE_ENV=development roadhog dev",
-    "start": "ESLINT=none NODE_ENV=production roadhog dev",
+    "start": "ESLINT=none roadhog dev",
     "start:no-proxy": "NO_PROXY=true ESLINT=none roadhog dev",
     "build": "ESLINT=none roadhog build",
     "analyze": "ANALYZE=true roadhog build",

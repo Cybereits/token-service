@@ -2,11 +2,9 @@
   "name": "token-management-service",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=production pm2 start config/pm2.config.js",
+    "start": "pm2 start config/pm2.json",
     "lint": "bash ./eslint.sh",
-    "dev": "NODE_ENV=development pm2 start config/pm2.config.js",
-    "dev-task": "node ./tasks",
-    "prd-task": "NODE_ENV=production node ./tasks",
+    "task": "node ./tasks",
     "test": "./node_modules/.bin/mocha -t 20s test/**/*.spec.js"
   },
   "dependencies": {

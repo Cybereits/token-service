@@ -1,14 +1,12 @@
+# npm packages
 node_modules/
 
+# logs
 *.log
+npm-debug.log*
 
+# dev geth data
 geth-node/
-
-const.js
-token.json
-env.js
-
-walletTransactions.*
 
 # roadhog-api-doc ignore
 request-temp.js
@@ -16,15 +14,13 @@ _roadhog-api-doc
 
 # production
 dist
+
+# editor
 vscode
+jsconfig.json
 
 # misc
 .DS_Store
-npm-debug.log*
-yarn-error.log
 
+# test
 coverage
-yarn.lock
-.idea
-*bak
-jsconfig.json

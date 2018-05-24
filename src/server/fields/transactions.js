@@ -4,8 +4,6 @@ import {
   GraphQLNonNull as NotNull,
 } from 'graphql'
 
-import { deployOwnerAddr, deployOwnerSecret } from '../../config/const'
-
 import { STATUS, TOKEN_TYPE } from '../../core/enums'
 import { batchTransactinTaskModel, txRecordModel } from '../../core/schemas'
 import { batchTransactionTask, txRecord, txFilter } from '../types/plainTypes'
@@ -115,14 +113,14 @@ export const createBatchTransactions = {
     },
     outAccount: {
       type: str,
-      description: '出账的钱包地址，默认合约部署者的钱包地址',
+      description: '出账的钱包地址',
     },
     secret: {
       type: str,
-      description: '出账钱包地址的密钥，默认合约部署者的钱包密钥',
+      description: '出账钱包地址的密钥',
     },
   },
-  async resolve(root, { transactions, comment, tokenType, outAccount = deployOwnerAddr, secret = deployOwnerSecret }) {
+  async resolve(root, { transactions, comment, tokenType, outAccount, secret }) {
     if (!TOKEN_TYPE[tokenType]) {
       throw new Error('不支持的代币类型')
     }
