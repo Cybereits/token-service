@@ -3,6 +3,51 @@ import mongoose from 'mongoose'
 import connection from '../framework/dbProviders/mongo'
 import { STATUS, TOKEN_TYPE } from './enums'
 
+// 用户信息
+const user = mongoose.Schema({
+  username: {
+    type: String,
+    unique: true,
+    index: true,
+    required: true,
+  },
+  secret: {
+    type: String,
+    required: true,
+  },
+  enabled: {
+    type: Boolean,
+    default: true,
+  },
+  createAt: {
+    type: Date,
+    default: new Date(),
+  },
+})
+export const userModel = connection.model('userInfo', user)
+
+// 钱包信息
+const wallet = mongoose.Schema({
+  address: {
+    type: String,
+    unique: true,
+    index: true,
+    required: true,
+  },
+  secret: {
+    type: String,
+    default: '',
+    required: true,
+  },
+  group: String,
+  comment: String,
+  createAt: {
+    type: Date,
+    default: new Date(),
+  },
+})
+export const walletModel = connection.model('walletBaseInfo', wallet)
+
 // 批量交易任务
 const batchTask = mongoose.Schema({
   // 批处理数量

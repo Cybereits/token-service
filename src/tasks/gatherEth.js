@@ -1,51 +1,58 @@
-import { SerialQueue, TaskCapsule } from 'async-task-manager'
+import { SerialQueue, TaskCapsule, ParallelQueue } from 'async-task-manager'
 
+import { creWalletConnect as connect } from '../framework/web3'
 import transferAllEth from './transferAllEth'
 
-let addrList = [] // 获取要归集的地址
-let handledAddrList = []
+export default async (gatherAddress, secret) => {
+  let handledAddrList = []
+  let addrList = []
+  let taskQueue = new ParallelQueue({ limit: 20 })
 
-const logResult = () => {
-  console.info(`
+  // 获取要归集的地址
+  let list = await connect.eth.getAccounts()
 
-本次进程中归集的地址列表:
-------------------------
-${handledAddrList.join('\n')}
-------------------------
+  list.forEach((address) => {
+    taskQueue.add(new TaskCapsule(() =>
+      new Promise(async (resolve, reject) => {
+        let amount = await connect.eth.getBalance(address).catch((ex) => {
+          console.error(`get address eth balance failded: ${address}`)
+          reject(ex)
+        })
 
-`)
-}
+        let ethAmount = connect.eth.extend.utils.fromWei(amount, 'ether')
 
-const errLogAndExit = (err) => {
-  if (err) {
-    console.error(err)
-  }
-  logResult()
-  process.exit(-1)
-}
+        if (ethAmount > 0.001 && address !== gatherAddress) {
+          console.log(`${address}\t${ethAmount}`)
+          addrList.push(address)
+        }
 
-export default async (gatherAddress, amount, secret) => {
-  let _amount = +amount
-
-  if (isNaN(_amount) || _amount <= 0) {
-    _amount = 100
-  }
-
-  console.log(`本次处理数量为 ${_amount}\n`)
-
-  let queue = new SerialQueue({
-    toleration: 0,
-    onFinished: () => {
-      logResult()
-      process.exit(0)
-    },
+        resolve()
+      })
+    ))
   })
 
-  addrList.forEach((addr) => {
-    queue.add(new TaskCapsule(() => transferAllEth(gatherAddress, addr, secret).then(() => {
-      handledAddrList.push(addr)
-    }).catch(errLogAndExit)))
-  })
+  taskQueue.consume()
+    .then(() => {
+      let queue = new SerialQueue({ toleration: 0 })
 
-  queue.consume()
+      addrList.forEach((addr) => {
+        queue.add(
+          new TaskCapsule(
+            () => transferAllEth(gatherAddress, addr, secret)
+              .then(() => {
+                handledAddrList.push(addr)
+              })
+              .catch((err) => {
+                console.info(`[${addr}] fail, ${err.message}`)
+              })
+          )
+        )
+      })
+
+      queue
+        .consume()
+        .then(() => {
+          console.info(`本次进程中归集的地址列表:\n------------------------\n${handledAddrList.join('\n')}\n------------------------`)
+        })
+    })
 }

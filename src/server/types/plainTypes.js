@@ -26,6 +26,14 @@ export const hashResult = new Obj({
   },
 })
 
+export const userInfo = new Obj({
+  name: 'userInfo',
+  description: '用户信息',
+  fields: {
+    username: { type: str, description: '用户名' },
+  },
+})
+
 export const balanceDetail = new Obj({
   name: 'balanceDetail',
   description: '账户详情',
