@@ -3,7 +3,7 @@ import Web3 from 'web3'
 import { ws } from '../../config/env.json'
 
 let initEthConnect = (wsUri, name) => {
-  let connected = false
+  let connected = true
   let conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
 
   // 心跳检测

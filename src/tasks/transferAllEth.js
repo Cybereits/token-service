@@ -2,9 +2,7 @@ import BN from 'bignumber.js'
 
 import { ethWalletConnect as connect } from '../framework/web3'
 
-BN.config({
-  DECIMAL_PLACES: 18,
-})
+BN.config({ DECIMAL_PLACES: 18 })
 
 export default async (
   toAddress,
