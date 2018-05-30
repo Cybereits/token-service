@@ -30,8 +30,10 @@ const CONFIG = {
 }
 
 app.use(session(CONFIG, app))
-app.use(sessionValid)
 app.use(logger)
+if (process.env.NODE_ENV === 'production') {
+  app.use(sessionValid)
+}
 
 // routes
 app.use(router.routes(), router.allowedMethods())

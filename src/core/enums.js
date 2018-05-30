@@ -19,3 +19,8 @@ const statusKeys = Object.keys(STATUS)
 export function getStatus(_value) {
   return statusKeys.filter(t => STATUS[t] === _value)[0]
 }
+
+export const CONTRACT_NAMES = {
+  cre: 'CybereitsToken',
+  lock: 'CybereitsTeamLock',
+}

@@ -27,8 +27,8 @@ const user = mongoose.Schema({
 export const userModel = connection.model('userInfo', user)
 
 // 钱包信息
-const wallet = mongoose.Schema({
-  address: {
+const ethAccount = mongoose.Schema({
+  account: {
     type: String,
     unique: true,
     index: true,
@@ -37,16 +37,20 @@ const wallet = mongoose.Schema({
   secret: {
     type: String,
     default: '',
-    required: true,
   },
-  group: String,
-  comment: String,
+  group: {
+    type: String,
+    default: 'normal',
+  },
+  comment: {
+    type: String,
+  },
   createAt: {
     type: Date,
     default: new Date(),
   },
 })
-export const walletModel = connection.model('walletBaseInfo', wallet)
+export const ethAccountModel = connection.model('ethAccount', ethAccount)
 
 // 批量交易任务
 const batchTask = mongoose.Schema({

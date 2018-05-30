@@ -4,6 +4,7 @@ require('babel-register')({
 })
 
 const { contractMetaModel } = require('../core/schemas')
+const { CONTRACT_NAMES } = require('../core/enums')
 
 let {
   name,
@@ -11,14 +12,22 @@ let {
   abi,
   address,
   subContractAddress,
+  deployOwnerAddr,
 } = require('../contracts/token.json')
 
-contractMetaModel.insertMany([
-  {
-    name,
-    code,
-    abi,
-    address,
-    subContractAddress,
-  },
-])
+// todo...
+contractMetaModel.create({
+  name,
+  decimal: 18,
+  code,
+  abi,
+  owner: deployOwnerAddr,
+  address,
+})
+
+contractMetaModel.create({
+  name: CONTRACT_NAMES.lock,
+  code,
+  abi,
+  address: subContractAddress,
+})

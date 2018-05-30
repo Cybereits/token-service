@@ -6,7 +6,7 @@ import {
 import { createAccount, createMultiAccount, queryAccountList } from './fields/account'
 import { queryAllBalance } from './fields/balance'
 import { commonStatusEnum } from './fields/enum'
-import { queryContractAbi, createAndDeployTokenContract } from './fields/contract'
+import { queryContractAbi, deployCREContract } from './fields/contract'
 import {
   queryBatchTrasactionTasks,
   queryTxRecordsViaTaskId,
@@ -38,7 +38,7 @@ const mutations = new Obj({
     createBatchTransactions,
     createMultiAccount,
     createTransaction,
-    createAndDeployTokenContract,
+    deployCREContract,
   },
 })
 

@@ -13,12 +13,12 @@ bignumber.config({ DECIMAL_PLACES: 5 })
 export async function getContractInstance(contractName) {
   if (!CONTRACT_INSTANCES[contractName]) {
     const {
-      tokenContractAbi,
-      tokenContractAddress,
+      abis,
+      address,
       decimal,
     } = await getTokenContractMeta(contractName)
 
-    CONTRACT_INSTANCES[contractName] = new ethWalletConnect.eth.Contract(tokenContractAbi, tokenContractAddress)
+    CONTRACT_INSTANCES[contractName] = new ethWalletConnect.eth.Contract(abis, address)
     CONTRACT_INSTANCES[contractName].decimal = decimal
   }
   return CONTRACT_INSTANCES[contractName]
@@ -62,9 +62,9 @@ export async function getTokenBalance(userAddress) {
 export async function getTokenBalanceFullInfo(userAddress) {
   const tokenTotalAmount = await getTotal(ethWalletConnect)
   const userBalance = await balanceOf(ethWalletConnect, userAddress)
-  const { tokenContractAddress } = await getTokenContractMeta()
+  const { address } = await getTokenContractMeta()
   return {
-    tokenContractAddress,
+    tokenContractAddress: address,
     total: tokenTotalAmount,
     userAddress,
     balance: userBalance,

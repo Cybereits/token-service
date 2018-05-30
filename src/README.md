@@ -4,28 +4,7 @@
 
 ### 启动服务指令
 
-- `npm run start` 正式环境启动 pm2 守护进程
-- `npm run dev` 本地开发环境启动 pm2 守护进程
-- `npm run dev-geth` 本地开发环境启动钱包
-
-### npm run dtc
-
-在实现时分为两个合约：CybereitsToken(代币合约)，CybereitsTeamLock(锁仓合约)
-
-具体实现如下:
-
-- 在初始化代币合约的 balances 时，预留锁仓的份额记录在锁仓合约地址对应的 balance 中。
-- 锁仓合约中记录 6 个团队钱包地址，每个地址对应的锁仓时间不同。
-- 锁仓合约中提供一个公开的解锁方法，可以在指定团队钱包地址冻结期结束后解锁锁仓合约 balance 中的份额到指定的团队钱包地址。
-
-在部署代币将从根目录的 `config/const.js` 中读取:
-
-1. 代币总数 (tokenSupply)
-2. 代币精度 (contractDecimals)
-3. 团队锁定百分比 (teamLockPercent)
-4. 团队钱包地址 1 - 6 (teamAddr01 - teamAddr06)
-
-并且在后续的接口、任务中将持续使用这些变量进行计算，例如查询指定地址的代币数量等
+- `npm run start` 启动 pm2 守护进程
 
 ### npm run dev-task _taskFileName_ _params_
 
@@ -62,20 +41,3 @@
   - gatherAddress 归集接受钱包地址
   - amount 本次批处理的数量
   - secret 批处理钱包的私钥（默认是 deployOwnerSecret）
-
-## 常量配置说明
-
-- deployOwnerAddr: 合约部署的钱包地址
-- deployOwnerSecret: 合约部署钱包的密码
-- tokenSupply: 代币总量
-- contractDecimals: 代币精度
-- teamLockPercent: 团队锁仓比例
-- teamAddr01...06: 团队解锁钱包地址
-
-## 数据导出
-
-```bash
-mongoexport --db DatabaseName --collection TableName --type=csv --fields Fields --out OutFilename.csv
-
-mongoexport --db DatabaseName --collection TableName --fields Fields --out OutFilename.json
-```

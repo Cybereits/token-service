@@ -1,23 +1,25 @@
 import {
-  GraphQLObjectType as Obj,
+  GraphQLObjectType as OutputObj,
   GraphQLString as str,
   GraphQLList as List,
   GraphQLInt as int,
   GraphQLInputObjectType as InputObj,
   GraphQLEnumType,
+  GraphQLNonNull as NotNull,
   // GraphQLFloat as float,
   // GraphQLBoolean as bool,
 } from 'graphql'
 
-const CoinTypes = new GraphQLEnumType({
+export const CoinTypes = new GraphQLEnumType({
   name: 'CoinTypes',
   values: {
-    ETH: { value: 0 },
-    CRE: { value: 1 },
+    ETH: { value: 'eth' },
+    CRE: { value: 'cre' },
   },
 })
 
-export const hashResult = new Obj({
+// #region Output Objects
+export const hashResult = new OutputObj({
   name: 'hashResult',
   description: '键值对结果',
   fields: {
@@ -26,7 +28,7 @@ export const hashResult = new Obj({
   },
 })
 
-export const userInfo = new Obj({
+export const userInfo = new OutputObj({
   name: 'userInfo',
   description: '用户信息',
   fields: {
@@ -34,7 +36,7 @@ export const userInfo = new Obj({
   },
 })
 
-export const balanceDetail = new Obj({
+export const balanceDetail = new OutputObj({
   name: 'balanceDetail',
   description: '账户详情',
   fields: {
@@ -49,16 +51,7 @@ export const balanceDetail = new Obj({
   },
 })
 
-export const balanceFilter = new InputObj({
-  name: 'balanceFilter',
-  description: 'Balance 查询过滤条件',
-  fields: {
-    ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
-    orderBy: { type: CoinTypes, description: '排序方式', defaultValue: CoinTypes.getValue('ETH') },
-  },
-})
-
-export const batchTransactionTask = new Obj({
+export const batchTransactionTask = new OutputObj({
   name: 'batchTransactionTask',
   description: '批量交易任务',
   fields: {
@@ -83,7 +76,7 @@ export const batchTransactionTask = new Obj({
   },
 })
 
-export const txRecord = new Obj({
+export const txRecord = new OutputObj({
   name: 'txOperationRecord',
   description: '转账记录',
   fields: {
@@ -139,6 +132,17 @@ export const txRecord = new Obj({
     },
   },
 })
+// #endregion
+
+// #region Input Objects
+export const balanceFilter = new InputObj({
+  name: 'balanceFilter',
+  description: 'Balance 查询过滤条件',
+  fields: {
+    ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
+    orderBy: { type: CoinTypes, description: '排序方式' },
+  },
+})
 
 export const txFilter = new InputObj({
   name: 'txFilter',
@@ -151,3 +155,23 @@ export const txFilter = new InputObj({
   },
 })
 
+export const creContractArgs = new InputObj({
+  name: 'creContractArgs',
+  description: 'CRE 代币合约参数',
+  fields: {
+    tokenSupply: { type: new NotNull(int), description: '代币总量' },
+    contractDecimals: { type: new NotNull(int), description: '合约精度' },
+    lockPercent: { type: new NotNull(int), description: '团队锁仓百分比' },
+    lockAddresses: { type: new List(str), description: '锁仓地址' },
+  },
+})
+
+export const ethAccount = new InputObj({
+  name: 'ethAccount',
+  description: 'eth 账户信息',
+  fields: {
+    address: { type: new NotNull(str), description: '钱包地址' },
+    secret: { type: str, description: '钱包创建时的密钥 (非私钥)', defaultValue: '' },
+  },
+})
+// #endregion

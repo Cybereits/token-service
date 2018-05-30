@@ -3,9 +3,13 @@ import {
 } from 'graphql'
 
 import { ethWalletConnect } from '../../framework/web3'
-// import { getTokenBalance } from '../../core/scenes/token'
-import { balanceDetail, balanceFilter } from '../types/plainTypes'
+import { getTokenBalance } from '../../core/scenes/token'
+import { balanceDetail, balanceFilter, CoinTypes } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
+
+function sortBalances(balances, tokenName) {
+  return balances.sort((prev, next) => next.balances.filter(t => t.name === tokenName)[0].value - prev.balances.filter(t => t.name === tokenName)[0].value)
+}
 
 export const queryAllBalance = {
   type: PaginationWrapper(balanceDetail),
@@ -22,11 +26,15 @@ export const queryAllBalance = {
     filter: {
       type: balanceFilter,
       description: '过滤条件',
+      defaultValue: {
+        orderBy: CoinTypes.getValue('ETH').value,
+      },
     },
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
     let listAccounts
-    if (filter && filter.ethAddresses && filter.ethAddresses.length > 0) {
+    let { ethAddresses, orderBy } = filter
+    if (ethAddresses && ethAddresses.length > 0) {
       listAccounts = filter.ethAddresses
     } else {
       listAccounts = await ethWalletConnect.eth.getAccounts()
@@ -34,20 +42,23 @@ export const queryAllBalance = {
     let total = listAccounts.length
     listAccounts = listAccounts.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
     let result = []
-    let promises = listAccounts.map(address => new Promise(async (resolve) => {
-      let amount = await ethWalletConnect.eth.getBalance(address).catch((ex) => { throw ex })
-      // let creAmount = await getTokenBalance(address).catch((ex) => { throw ex })
+    let promises = listAccounts.map(address => new Promise(async (resolve, reject) => {
+      let amount = await ethWalletConnect.eth.getBalance(address).catch(reject)
+      let creAmount = await getTokenBalance(address).catch(reject)
       let ethAmount = ethWalletConnect.eth.extend.utils.fromWei(amount, 'ether')
       result.push({
         ethAddress: address,
         balances: [
           { name: 'eth', value: ethAmount },
-          // { name: 'cre', value: creAmount },
+          { name: 'cre', value: creAmount },
         ],
       })
       resolve()
     }))
 
-    return Promise.all(promises).then(() => PaginationResult(result, pageIndex, pageSize, total))
+    return Promise.all(promises).then(() => {
+      sortBalances(result, orderBy)
+      return PaginationResult(result, pageIndex, pageSize, total)
+    })
   },
 }

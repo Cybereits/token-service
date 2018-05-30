@@ -5,12 +5,10 @@ require('babel-register')({
 const { expect } = require('chai')
 const { deployContractEventListeners } = require('../core/scenes/listener')
 const { sendToken } = require('../core/scenes/token')
-const { deployOwnerAddr, deployOwnerSecret, teamAddr01 } = require('../config/const')
 const ContractEvents = require('../core/scenes/listener').default
 
 describe('合约事件监听', () => {
   it('should be listen to contract transfer event', () => new Promise((resolve, reject) => {
-
     // 添加转账事件监听
     ContractEvents
       .on('Transfer', ({ event }) => {
@@ -21,8 +19,12 @@ describe('合约事件监听', () => {
 
     // 合约监听部署完成后进行转账交易
     deployContractEventListeners().then(() => {
-      sendToken(deployOwnerAddr, deployOwnerSecret, teamAddr01, '1')
-        .catch(reject)
+      sendToken(
+        '', // 转出地址
+        '', // 转出地址密钥
+        '', // 转入地址
+        1,
+      ).catch(reject)
     })
   }))
 })

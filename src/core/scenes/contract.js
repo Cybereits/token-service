@@ -1,29 +1,30 @@
 import { unlockAccount } from './account'
 import { creWalletConnect } from '../../framework/web3'
 import { contractMetaModel } from '../schemas'
+import { CONTRACT_NAMES } from '../enums'
 
 /**
  * 获取合约元信息
  * @param {string} contractName 合约名称
  * @returns {object|null} 合约元信息对象
  */
-export function getTokenContractMeta(contractName = 'Cybereits Token') {
+export function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
   return contractMetaModel
     .findOne({ name: contractName })
     .then(({
       name,
       decimal,
-      code,
-      abi,
+      codes,
+      abis,
       owner,
       address,
       args,
     }) => ({
       name,
       decimal,
-      code,
+      codes,
       owner,
-      abi: JSON.parse(abi),
+      abis: JSON.parse(abis),
       address,
       args: JSON.parse(args),
     }))
@@ -31,16 +32,6 @@ export function getTokenContractMeta(contractName = 'Cybereits Token') {
       console.error(ex)
       return null
     })
-}
-
-/**
- * 记录智能合约编译后的 json 数据
- * @param {*} contractData 写入的合约数据
- */
-export function seriliazeContractData(name, code, abi, address, subContractAddress) {
-  return contractMetaModel.insertMany([{
-    name, code, abi, address, subContractAddress,
-  }])
 }
 
 /**

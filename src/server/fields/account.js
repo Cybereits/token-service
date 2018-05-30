@@ -6,6 +6,7 @@ import {
 } from 'graphql'
 
 import { ethWalletConnect } from '../../framework/web3'
+import { ethAccountModel } from '../../core/schemas'
 
 export const createAccount = {
   type: str,
@@ -15,9 +16,24 @@ export const createAccount = {
       type: str,
       description: '钱包密码',
     },
+    comment: {
+      type: str,
+      description: '备注信息',
+    },
   },
-  async resolve(root, { password = '' }) {
-    return ethWalletConnect.eth.personal.newAccount(password)
+  resolve(root, { password = '', comment }) {
+    return ethWalletConnect
+      .eth
+      .personal
+      .newAccount(password)
+      .then(
+        account => ethAccountModel
+          .create({
+            account,
+            secret: password,
+          })
+          .then(() => account)
+      )
   },
 }
 
@@ -33,14 +49,35 @@ export const createMultiAccount = {
       type: str,
       description: '钱包密码',
     },
+    comment: {
+      type: str,
+      description: '备注信息',
+    },
   },
-  async resolve(root, { amount = 1, password = '' }) {
+  resolve(root, { amount = 1, password = '', comment }) {
     let promises = []
     let addresses = []
+
     for (let index = 0; index < amount; index += 1) {
       promises.push(ethWalletConnect.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
     }
-    return Promise.all(promises).then(() => addresses)
+
+    return Promise
+      .all(promises)
+      .then(() => {
+        console.log(addresses.map(account => ({
+          account,
+          secret: password,
+          comment,
+        })))
+        return ethAccountModel
+          .insertMany(addresses.map(account => ({
+            account,
+            secret: password,
+            comment,
+          })))
+          .then(() => addresses)
+      })
   },
 }
 
