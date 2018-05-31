@@ -1,6 +1,6 @@
 import BN from 'bignumber.js'
 
-import { ethWalletConnect as connect } from '../framework/web3'
+import { ethClientConnection as connect } from '../framework/web3'
 
 BN.config({ DECIMAL_PLACES: 18 })
 

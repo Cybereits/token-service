@@ -1,5 +1,5 @@
 import { unlockAccount } from './account'
-import { creWalletConnect } from '../../framework/web3'
+import { creClientConnection } from '../../framework/web3'
 import { contractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
@@ -92,8 +92,8 @@ async function deploy(connect, contract, code, deployAccount, accountPwd, contra
  */
 export async function createAndDeployContract(contractCode, contractAbi, deployAccount, accountPwd, contractArguments) {
   // 创建合约对象
-  let compiledContract = new creWalletConnect.eth.Contract(contractAbi)
-  let result = await deploy(creWalletConnect, compiledContract, contractCode, deployAccount, accountPwd, contractArguments)
+  let compiledContract = new creClientConnection.eth.Contract(contractAbi)
+  let result = await deploy(creClientConnection, compiledContract, contractCode, deployAccount, accountPwd, contractArguments)
   // 合约部署后的实例对象
   // gas 低了就失败呀
   let newContractInstance = await result.send({
@@ -103,7 +103,7 @@ export async function createAndDeployContract(contractCode, contractAbi, deployA
   })
 
   // 锁定部署合约的钱包地址
-  creWalletConnect.eth.personal.lockAccount(deployAccount)
+  creClientConnection.eth.personal.lockAccount(deployAccount)
   // 记录合约地址
   compiledContract.options.address = newContractInstance.options.address
 

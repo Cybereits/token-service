@@ -29,10 +29,10 @@ let initEthConnect = (wsUri, name) => {
   return conn
 }
 
-const ethWalletConnect = initEthConnect(ws.eth, 'Ethereum')
-const creWalletConnect = initEthConnect(ws.cre, 'Cybereits')
+const ethClientConnection = initEthConnect(ws.eth, 'Ethereum')
+const creClientConnection = initEthConnect(ws.cre, 'Cybereits')
 
 export {
-  ethWalletConnect,
-  creWalletConnect,
+  ethClientConnection,
+  creClientConnection,
 }

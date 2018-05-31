@@ -1,6 +1,6 @@
 import { SerialQueue, TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { creWalletConnect as connect } from '../framework/web3'
+import { creClientConnection as connect } from '../framework/web3'
 import transferAllEth from './transferAllEth'
 
 export default async (gatherAddress, secret) => {

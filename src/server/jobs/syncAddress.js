@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { postBalances } from '../../apis/phpApis'
-import { ethWalletConnect } from '../../framework/web3'
+import { ethClientConnection } from '../../framework/web3'
 import { getAllAccounts } from '../../core/scenes/account'
 
 export default async function () {
@@ -29,8 +29,8 @@ export default async function () {
         new TaskCapsule(() =>
           new Promise(async (resolve) => {
             let address = Accounts[i]
-            let amount = await ethWalletConnect.eth.getBalance(address)
-            amount = ethWalletConnect.eth.extend.utils.fromWei(amount, 'ether')
+            let amount = await ethClientConnection.eth.getBalance(address)
+            amount = ethClientConnection.eth.extend.utils.fromWei(amount, 'ether')
             total += +amount
             balanceArr.push({
               address,

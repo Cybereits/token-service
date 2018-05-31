@@ -4,7 +4,7 @@ import solc from 'solc'
 import fs from 'fs'
 import path from 'path'
 
-import { creWalletConnect } from '../../framework/web3'
+import { creClientConnection } from '../../framework/web3'
 import { contractMetaModel } from '../../core/schemas'
 import { createAndDeployContract } from '../../core/scenes/contract'
 import { unlockAccount } from '../../core/scenes/account'
@@ -191,7 +191,7 @@ export const unlockTeamAllocation = {
     },
   }) {
     // 解锁账户
-    await unlockAccount(creWalletConnect, address, secret)
+    await unlockAccount(creClientConnection, address, secret)
 
     // 获取合约实例
     let subContract = await getContractInstance(CONTRACT_NAMES.lock)

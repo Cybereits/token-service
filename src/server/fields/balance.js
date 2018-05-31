@@ -2,7 +2,7 @@ import {
   GraphQLInt as int,
 } from 'graphql'
 
-import { ethWalletConnect } from '../../framework/web3'
+import { ethClientConnection } from '../../framework/web3'
 import { getTokenBalance } from '../../core/scenes/token'
 import { balanceDetail, balanceFilter, CoinTypes } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
@@ -37,15 +37,15 @@ export const queryAllBalance = {
     if (ethAddresses && ethAddresses.length > 0) {
       listAccounts = filter.ethAddresses
     } else {
-      listAccounts = await ethWalletConnect.eth.getAccounts()
+      listAccounts = await ethClientConnection.eth.getAccounts()
     }
     let total = listAccounts.length
     listAccounts = listAccounts.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
     let result = []
     let promises = listAccounts.map(address => new Promise(async (resolve, reject) => {
-      let amount = await ethWalletConnect.eth.getBalance(address).catch(reject)
+      let amount = await ethClientConnection.eth.getBalance(address).catch(reject)
       let creAmount = await getTokenBalance(address).catch(reject)
-      let ethAmount = ethWalletConnect.eth.extend.utils.fromWei(amount, 'ether')
+      let ethAmount = ethClientConnection.eth.extend.utils.fromWei(amount, 'ether')
       result.push({
         ethAddress: address,
         balances: [

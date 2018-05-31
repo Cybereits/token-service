@@ -113,14 +113,10 @@ export const createBatchTransactions = {
     },
     outAccount: {
       type: str,
-      description: '出账的钱包地址',
-    },
-    secret: {
-      type: str,
-      description: '出账钱包地址的密钥',
+      description: '出账的钱包账户地址',
     },
   },
-  async resolve(root, { transactions, comment, tokenType, outAccount, secret }) {
+  async resolve(root, { transactions, comment, tokenType, outAccount }) {
     if (!TOKEN_TYPE[tokenType]) {
       throw new Error('不支持的代币类型')
     }

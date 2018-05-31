@@ -1,5 +1,5 @@
 import bignumber from 'bignumber.js'
-import { ethWalletConnect, creWalletConnect } from '../../framework/web3'
+import { ethClientConnection, creClientConnection } from '../../framework/web3'
 
 import { unlockAccount } from './account'
 import { getTokenContractMeta } from './contract'
@@ -18,7 +18,7 @@ export async function getContractInstance(contractName) {
       decimal,
     } = await getTokenContractMeta(contractName)
 
-    CONTRACT_INSTANCES[contractName] = new ethWalletConnect.eth.Contract(abis, address)
+    CONTRACT_INSTANCES[contractName] = new ethClientConnection.eth.Contract(abis, address)
     CONTRACT_INSTANCES[contractName].decimal = decimal
   }
   return CONTRACT_INSTANCES[contractName]
@@ -51,7 +51,7 @@ export async function balanceOf(connect, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
-  let userBalance = await balanceOf(ethWalletConnect, userAddress)
+  let userBalance = await balanceOf(ethClientConnection, userAddress)
   return userBalance
 }
 
@@ -60,8 +60,8 @@ export async function getTokenBalance(userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
-  const tokenTotalAmount = await getTotal(ethWalletConnect)
-  const userBalance = await balanceOf(ethWalletConnect, userAddress)
+  const tokenTotalAmount = await getTotal(ethClientConnection)
+  const userBalance = await balanceOf(ethClientConnection, userAddress)
   const { address } = await getTokenContractMeta()
   return {
     tokenContractAddress: address,
@@ -86,13 +86,13 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
   if (amountInt <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-    await unlockAccount(creWalletConnect, fromAddress, passWord)
+    await unlockAccount(creClientConnection, fromAddress, passWord)
       .catch((err) => {
         throw new Error(err.message)
       })
 
     if (!gasPrice) {
-      gasPrice = await creWalletConnect
+      gasPrice = await creClientConnection
         .eth
         .getGasPrice()
         .catch((ex) => {

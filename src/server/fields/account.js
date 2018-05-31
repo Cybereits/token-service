@@ -5,7 +5,7 @@ import {
   GraphQLNonNull as NotNull,
 } from 'graphql'
 
-import { ethWalletConnect } from '../../framework/web3'
+import { ethClientConnection } from '../../framework/web3'
 import { ethAccountModel } from '../../core/schemas'
 
 export const createAccount = {
@@ -22,7 +22,7 @@ export const createAccount = {
     },
   },
   resolve(root, { password = '', comment }) {
-    return ethWalletConnect
+    return ethClientConnection
       .eth
       .personal
       .newAccount(password)
@@ -59,7 +59,7 @@ export const createMultiAccount = {
     let addresses = []
 
     for (let index = 0; index < amount; index += 1) {
-      promises.push(ethWalletConnect.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
+      promises.push(ethClientConnection.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
     }
 
     return Promise
@@ -85,6 +85,6 @@ export const queryAccountList = {
   type: new List(str),
   description: '查看钱包地址',
   async resolve(root) {
-    return ethWalletConnect.eth.getAccounts()
+    return ethClientConnection.eth.getAccounts()
   },
 }

@@ -1,6 +1,6 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { creWalletConnect } from '../../framework/web3'
+import { creClientConnection } from '../../framework/web3'
 import { txRecordModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
 
@@ -17,7 +17,7 @@ function getOnSendingTxs() {
  * @param {string} txid 交易id
  */
 async function getTxState(heightLimit, txid) {
-  let txInfo = await creWalletConnect.eth.getTransaction(txid).catch(() => false)
+  let txInfo = await creClientConnection.eth.getTransaction(txid).catch(() => false)
   if (txInfo && txInfo.blockNumber && txInfo.blockNumber < heightLimit) {
     // 确认成功
     return STATUS.success
@@ -36,7 +36,7 @@ export default async function (job, done) {
   }
   executable = false
   console.log('开始同步交易状态')
-  let currBlockNumber = await creWalletConnect.eth.getBlockNumber()
+  let currBlockNumber = await creClientConnection.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
   let confirmedBlockHeight = currBlockNumber - 30
   let sendingTxs = await getOnSendingTxs().catch((ex) => {

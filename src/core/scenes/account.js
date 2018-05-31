@@ -1,4 +1,4 @@
-import { ethWalletConnect, creWalletConnect } from '../../framework/web3'
+import { ethClientConnection, creClientConnection } from '../../framework/web3'
 
 export function unlockAccount(connect, unlockAccount, passWord) {
   return connect.eth.personal.unlockAccount(unlockAccount, passWord, 20)
@@ -13,8 +13,8 @@ export function lockAccount(connect, lockAccount) {
  * @returns {Array<string>} 所有的钱包地址
  */
 export async function getAllAccounts() {
-  let ethAccounts = await ethWalletConnect.eth.getAccounts()
-  let creAcccounts = await creWalletConnect.eth.getAccounts()
+  let ethAccounts = await ethClientConnection.eth.getAccounts()
+  let creAcccounts = await creClientConnection.eth.getAccounts()
   let tempSet = new Set([...ethAccounts, ...creAcccounts])
   return [...tempSet]
 }

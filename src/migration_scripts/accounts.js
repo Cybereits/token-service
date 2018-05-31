@@ -4,7 +4,7 @@ require('babel-register')({
 
 // 将之前生成的钱包信息同步到数据库
 // 暂时没有处理 secret
-const { ethWalletConnect, creWalletConnect } = require('../framework/web3')
+const { ethClientConnection, creClientConnection } = require('../framework/web3')
 const { ethAccountModel } = require('../core/schemas');
 
 (async function () {
@@ -12,8 +12,8 @@ const { ethAccountModel } = require('../core/schemas');
   let cre_accounts = []
   let accounts = []
 
-  eth_accounts = await ethWalletConnect.eth.getAccounts()
-  cre_accounts = await creWalletConnect.eth.getAccounts()
+  eth_accounts = await ethClientConnection.eth.getAccounts()
+  cre_accounts = await creClientConnection.eth.getAccounts()
   accounts = [...new Set(eth_accounts.concat(cre_accounts))]
 
   accounts.forEach(async (account) => {

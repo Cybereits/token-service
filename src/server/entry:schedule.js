@@ -2,12 +2,9 @@ require('babel-register')({
   presets: ['es2015', 'stage-0'],
 })
 
-const { schedule } = require('../config/env.json')
+const { syncTransaction, syncWallet } = require('./jobs')
 
-if (schedule.includes('wallet')) {
-  require('./jobs').syncWallet()
-}
-
-if (schedule.includes('tx')) {
-  require('./jobs').syncTransaction()
-}
+// 开启同步交易信息任务
+syncTransaction()
+// 开启同步钱包信息任务
+syncWallet()
