@@ -6,18 +6,18 @@ export const STATUS = {
   failure: -1,  // 失败
 }
 
+const statusKeys = Object.keys(STATUS)
+
+export function getStatus(_value) {
+  return statusKeys.filter(t => STATUS[t] === _value)[0]
+}
+
 // 代币类型
 export const TOKEN_TYPE = {
   eth: 'eth',
   cre: 'cre',
   eos: 'eos',
   gxs: 'gxs',
-}
-
-const statusKeys = Object.keys(STATUS)
-
-export function getStatus(_value) {
-  return statusKeys.filter(t => STATUS[t] === _value)[0]
 }
 
 export const CONTRACT_NAMES = {

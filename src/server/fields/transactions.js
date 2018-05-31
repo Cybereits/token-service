@@ -109,7 +109,7 @@ export const createBatchTransactions = {
     tokenType: {
       type: str,
       description: '转账代币类型 默认cre，可以指定 eth、gxs、eos',
-      defaultValue: 'cre',
+      defaultValue: TOKEN_TYPE.cre,
     },
     outAccount: {
       type: str,

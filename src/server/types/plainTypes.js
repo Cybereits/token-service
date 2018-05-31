@@ -6,16 +6,24 @@ import {
   GraphQLInputObjectType as InputObj,
   GraphQLEnumType,
   GraphQLNonNull as NotNull,
-  // GraphQLFloat as float,
-  // GraphQLBoolean as bool,
 } from 'graphql'
 
-export const CoinTypes = new GraphQLEnumType({
-  name: 'CoinTypes',
-  values: {
-    ETH: { value: 'eth' },
-    CRE: { value: 'cre' },
-  },
+import { getStatus, TOKEN_TYPE } from '../../core/enums'
+
+/**
+ * 这里需要的 values 的格式为
+ * {
+ *  eth: { value : 'eth' },
+ *  cre: { value : 'cre' },
+ *  eos: { value : 'eos' },
+ * }
+ */
+const TokenTypeEnum = new GraphQLEnumType({
+  name: 'TokenTypeEnum',
+  values: Object.entries(TOKEN_TYPE).reduce(
+    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
+    {},
+  ),
 })
 
 // #region Output Objects
@@ -92,6 +100,11 @@ export const txRecord = new OutputObj({
       type: str,
       description: '入账地址',
     },
+    status: {
+      type: str,
+      resolve: ({ status }) => getStatus(status),
+      description: '发送状态',
+    },
     tokenType: {
       type: str,
       description: '代币类型',
@@ -140,7 +153,7 @@ export const balanceFilter = new InputObj({
   description: 'Balance 查询过滤条件',
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
-    orderBy: { type: CoinTypes, description: '排序方式' },
+    orderBy: { type: TokenTypeEnum, description: '排序方式' },
   },
 })
 
