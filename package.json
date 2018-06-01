@@ -10,5 +10,7 @@
     "start": "cd ./src; npm run start;",
     "dev-geth": "cd ./src; bash geth.dev.sh",
     "init": "cd ./src; mkdir -p geth-node; npm install; cd ../app; npm install;"
-  }
+  },
+  "license": "MIT",
+  "dependencies": {}
 }

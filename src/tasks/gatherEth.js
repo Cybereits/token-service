@@ -1,6 +1,7 @@
-import { SerialQueue, TaskCapsule, ParallelQueue } from 'async-task-manager'
+import { SerialQueue, TaskCapsule, ParallelQueue } from '@cybereits/ccl/asyncQueue'
 
-import { creWalletConnect as connect } from '../framework/web3'
+import { creClientConnection as connect } from '../framework/web3'
+import { getEthBalance } from '../core/scenes/token'
 import transferAllEth from './transferAllEth'
 
 export default async (gatherAddress, secret) => {
@@ -14,12 +15,10 @@ export default async (gatherAddress, secret) => {
   list.forEach((address) => {
     taskQueue.add(new TaskCapsule(() =>
       new Promise(async (resolve, reject) => {
-        let amount = await connect.eth.getBalance(address).catch((ex) => {
+        let ethAmount = await getEthBalance(address).catch((ex) => {
           console.error(`get address eth balance failded: ${address}`)
           reject(ex)
         })
-
-        let ethAmount = connect.eth.extend.utils.fromWei(amount, 'ether')
 
         if (ethAmount > 0.001 && address !== gatherAddress) {
           console.log(`${address}\t${ethAmount}`)

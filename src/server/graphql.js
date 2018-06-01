@@ -3,7 +3,7 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAccount, createMultiAccount, queryAccountList } from './fields/account'
+import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 import { queryAllBalance } from './fields/balance'
 import { commonStatusEnum } from './fields/enum'
 import { queryContractAbi, deployCREContract } from './fields/contract'
@@ -13,6 +13,7 @@ import {
   queryTx,
   createTransaction,
   createBatchTransactions,
+  sendTransaction,
 } from './fields/transactions'
 
 // 通用的修改功能
@@ -27,6 +28,7 @@ const queries = new Obj({
     queryBatchTrasactionTasks,
     queryTx,
     queryTxRecordsViaTaskId,
+    queryIsSysAccount,
   },
 })
 
@@ -39,6 +41,7 @@ const mutations = new Obj({
     createMultiAccount,
     createTransaction,
     deployCREContract,
+    sendTransaction,
   },
 })
 

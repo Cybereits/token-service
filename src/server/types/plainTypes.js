@@ -6,17 +6,9 @@ import {
   GraphQLInputObjectType as InputObj,
   GraphQLEnumType,
   GraphQLNonNull as NotNull,
-  // GraphQLFloat as float,
-  // GraphQLBoolean as bool,
 } from 'graphql'
 
-export const CoinTypes = new GraphQLEnumType({
-  name: 'CoinTypes',
-  values: {
-    ETH: { value: 'eth' },
-    CRE: { value: 'cre' },
-  },
-})
+import { getStatus, TOKEN_TYPE } from '../../core/enums'
 
 // #region Output Objects
 export const hashResult = new OutputObj({
@@ -80,6 +72,11 @@ export const txRecord = new OutputObj({
   name: 'txOperationRecord',
   description: '转账记录',
   fields: {
+    id: {
+      type: str,
+      description: 'Identity',
+      resolve: t => t._id,
+    },
     amount: {
       type: int,
       description: '转账数量',
@@ -91,6 +88,11 @@ export const txRecord = new OutputObj({
     to: {
       type: str,
       description: '入账地址',
+    },
+    status: {
+      type: str,
+      resolve: ({ status }) => getStatus(status),
+      description: '发送状态',
     },
     tokenType: {
       type: str,
@@ -135,12 +137,29 @@ export const txRecord = new OutputObj({
 // #endregion
 
 // #region Input Objects
+
+/**
+ * 这里需要的 values 的格式为
+ * {
+ *  eth: { value : 'eth' },
+ *  cre: { value : 'cre' },
+ *  eos: { value : 'eos' },
+ * }
+ */
+export const TokenTypeEnum = new GraphQLEnumType({
+  name: 'TokenTypeEnum',
+  values: Object.entries(TOKEN_TYPE).reduce(
+    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
+    {},
+  ),
+})
+
 export const balanceFilter = new InputObj({
   name: 'balanceFilter',
   description: 'Balance 查询过滤条件',
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
-    orderBy: { type: CoinTypes, description: '排序方式' },
+    orderBy: { type: TokenTypeEnum, description: '排序方式' },
   },
 })
 
