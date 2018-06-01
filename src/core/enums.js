@@ -16,8 +16,6 @@ export function getStatus(_value) {
 export const TOKEN_TYPE = {
   eth: 'eth',
   cre: 'cre',
-  eos: 'eos',
-  gxs: 'gxs',
 }
 
 export const CONTRACT_NAMES = {

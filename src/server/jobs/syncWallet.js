@@ -1,7 +1,7 @@
-import { TaskCapsule, ParallelQueue } from 'async-task-manager'
+import { TaskCapsule, ParallelQueue } from '@cybereits/ccl/asyncQueue'
 
 import { postTransactions } from '../../apis/phpApis'
-import { getTokenBalance } from '../../core/scenes/token'
+import { getEthBalance, getTokenBalance } from '../../core/scenes/token'
 
 let executable = true
 
@@ -41,13 +41,13 @@ function getTransactionsByAccounts(eth, accounts, startBlockNumber = 0) {
     accounts.map(_addr => accountsQueue.add(new TaskCapsule(() =>
       new Promise(async (resolve, reject) => {
 
-        let ethBalance = await eth.getBalance(_addr).catch(reject)
+        let ethBalance = await getEthBalance(_addr).catch(reject)
 
         let creBalance = await getTokenBalance(_addr).catch(reject)
 
         transactionSet[_addr] = {
           address: _addr,
-          eth: eth.extend.utils.fromWei(ethBalance, 'ether'),
+          eth: ethBalance,
           cre: creBalance,
           trans: [],
         }

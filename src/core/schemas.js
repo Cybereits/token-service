@@ -143,6 +143,8 @@ const transactionRecord = mongoose.Schema({
   txid: String,
   // 备注
   comment: String,
+  // 异常信息
+  exceptionMsg: String,
   // 交易发送时间
   sendTime: Date,
   // 交易确认时间

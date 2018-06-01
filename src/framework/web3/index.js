@@ -6,7 +6,7 @@ let _index = 0
 let _pool = []
 
 function initEthConnect(wsUri, name) {
-  let connected = true
+  let connected = false
   let conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
 
   // 心跳检测
@@ -37,9 +37,10 @@ function initEthConnect(wsUri, name) {
   return conn
 }
 
-// 对于某些不需要指定钱包客户端的操作，比如合约、账户查询等
-// 我们推荐使用轮询的方式获取客户端链接对象
-// 以保证负载较为均衡
+/**
+ * 对于某些不需要指定钱包客户端的操作，比如合约、账户查询等，推荐使用轮询的方式获取客户端链接对象，以保证钱包客户端的负载较为均衡
+ * @returns {Object} web3 client
+ */
 function getConnection() {
   if (_pool.length > 0) {
     return _pool[_index++ % _pool.length]

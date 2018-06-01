@@ -1,6 +1,7 @@
 import {
   GraphQLString as str,
   GraphQLInt as int,
+  GraphQLBoolean as bool,
   GraphQLList as List,
   GraphQLNonNull as NotNull,
 } from 'graphql'
@@ -26,14 +27,8 @@ export const createAccount = {
       .eth
       .personal
       .newAccount(password)
-      .then(
-        account => ethAccountModel
-          .create({
-            account,
-            secret: password,
-          })
-          .then(() => account)
-      )
+      // 将生成的钱包信息记录入库再返回
+      .then(account => ethAccountModel.create({ account, secret: password }).then(() => account))
   },
 }
 
@@ -64,20 +59,14 @@ export const createMultiAccount = {
 
     return Promise
       .all(promises)
-      .then(() => {
-        console.log(addresses.map(account => ({
+      .then(() => ethAccountModel
+        .insertMany(addresses.map(account => ({
           account,
           secret: password,
           comment,
         })))
-        return ethAccountModel
-          .insertMany(addresses.map(account => ({
-            account,
-            secret: password,
-            comment,
-          })))
-          .then(() => addresses)
-      })
+        .then(() => addresses)
+      )
   },
 }
 
@@ -85,6 +74,20 @@ export const queryAccountList = {
   type: new List(str),
   description: '查看钱包地址',
   async resolve(root) {
-    return ethClientConnection.eth.getAccounts()
+    return ethAccountModel.find(null, 'account').then(t => t.map(({ account }) => account))
+  },
+}
+
+export const queryIsSysAccount = {
+  type: bool,
+  description: '查询是否为系统地址',
+  args: {
+    address: {
+      type: new NotNull(str),
+      description: '指定地址',
+    },
+  },
+  async resolve(root, { address }) {
+    return ethAccountModel.findOne({ account: address }).then(res => !!res)
   },
 }

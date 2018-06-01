@@ -2,8 +2,7 @@ import {
   GraphQLInt as int,
 } from 'graphql'
 
-import { ethClientConnection } from '../../framework/web3'
-import { getTokenBalance } from '../../core/scenes/token'
+import { getEthBalance, getTokenBalance } from '../../core/scenes/token'
 import { TOKEN_TYPE } from '../../core/enums'
 import { ethAccountModel } from '../../core/schemas'
 import { balanceDetail, balanceFilter } from '../types/plainTypes'
@@ -42,7 +41,7 @@ export const queryAllBalance = {
       listAccounts = filter.ethAddresses
     } else {
       // 未指定查询地址则获取所有的钱包信息
-      listAccounts = await ethAccountModel.find().then(result => result.map(({ account }) => account))
+      listAccounts = await ethAccountModel.find(null, 'account').then(t => t.map(({ account }) => account))
     }
 
     // 结果数量
@@ -51,9 +50,8 @@ export const queryAllBalance = {
     listAccounts = listAccounts.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
     let result = []
     let promises = listAccounts.map(address => new Promise(async (resolve, reject) => {
-      let amount = await ethClientConnection.eth.getBalance(address).catch(reject)
+      let ethAmount = await getEthBalance(address).catch(reject)
       let creAmount = await getTokenBalance(address).catch(reject)
-      let ethAmount = ethClientConnection.eth.extend.utils.fromWei(amount, 'ether')
       result.push({
         ethAddress: address,
         balances: [

@@ -1,5 +1,5 @@
 import { unlockAccount } from './account'
-import { creClientConnection } from '../../framework/web3'
+import getConnection, { creClientConnection } from '../../framework/web3'
 import { contractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
@@ -8,7 +8,7 @@ import { CONTRACT_NAMES } from '../enums'
  * @param {string} contractName 合约名称
  * @returns {object|null} 合约元信息对象
  */
-export function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
+function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
   return contractMetaModel
     .findOne({ name: contractName })
     .then(({
@@ -32,6 +32,26 @@ export function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
       console.error(ex)
       return null
     })
+}
+
+// 合约实例缓存对象
+const CONTRACT_INSTANCES = {}
+
+/**
+ * 获取合约实例
+ * @param {string} contractName 合约名称
+ * @param {object} connection 钱包客户端的链接(可选)
+ * @returns {object} 合约实例
+ */
+export async function getContractInstance(contractName, connection) {
+  if (!CONTRACT_INSTANCES[contractName]) {
+    let conn = connection || getConnection()
+    const { abis, address, decimal } = await getTokenContractMeta(contractName)
+
+    CONTRACT_INSTANCES[contractName] = new conn.eth.Contract(abis, address)
+    CONTRACT_INSTANCES[contractName].decimal = decimal
+  }
+  return CONTRACT_INSTANCES[contractName]
 }
 
 /**

@@ -1,27 +1,35 @@
 import bignumber from 'bignumber.js'
-import { ethClientConnection, creClientConnection } from '../../framework/web3'
+import getConnection, { ethClientConnection, creClientConnection } from '../../framework/web3'
 
-import { unlockAccount } from './account'
-import { getTokenContractMeta } from './contract'
+import { unlockAccount, getAccountInfoByAddress } from './account'
+import { getContractInstance } from './contract'
+import { TOKEN_TYPE, CONTRACT_NAMES } from '../enums'
 
-const CONTRACT_INSTANCES = {}
 bignumber.config({ DECIMAL_PLACES: 5 })
 
 /**
- * 获取合约实例
+ * 根据转出的账户地址获得其所属钱包客户端链接
+ * @param {object} entity 钱包信息
+ * @returns {object} 钱包客户端链接
  */
-export async function getContractInstance(contractName) {
-  if (!CONTRACT_INSTANCES[contractName]) {
-    const {
-      abis,
-      address,
-      decimal,
-    } = await getTokenContractMeta(contractName)
+export async function getConnByAccount(entity) {
 
-    CONTRACT_INSTANCES[contractName] = new ethClientConnection.eth.Contract(abis, address)
-    CONTRACT_INSTANCES[contractName].decimal = decimal
+  // 获取出账钱包信息
+  let conn = null
+
+  let { account, group, secret } = entity
+  // 根据转出钱包地址的 group 类型判断出其所属的钱包客户端
+  if (group === TOKEN_TYPE.cre) {
+    conn = creClientConnection
+  } else if (group === TOKEN_TYPE.eth) {
+    conn = ethClientConnection
+  } else {
+    conn = getConnection()
   }
-  return CONTRACT_INSTANCES[contractName]
+
+  await unlockAccount(conn, account, secret).catch((err) => { throw err })
+
+  return conn
 }
 
 /**
@@ -29,21 +37,20 @@ export async function getContractInstance(contractName) {
  * @param {*} connect web3链接
  */
 export async function getTotal(connect) {
-  let tokenContract = await getContractInstance()
+  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
   let amount = await tokenContract.methods.totalSupply().call(null)
   return connect.eth.extend.utils.fromWei(amount, 'ether')
 }
 
 /**
- * 获取制定地址的
- * @param {*} connect web3链接
- * @param {*} contract 合约对象
- * @param {*} userAddress 用户地址
+ * 获取指定地址的以太代币余额
+ * @param {string} address 钱包地址
+ * @returns {number} 以太余额
  */
-export async function balanceOf(connect, userAddress) {
-  let tokenContract = await getContractInstance()
-  let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
-  return connect.eth.extend.utils.fromWei(amount, 'ether')
+export async function getEthBalance(address) {
+  let conn = getConnection()
+  let amount = await conn.eth.getBalance(address)
+  return ethClientConnection.eth.extend.utils.fromWei(amount, 'ether')
 }
 
 /**
@@ -51,8 +58,9 @@ export async function balanceOf(connect, userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalance(userAddress) {
-  let userBalance = await balanceOf(ethClientConnection, userAddress)
-  return userBalance
+  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
+  let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
+  return getConnection().eth.extend.utils.fromWei(amount, 'ether')
 }
 
 /**
@@ -60,11 +68,9 @@ export async function getTokenBalance(userAddress) {
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
-  const tokenTotalAmount = await getTotal(ethClientConnection)
-  const userBalance = await balanceOf(ethClientConnection, userAddress)
-  const { address } = await getTokenContractMeta()
+  const tokenTotalAmount = await getTotal(getConnection())
+  const userBalance = await getTokenBalance(userAddress)
   return {
-    tokenContractAddress: address,
     total: tokenTotalAmount,
     userAddress,
     balance: userBalance,
@@ -75,35 +81,24 @@ export async function getTokenBalanceFullInfo(userAddress) {
 /**
  * 发送代币
  * @param {*} fromAddress 发送代币的钱包地址
- * @param {*} passWord 发送代币地址的秘钥
  * @param {*} toAddress 接收代币的钱包地址
- * @param {*} amount 发送代币数量
- * @param {*} gas 油费
- * @param {*} gasPrice 油价
+ * @param {*} amount 发送代币数量（个）
  */
-export async function sendToken(fromAddress, passWord, toAddress, amount, gas, gasPrice) {
+export async function sendToken(fromAddress, toAddress, amount) {
   let amountInt = +amount
   if (amountInt <= 0) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-    await unlockAccount(creClientConnection, fromAddress, passWord)
-      .catch((err) => {
-        throw new Error(err.message)
-      })
+    let account = await getAccountInfoByAddress(fromAddress)
+    let conn = await getConnByAccount(account)
 
-    if (!gasPrice) {
-      gasPrice = await creClientConnection
-        .eth
-        .getGasPrice()
-        .catch((ex) => {
-          console.error(`get gas price failded: ${fromAddress}`)
-        })
-      // gasPrice 多给 20%
-      gasPrice *= 1.2
-    }
+    let gasPrice = await conn
+      .eth
+      .getGasPrice()
+      .then(price => price * 1.1) // gasPrice 多给 10% 油价
 
     return new Promise(async (resolve, reject) => {
-      let tokenContract = await getContractInstance()
+      let tokenContract = await getContractInstance(CONTRACT_NAMES.cre, conn)
       let _amount = bignumber(amountInt.toFixed(5))
       let _multiplier = 10 ** tokenContract.deciamal
       let _sendAmount = _amount.times(_multiplier)
@@ -111,11 +106,7 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
       tokenContract
         .methods
         .transfer(toAddress, _sendAmount)
-        .send({
-          from: fromAddress,
-          gas: gas,
-          gasPrice: gasPrice,
-        })
+        .send({ from: fromAddress, gasPrice: gasPrice })
         .on('transactionHash', (hash) => {
           console.info(`Transfer [${_amount}] tokens to [${toAddress}] [txid ${hash}]`)
           resolve(hash)
@@ -127,12 +118,36 @@ export async function sendToken(fromAddress, passWord, toAddress, amount, gas, g
 }
 
 /**
+ * 发送以太币
+ * @param {string} fromAddress 发送 eth 的地址
+ * @param {string} toAddress 接收 eth 的地址
+ * @param {number} amount 发送数量（个）
+ */
+export async function sendETH(fromAddress, toAddress, amount) {
+  let amountInt = +amount
+  if (amountInt <= 0) {
+    throw new Error('忽略转账额度小于等于0的请求')
+  } else {
+    let account = await getAccountInfoByAddress(fromAddress)
+    let conn = await getConnByAccount(account)
+    return conn
+      .eth
+      .personal
+      .sendTransaction({
+        from: fromAddress,
+        to: toAddress,
+        value: conn.eth.extend.utils.toWei(amountInt.toString(), 'ether'),
+      }, account.secret)
+  }
+}
+
+/**
  * 估算发送代币所需油费
  * @param {string} toAddress 转入地址
  * @param {number} amount 发送代币数量
  */
 export async function estimateGasOfSendToken(toAddress, amount) {
-  let tokenContract = await getContractInstance()
+  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
   return tokenContract
     .methods
     .Transfer(toAddress, amount)
