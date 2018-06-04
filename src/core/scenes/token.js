@@ -100,8 +100,9 @@ export async function sendToken(fromAddress, toAddress, amount) {
     return new Promise(async (resolve, reject) => {
       let tokenContract = await getContractInstance(CONTRACT_NAMES.cre, conn)
       let _amount = bignumber(amountInt.toFixed(5))
-      let _multiplier = 10 ** tokenContract.deciamal
+      let _multiplier = 10 ** tokenContract.decimal
       let _sendAmount = _amount.times(_multiplier)
+      console.log('debug1', _multiplier, _sendAmount)
 
       tokenContract
         .methods

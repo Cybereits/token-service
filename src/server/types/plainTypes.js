@@ -170,7 +170,7 @@ export const txFilter = new InputObj({
     to: { type: str, description: '入账钱包地址' },
     amount: { type: int, description: '转账数量' },
     status: { type: int, description: '转账状态' },
-    tokenType: { type: str, description: '代币类型' },
+    tokenType: { type: TokenTypeEnum, description: '代币类型' },
   },
 })
 
