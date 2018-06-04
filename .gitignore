@@ -24,3 +24,6 @@ jsconfig.json
 
 # test
 coverage
+
+# migration scripts
+migration_scripts/
