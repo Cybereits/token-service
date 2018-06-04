@@ -6,10 +6,8 @@ let _index = 0
 let _pool = []
 
 function initEthConnect(wsUri, name) {
-  let connected = true
+  let connected = false
   let conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
-  conn.__name = name
-  _pool.push(conn)
 
   // 心跳检测
   setInterval(() => {
