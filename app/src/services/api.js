@@ -4,9 +4,10 @@ import gql from 'graphql-tag';
 import { errorMesage } from '../utils/networkErrorMsg';
 import request from '../utils/request';
 import { toGql } from '../utils/utils';
-import config from '../../config/env.json'
+import config from '../../config/env.json';
 
-const { host, port, baseUrl } = config
+const { host, port, baseUrl } = config;
+console.log(`${host}${port ? `:${port}` : ''}${baseUrl}`);
 const client = new ApolloClient({
   uri: `${host}${port ? `:${port}` : ''}${baseUrl}`,
 });
@@ -112,14 +113,15 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
       newFilter[key] = [newFilter[key]];
     }
   }
+  console.log(newFilter);
   return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         {
-          queryAllBalance(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
-          newFilter
-        )}) {
+          queryAllBalance(pageIndex: ${pageIndex}, pageSize: ${pageSize}, filter: ${toGql(
+        newFilter
+      )}) {
             pagination {
               total
               current
@@ -186,8 +188,8 @@ export async function queryPrizeList({ pageIndex, pageSize, filter }) {
       query: gql`
         {
           queryPrizeList(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
-          newFilter
-        )}) {
+        newFilter
+      )}) {
             pagination {
               total
               current

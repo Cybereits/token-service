@@ -161,7 +161,7 @@ export function isUrl(path) {
 }
 
 export function toGql(obj) {
-  return JSON.stringify(obj).replace(/\"(\w+)\":/ig, '$1:')
+  return JSON.stringify(obj).replace(/\"(\w+)\":/ig, '$1:').replace(/\"Enum\((\w+)\)\"/ig,'$1')
 }
 
 export function getQueryVariable(variable) {

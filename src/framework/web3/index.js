@@ -30,9 +30,11 @@ function initEthConnect(wsUri, name) {
         _pool = _pool.filter(conn => conn.__name !== name)
         console.info(`当前有效客户端链接 ${_pool.length}`)
         conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
+        conn.__name = name
       })
   }, 3000)
 
+  conn.__name = name
   return conn
 }
 

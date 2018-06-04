@@ -228,13 +228,14 @@ export default class TableList extends PureComponent {
       // this.setState({
       //   formValues: fieldsValue,
       // });
-      // console.log(fieldsValue)
+      const newFieldsValue = { orderBy: 'Enum(eth)', ...fieldsValue };
+      console.log(newFieldsValue);
       dispatch({
         type: 'wallet/queryAllBalance',
         params: {
           pageIndex,
           pageSize,
-          filter: fieldsValue,
+          filter: newFieldsValue,
         },
       });
       // const values = {
