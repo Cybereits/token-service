@@ -1,8 +1,9 @@
-export const sessionValid = function (ctx, next) {
-  let { response } = ctx
-  if (ctx.session.user) {
-    next(ctx)
+export const sessionValid = async (ctx, next) => {
+  if (/adminRegister/.test(ctx.request.body.query) && ctx.session.admin.role == 1) {
+    await next();
+  } else if (ctx.path == '/data' || /admin/.test(ctx.request.body.query) || ctx.session.admin) {
+    await next();
   } else {
-    response.status = 401
+    ctx.response.status = 401;
   }
 }

@@ -15,6 +15,11 @@ import {
   createBatchTransactions,
   sendTransaction,
 } from './fields/transactions'
+import {
+    adminRegister, 
+    adminLogin,
+    adminLogout,
+} from './fields/admin'
 
 // 通用的修改功能
 const queries = new Obj({
@@ -28,7 +33,8 @@ const queries = new Obj({
     queryBatchTrasactionTasks,
     queryTx,
     queryTxRecordsViaTaskId,
-    queryIsSysAccount,
+    adminLogin,
+    adminLogout,
   },
 })
 
@@ -42,6 +48,7 @@ const mutations = new Obj({
     createTransaction,
     deployCREContract,
     sendTransaction,
+    adminRegister,
   },
 })
 
