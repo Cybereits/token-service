@@ -56,10 +56,11 @@ class Admin {
     let res = {}
     const authPromise = new Promise((resolve, reject) => {
       AdminModle.findOne({ username: params.username }, (err, admin) => {
-        if (!admin) reject(new Error('user not exist'));
+        if (!admin) return reject(new Error('user not exist'));
+        
         admin.comparePassword(params.password, admin.password)
           .then(isMath => {
-            if (!isMath) reject(new Error('username or password not match'));
+            if (!isMath) return reject(new Error('username or password not match'));
             ctx.session.admin = {
               username: admin.username,
               role: admin.role,
