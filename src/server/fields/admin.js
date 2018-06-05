@@ -37,6 +37,7 @@ class Admin {
       .then(user => {
         res.username = user.username;
         res.message = 'registered successfully';
+        res.role = user.role;
       })
       .catch(err => {
         if (err) {
@@ -81,6 +82,7 @@ class Admin {
       .then(data => {
         res.username = data.username;
         res.message = 'logined successfully';
+        res.role = data.role;
       })
       .catch(err => {
         if (err) res = err;
@@ -99,12 +101,12 @@ class Admin {
 const admin = new Admin();
 
 export const adminRegister = {
+  description: '添加管理员账户',
   type: new GraphQLObjectType({
     name: 'adminRegister',
     fields: {
       _id: { type: str },
       username: { type: str },
-      password: { type: str },
       role: { type: GraphQLInt },
       message: { type: str },
     }
@@ -122,12 +124,13 @@ export const adminRegister = {
 }
 
 export const adminLogin = {
+  description: '管理员登陆',
   type: new GraphQLObjectType({
     name: 'adminLogin',
     fields: {
       username: { type: str },
-      password: { type: str },
-      message: { type: str }
+      message: { type: str },
+      role: { type: GraphQLInt},
     }
   }),
   args: {
@@ -141,6 +144,7 @@ export const adminLogin = {
 }
 
 export const adminLogout = {
+  description: '管理员登出',
   type: new GraphQLObjectType({
     name: 'loginout',
     fields: {
