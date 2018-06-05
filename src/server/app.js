@@ -2,6 +2,7 @@ import Koa from 'koa'
 import cors from 'koa2-cors'
 import session from 'koa-session'
 import serve from 'koa-static'
+import bodyParser from 'koa-bodyparser'
 
 import router from './routes'
 import env from '../config/env.json'
@@ -21,7 +22,7 @@ app.keys = ['some keys blah blah']
 
 const CONFIG = {
   key: 'sess', /** (string) cookie key (default is koa:sess) */
-  maxAge: 3600000, /** 1 小时过期时间 */
+  maxAge: 1 * 60 * 60 * 1000, /** 1 小时过期时间 */
   overwrite: true, /** (boolean) can overwrite or not (default true) */
   httpOnly: false, /** (boolean) httpOnly or not (default true) */
   signed: true, /** (boolean) signed or not (default true) */
@@ -29,13 +30,10 @@ const CONFIG = {
   renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
 }
 
+app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }))
 app.use(session(CONFIG, app))
 app.use(logger)
-if (process.env.NODE_ENV === 'production') {
-  app.use(sessionValid)
-}
-
-// routes
+app.use(sessionValid)
 app.use(router.routes(), router.allowedMethods())
 app.use(serve(`${__dirname}/../../app/dist`))
 

@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 
 import connection from '../framework/dbProviders/mongo'
 import { STATUS, TOKEN_TYPE } from './enums'
+import bcrypt from 'bcrypt'
+const SALT_WORK_FACTOR = 10
 
 // 用户信息
 const user = mongoose.Schema({
@@ -151,3 +153,51 @@ const transactionRecord = mongoose.Schema({
   confirmTime: Date,
 })
 export const txRecordModel = connection.model('transactionRecord', transactionRecord)
+
+
+//admin 
+const adminUser = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true,
+    },
+    username: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    role: { //1:超级管理员，2:普通管理员
+        type: Number,
+        default: 2,
+    }
+});
+adminUser.pre('save', function (next) {
+    let admin = this;
+    
+    if (!admin.isModified('password')) return next();
+
+    bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
+        if (err) return next(err);
+        bcrypt.hash(admin.password, salt, (err, hash) => {
+            if (err) return next(err);
+            admin.password = hash;
+            next();
+        });
+    });
+});
+
+adminUser.methods = {
+    comparePassword: function (_password, password) {
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(_password, password, (err, isMath) =>{
+                if (err) reject(err);
+                else resolve(isMath);
+            })
+        })
+    }
+}
+
+export const AdminModle = connection.model('adminUser', adminUser)

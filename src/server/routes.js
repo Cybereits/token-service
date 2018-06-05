@@ -6,8 +6,14 @@ import GraphqlSchema from './graphql'
 
 const router = new Router()
 
-router.post('/graphql', bodyparser({ enableTypes: ['json', 'form', 'text'] }), graphqlKoa({ schema: GraphqlSchema }))
-router.get('/graphql', graphqlKoa({ schema: GraphqlSchema, cacheControl: true }))
-router.get('/data', graphiqlKoa({ endpointURL: '/graphql' }))
+router.post('/graphql', async (ctx, next) => {
+    await graphqlKoa({ schema: GraphqlSchema, context: ctx })(ctx, next)
+})
+router.get('/graphql', async (ctx, next) => {
+    await graphqlKoa({ schema: GraphqlSchema, cacheControl: true, context: ctx })(ctx, next)
+})
+router.get('/data', async (ctx, next) => {
+    await graphiqlKoa({ endpointURL: '/graphql', context: ctx})(ctx, next)
+})
 
 export default router
