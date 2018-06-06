@@ -82,9 +82,9 @@ export const getRouterData = app => {
     //   component: dynamicWrapper(app, ['project', 'activities', 'chart'], () =>
     //     import('../routes/Dashboard/Workplace')
     //   ),
-      // hideInBreadcrumb: true,
-      // name: '工作台',
-      // authority: 'admin',
+    // hideInBreadcrumb: true,
+    // name: '工作台',
+    // authority: 'admin',
     // },
     // '/form/basic-form': {
     //   component: dynamicWrapper(app, ['form'], () => import('../routes/Forms/BasicForm')),
@@ -171,15 +171,15 @@ export const getRouterData = app => {
     '/user': {
       component: dynamicWrapper(app, [], () => import('../layouts/UserLayout')),
     },
-    // '/user/login': {
-    //   component: dynamicWrapper(app, ['login'], () => import('../routes/User/Login')),
-    // },
-    // '/user/register': {
-    //   component: dynamicWrapper(app, ['register'], () => import('../routes/User/Register')),
-    // },
-    // '/user/register-result': {
-    //   component: dynamicWrapper(app, [], () => import('../routes/User/RegisterResult')),
-    // },
+    '/user/login': {
+      component: dynamicWrapper(app, ['login'], () => import('../routes/User/Login')),
+    },
+    '/user/register': {
+      component: dynamicWrapper(app, ['register'], () => import('../routes/User/Register')),
+    },
+    '/user/register-result': {
+      component: dynamicWrapper(app, [], () => import('../routes/User/RegisterResult')),
+    },
     // '/user/:id': {
     //   component: dynamicWrapper(app, [], () => import('../routes/User/SomeComponent')),
     // },

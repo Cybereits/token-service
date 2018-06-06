@@ -78,6 +78,26 @@ export async function fakeAccountLogin(params) {
   });
 }
 
+export async function accountLogin({ userName, password }) {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          adminLogin(username: "${userName}", password: "${password}") {
+            username
+            message
+            role
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message);
+      errorMesage(err.message);
+    });
+}
+
 export async function fakeRegister(params) {
   return request('/api/register', {
     method: 'POST',
