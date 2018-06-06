@@ -13,11 +13,12 @@ export default async (username, password, validPassword, role = 2) => {
   }
   admin = new AdminModel({ username, password, role })
   admin.save()
-  .then((newAdmin) => {
-    process.exit()
-  })
-  .catch((err) => {
-    console.error(err)
-    process.exit()
-  })
+    .then((newAdmin) => {
+      console.log(`add user succ ${newAdmin.username}`)
+      process.exit()
+    })
+    .catch((err) => {
+      console.error(err)
+      process.exit()
+    })
 }

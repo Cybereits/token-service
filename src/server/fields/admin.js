@@ -1,6 +1,6 @@
 import {
   GraphQLString as str,
-  GraphQLInt,
+  GraphQLInt as int,
 } from 'graphql'
 
 import {
@@ -24,12 +24,12 @@ async function register(username, password, validPassword, role) {
   } else {
     admin = new AdminModel({ username, password, role })
     return admin.save()
-    .then((newAdmin) => {
-      res.username = newAdmin.username
-      res.role = newAdmin.role
-      res.message = 'registered successfully'
-      return res
-    })
+      .then((newAdmin) => {
+        res.username = newAdmin.username
+        res.role = newAdmin.role
+        res.message = 'registered successfully'
+        return res
+      })
   }
 }
 
@@ -76,10 +76,15 @@ export const adminRegister = {
     username: { type: str },
     password: { type: str },
     validPassword: { type: str },
-    role: { type: GraphQLInt },
+    role: { type: int },
   },
   resolve(root, { username, password, validPassword, role }, ctx) {
-    return register(username, password, validPassword, role)
+    let { session } = ctx
+    if (!session || !session.admin || session.admin.role !== 1) {
+      throw new Error('您没有权限创建用户，请联系超级管理员')
+    } else {
+      return register(username, password, validPassword, role)
+    }
   },
 }
 

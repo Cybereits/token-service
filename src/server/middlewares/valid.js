@@ -1,13 +1,11 @@
-export const sessionValid = async (ctx, next) => {
-  if (/adminRegister/.test(ctx.request.body.query)) {
-    if (ctx.session.admin && ctx.session.admin.role === 1) {
-      await next()
-    } else {
-      ctx.response.status = 401
-    }
-  } else if (ctx.path === '/data' || /admin/.test(ctx.request.body.query) || ctx.session.admin) {
-    await next()
+export const sessionValid = ({ request, response, session, path }, next) => {
+  if (path === '/data') {
+    return next()
+  } else if (path === '/graphql' && request.method === 'POST' && /IntrospectionQuery/.test(request.body.query)) {
+    return next()
+  } else if (/admin/.test(request.body.query) || session.admin) {
+    return next()
   } else {
-    ctx.response.status = 401
+    response.status = 401
   }
 }
