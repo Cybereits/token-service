@@ -1,158 +1,107 @@
 import {
   GraphQLString as str,
-  GraphQLObjectType,
-  GraphQLBoolean,
-  GraphQLInt,
-} from 'graphql';
-import shortid from 'shortid';
+  GraphQLInt as int,
+} from 'graphql'
+
 import {
-  AdminModle
-} from '../../core/schemas';
-let count = 0;
-class Admin {
-  async register(root, params, context) {
+  adminRegisterType,
+  amdinLoginType,
+  adminLogoutType,
+} from '../types/plainTypes'
 
-    if (params.password != params.validPassword) {
-      return new Error('password not valid');
-    }
+import { AdminModel } from '../../core/schemas'
 
-    let res = {};
-    const registerPromise = new Promise((resolve, reject) => {
-      AdminModle.findOne({ username: params.username }, (err, admin) => {
-        if (err) reject(err);
-        if (admin) reject(new Error('username is already registered'));
+async function register(username, password, validPassword, role) {
 
-        const _id = shortid.generate();
-        admin = new AdminModle({ _id, username: params.username, password: params.password, role: params.role });
-        admin.save()
-          .then(data => {
-            resolve(data);
-          })
-          .catch(err => {
-            reject(err);
-          });
-      });
-    });
-    await registerPromise
-      .then(user => {
-        res.username = user.username;
-        res.message = 'registered successfully';
-        res.role = user.role;
-      })
-      .catch(err => {
-        if (err) {
-          res = err;
-        }
-      });
-    return res;
+  if (password !== validPassword) {
+    throw Error('password not valid')
   }
-  async login(root, params, ctx, ast) {
+  let res = {}
 
-    if (ctx.session.admin) {
-      res = new Error('Already logged in');
-      return res;
-    }
-
-    let res = {}
-    const authPromise = new Promise((resolve, reject) => {
-      AdminModle.findOne({ username: params.username }, (err, admin) => {
-        if (!admin) reject(new Error('user not exist'));
-        admin.comparePassword(params.password, admin.password)
-          .then(isMath => {
-            if (!isMath) reject(new Error('username or password not match'));
-            ctx.session.admin = {
-              username: admin.username,
-              role: admin.role,
-            }
-            ctx.body = {
-              admin: {
-                username: admin.username,
-                role: admin.role,
-              }
-            }
-            resolve(admin);
-          })
-          .catch(err => {
-            reject(err);
-          });
+  let admin = await AdminModel.findOne({ username })
+  if (admin) {
+    throw new Error('username is already registered')
+  } else {
+    admin = new AdminModel({ username, password, role })
+    return admin.save()
+      .then((newAdmin) => {
+        res.username = newAdmin.username
+        res.role = newAdmin.role
+        res.message = 'registered successfully'
+        return res
       })
-
-    });
-    await authPromise
-      .then(data => {
-        res.username = data.username;
-        res.message = 'logined successfully';
-        res.role = data.role;
-      })
-      .catch(err => {
-        if (err) res = err;
-      });
-
-    return res;
-  }
-  async logout(root, params, ctx, ast) {
-    if (!ctx.session.admin) return new Error('Not logged in');
-    let res = { result: true };
-    ctx.session = null;
-    return res;
   }
 }
 
-const admin = new Admin();
+async function login(username, password, ctx) {
+  if (ctx.session.admin) {
+    throw new Error('Already logged in')
+  }
+
+  let res = {}
+  let admin = await AdminModel.findOne({ username })
+  if (!admin) {
+    throw new Error('user not exist')
+  } else {
+    return admin
+      .comparePassword(password, admin.password)
+      .then((isMath) => {
+        if (!isMath) {
+          throw new Error('username or password not match')
+        } else {
+          ctx.session.admin = {
+            username: admin.username,
+            role: admin.role,
+          }
+
+          res.username = admin.username
+          res.role = admin.role
+          res.message = 'logined successfully'
+          return res
+        }
+      })
+  }
+}
+
+async function logout(ctx) {
+  if (!ctx.session.admin) return new Error('Not logged in')
+  let res = { result: true }
+  ctx.session = null
+  return res
+}
 
 export const adminRegister = {
-  description: '添加管理员账户',
-  type: new GraphQLObjectType({
-    name: 'adminRegister',
-    fields: {
-      _id: { type: str },
-      username: { type: str },
-      role: { type: GraphQLInt },
-      message: { type: str },
-    }
-  }),
+  type: adminRegisterType,
   args: {
     username: { type: str },
     password: { type: str },
     validPassword: { type: str },
-    role: { type: GraphQLInt },
+    role: { type: int },
   },
-  resolve(root, params, options, ast) {
-    const res = admin.register(...arguments);
-    return res;
-  }
+  resolve(root, { username, password, validPassword, role }, ctx) {
+    let { session } = ctx
+    if (!session || !session.admin || session.admin.role !== 1) {
+      throw new Error('您没有权限创建用户，请联系超级管理员')
+    } else {
+      return register(username, password, validPassword, role)
+    }
+  },
 }
 
 export const adminLogin = {
-  description: '管理员登陆',
-  type: new GraphQLObjectType({
-    name: 'adminLogin',
-    fields: {
-      username: { type: str },
-      message: { type: str },
-      role: { type: GraphQLInt},
-    }
-  }),
+  type: amdinLoginType,
   args: {
     username: { type: str },
     password: { type: str },
   },
-  resolve(root, params, ctx, ast) {
-    const res = admin.login(...arguments);
-    return res;
-  }
+  resolve(root, { username, password }, ctx) {
+    return login(username, password, ctx)
+  },
 }
 
 export const adminLogout = {
-  description: '管理员登出',
-  type: new GraphQLObjectType({
-    name: 'loginout',
-    fields: {
-      result: { type: GraphQLBoolean }
-    }
-  }),
-  resolve(root, params, ctx, ast) {
-    const res = admin.logout(...arguments);
-    return res;
-  }
+  type: adminLogoutType,
+  resolve(root, _, ctx) {
+    return logout(ctx)
+  },
 }

@@ -7,6 +7,7 @@ import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount 
 import { queryAllBalance } from './fields/balance'
 import { commonStatusEnum } from './fields/enum'
 import { queryContractAbi, deployCREContract } from './fields/contract'
+
 import {
   queryBatchTrasactionTasks,
   queryTxRecordsViaTaskId,
@@ -15,10 +16,11 @@ import {
   createBatchTransactions,
   sendTransaction,
 } from './fields/transactions'
+
 import {
-    adminRegister, 
-    adminLogin,
-    adminLogout,
+  adminRegister,
+  adminLogin,
+  adminLogout,
 } from './fields/admin'
 
 // 通用的修改功能
@@ -33,6 +35,7 @@ const queries = new Obj({
     queryBatchTrasactionTasks,
     queryTx,
     queryTxRecordsViaTaskId,
+    queryIsSysAccount,
     adminLogin,
     adminLogout,
   },

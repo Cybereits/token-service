@@ -4,7 +4,7 @@ import {
   GraphQLNonNull as NotNull,
   GraphQLList as List,
 } from 'graphql'
-import { TaskCapsule, ParallelQueue } from '@cybereits/ccl/asyncQueue'
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { STATUS, TOKEN_TYPE } from '../../core/enums'
 import { batchTransactinTaskModel, txRecordModel } from '../../core/schemas'

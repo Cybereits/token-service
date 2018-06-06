@@ -8,9 +8,9 @@
     "test": "./node_modules/.bin/mocha -t 20s test/**/*.spec.js"
   },
   "dependencies": {
-    "@cybereits/ccl": "^0.1.2",
     "agenda": "^1.0.3",
     "apollo-server-koa": "^1.3.4",
+    "async-task-manager": "^1.0.2",
     "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
@@ -31,7 +31,6 @@
     "prompt-input": "^3.0.0",
     "properties-reader": "0.0.16",
     "request": "^2.83.0",
-    "shortid": "^2.2.8",
     "solc": "^0.4.19",
     "web3": "^1.0.0-beta.24"
   },

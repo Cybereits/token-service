@@ -1,4 +1,4 @@
-import { TaskCapsule, ParallelQueue } from '@cybereits/ccl/asyncQueue'
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import getConnection from '../../framework/web3'
 import { txRecordModel } from '../../core/schemas'

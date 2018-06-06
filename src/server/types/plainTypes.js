@@ -6,6 +6,7 @@ import {
   GraphQLInputObjectType as InputObj,
   GraphQLEnumType,
   GraphQLNonNull as NotNull,
+  GraphQLBoolean as boolean,
 } from 'graphql'
 
 import { getStatus, TOKEN_TYPE } from '../../core/enums'
@@ -194,3 +195,32 @@ export const ethAccount = new InputObj({
   },
 })
 // #endregion
+
+// admin
+export const amdinLoginType = new OutputObj({
+  name: 'adminLogin',
+  description: '管理员登录',
+  fields: {
+    username: { type: str },
+    message: { type: str },
+    role: { type: int },
+  },
+})
+
+export const adminRegisterType = new OutputObj({
+  name: 'adminRegister',
+  description: '管理员注册',
+  fields: {
+    username: { type: str },
+    role: { type: int },
+    message: { type: str },
+  },
+})
+
+export const adminLogoutType = new OutputObj({
+  name: 'loginout',
+  description: '管理员登出',
+  fields: {
+    result: { type: boolean },
+  },
+})
