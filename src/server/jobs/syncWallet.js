@@ -1,4 +1,4 @@
-import { TaskCapsule, ParallelQueue } from '@cybereits/ccl/asyncQueue'
+import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { postTransactions } from '../../apis/phpApis'
 import { getEthBalance, getTokenBalance } from '../../core/scenes/token'

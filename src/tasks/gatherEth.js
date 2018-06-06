@@ -1,4 +1,4 @@
-import { SerialQueue, TaskCapsule, ParallelQueue } from '@cybereits/ccl/asyncQueue'
+import { SerialQueue, TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { creClientConnection as connect } from '../framework/web3'
 import { getEthBalance } from '../core/scenes/token'
