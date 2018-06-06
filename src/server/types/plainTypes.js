@@ -196,8 +196,7 @@ export const ethAccount = new InputObj({
 })
 // #endregion
 
-
-//admin
+// admin
 export const amdinLoginType = new OutputObj({
   name: 'adminLogin',
   description: '管理员登录',

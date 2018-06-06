@@ -1,7 +1,5 @@
 import {
   GraphQLString as str,
-  GraphQLObjectType,
-  GraphQLBoolean,
   GraphQLInt,
 } from 'graphql'
 
