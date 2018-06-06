@@ -31,7 +31,6 @@
     "prompt-input": "^3.0.0",
     "properties-reader": "0.0.16",
     "request": "^2.83.0",
-    "shortid": "^2.2.8",
     "solc": "^0.4.19",
     "web3": "^1.0.0-beta.24"
   },

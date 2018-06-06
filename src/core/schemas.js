@@ -157,10 +157,6 @@ export const txRecordModel = connection.model('transactionRecord', transactionRe
 
 // admin
 const adminUser = new mongoose.Schema({
-    _id: {
-        type: String,
-        required: true,
-    },
     username: {
         type: String,
         required: true,

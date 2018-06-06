@@ -5,43 +5,34 @@ import {
   GraphQLInt,
 } from 'graphql'
 
+import {
+  adminRegisterType,
+  amdinLoginType,
+  adminLogoutType,
+} from '../types/plainTypes'
+
 import { AdminModel } from '../../core/schemas'
 
 async function register(username, password, validPassword, role) {
 
   if (password !== validPassword) {
-    return new Error('password not valid')
+    throw Error('password not valid')
   }
-
   let res = {}
-  const registerPromise = new Promise((resolve, reject) => {
-    AdminModel.findOne({ username }, (err, admin) => {
-      if (err) reject(err)
-      if (admin) reject(new Error('username is already registered'))
 
-      admin = new AdminModel({ username, password, role })
-
-      admin.save()
-        .then((data) => {
-          resolve(data)
-        })
-        .catch((err) => {
-          reject(err)
-        })
-    })
-  })
-  await registerPromise
-    .then((user) => {
-      res.username = user.username
+  let admin = await AdminModel.findOne({ username })
+  if (admin) {
+    throw new Error('username is already registered')
+  } else {
+    admin = new AdminModel({ username, password, role })
+    return admin.save()
+    .then((newAdmin) => {
+      res.username = newAdmin.username
+      res.role = newAdmin.role
       res.message = 'registered successfully'
-      res.role = user.role
+      return res
     })
-    .catch((err) => {
-      if (err) {
-        res = err
-      }
-    })
-  return res
+  }
 }
 
 async function login(username, password, ctx) {
@@ -82,37 +73,20 @@ async function logout(ctx) {
 }
 
 export const adminRegister = {
-  description: '添加管理员账户',
-  type: new GraphQLObjectType({
-    name: 'adminRegister',
-    fields: {
-      _id: { type: str },
-      username: { type: str },
-      role: { type: GraphQLInt },
-      message: { type: str },
-    },
-  }),
+  type: adminRegisterType,
   args: {
     username: { type: str },
     password: { type: str },
     validPassword: { type: str },
     role: { type: GraphQLInt },
   },
-  resolve(root, { username, password, validPassword, role }, options) {
+  resolve(root, { username, password, validPassword, role }, ctx) {
     return register(username, password, validPassword, role)
   },
 }
 
 export const adminLogin = {
-  description: '管理员登陆',
-  type: new GraphQLObjectType({
-    name: 'adminLogin',
-    fields: {
-      username: { type: str },
-      message: { type: str },
-      role: { type: GraphQLInt },
-    },
-  }),
+  type: amdinLoginType,
   args: {
     username: { type: str },
     password: { type: str },
@@ -123,13 +97,7 @@ export const adminLogin = {
 }
 
 export const adminLogout = {
-  description: '管理员登出',
-  type: new GraphQLObjectType({
-    name: 'loginout',
-    fields: {
-      result: { type: GraphQLBoolean },
-    },
-  }),
+  type: adminLogoutType,
   resolve(root, _, ctx) {
     return logout(ctx)
   },
