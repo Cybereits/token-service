@@ -74,7 +74,7 @@ export const queryAccountList = {
   type: new List(str),
   description: '查看钱包地址',
   async resolve(root) {
-    return ethAccountModel.find(null, 'account').then(t => t.map(({ account }) => account))
+    return ethAccountModel.find(null, { account: 1 }).then(t => t.map(({ account }) => account))
   },
 }
 

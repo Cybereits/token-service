@@ -31,7 +31,7 @@ export const queryAllBalance = {
     let listAccounts
     let { ethAddresses, orderBy } = filter
     let queryCondition = null
-    let sortCondition = orderBy === TOKEN_TYPE.eth ? { ethAmount: 1 } : { creAmount: 1 }
+    let sortCondition = orderBy === TOKEN_TYPE.eth ? { ethAmount: -1 } : { creAmount: -1 }
 
     if (ethAddresses && ethAddresses.length > 0) {
       queryCondition = { account: { $in: ethAddresses } }
