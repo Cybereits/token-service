@@ -13,6 +13,6 @@ let EnumTypeGen = (desc, hashMap) => ({
   },
 })
 
-export const statusEnum = EnumTypeGen('查询通用状态枚举类型', STATUS)
-export const tokenTypeEnum = EnumTypeGen('查询代币类型枚举类型', TOKEN_TYPES)
-export const contractNameEnum = EnumTypeGen('查询合约名称枚举类型', CONTRACT_NAMES)
+export const statusEnum = EnumTypeGen('交易状态枚举类型', STATUS)
+export const tokenTypeEnum = EnumTypeGen('代币类型枚举类型', TOKEN_TYPES)
+export const contractNameEnum = EnumTypeGen('合约名称枚举类型', CONTRACT_NAMES)

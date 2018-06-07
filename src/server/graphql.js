@@ -5,7 +5,7 @@ import {
 
 import { adminRegister, adminLogin, adminLogout } from './fields/admin'
 import { queryAllBalance } from './fields/balance'
-import { queryContractAbi, deployCREContract } from './fields/contract'
+import { queryContractAbi, deployCREContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
 import { statusEnum, tokenTypeEnum, contractNameEnum } from './fields/enum'
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 import { queryBatchTrasactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
@@ -14,9 +14,8 @@ const queries = new Obj({
   name: 'Queries',
   description: '查询接口',
   fields: {
-    statusEnum,
-    tokenTypeEnum,
-    contractNameEnum,
+    adminLogin,
+    adminLogout,
     queryAccountList,
     queryAllBalance,
     queryContractAbi,
@@ -24,8 +23,9 @@ const queries = new Obj({
     queryTx,
     queryTxRecordsViaTaskId,
     queryIsSysAccount,
-    adminLogin,
-    adminLogout,
+    statusEnum,
+    tokenTypeEnum,
+    contractNameEnum,
   },
 })
 
@@ -33,13 +33,15 @@ const mutations = new Obj({
   name: 'Mutations',
   description: '修改接口',
   fields: {
+    adminRegister,
+    addERC20ContractMeta,
     createAccount,
     createBatchTransactions,
     createMultiAccount,
     createTransaction,
     deployCREContract,
     sendTransaction,
-    adminRegister,
+    unlockTeamAllocation,
   },
 })
 

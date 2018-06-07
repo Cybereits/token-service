@@ -223,7 +223,10 @@ export const unlockTeamAllocation = {
       type: str,
       description: '解锁地址',
     },
-    ethAccount: ethAccount,
+    ethAccount: {
+      type: ethAccount,
+      description: '调用解锁方法的钱包信息',
+    },
   },
   async resolve(root, {
     unlockAddr,
