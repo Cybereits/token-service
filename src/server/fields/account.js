@@ -36,7 +36,7 @@ export const createMultiAccount = {
   type: new List(str),
   description: '批量创建钱包',
   args: {
-    amount: {
+    count: {
       type: new NotNull(int),
       description: '需要创建的钱包数量',
     },
@@ -49,11 +49,11 @@ export const createMultiAccount = {
       description: '备注信息',
     },
   },
-  resolve(root, { amount = 1, password = '', comment }) {
+  resolve(root, { count = 1, password = '', comment }) {
     let promises = []
     let addresses = []
 
-    for (let index = 0; index < amount; index += 1) {
+    for (let index = 0; index < count; index += 1) {
       promises.push(ethClientConnection.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
     }
 

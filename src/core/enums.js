@@ -4,6 +4,7 @@ export const STATUS = {
   sending: 1, // 处理中
   success: 2, // 成功
   failure: -1,  // 失败
+  error: -2, // 异常
 }
 
 const statusKeys = Object.keys(STATUS)

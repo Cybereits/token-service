@@ -42,6 +42,7 @@ async function sendBatchTxs(recordIds) {
                 // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                 transaction.status = STATUS.sending
                 transaction.txid = transactionHash
+                transaction.sendTime = new Date()
                 return transaction.save()
               })
               .catch(async (ex) => {
@@ -61,6 +62,7 @@ async function sendBatchTxs(recordIds) {
                 // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                 transaction.status = STATUS.sending
                 transaction.txid = transactionHash
+                transaction.sendTime = new Date()
                 return transaction.save()
               })
               .catch(async (ex) => {
@@ -167,7 +169,7 @@ export const createTransaction = {
     },
     amount: {
       type: new NotNull(int),
-      description: '转账代币数量',
+      description: '转账代币数额',
       defaultValue: 0,
     },
     tokenType: {
@@ -198,7 +200,7 @@ export const createBatchTransactions = {
   args: {
     transactions: {
       type: new NotNull(str),
-      description: '要发送的信息，以地址和代币数量以逗号分割，交易之间以换行分隔，例如: 0xa7d246bcaf81967d981e18a64a1e6d0ed2224c38,3000\n0xc3bf8c8e700cf237badfc46e63b922b5c7786624,4000',
+      description: '要发送的信息，以地址和代币数额以逗号分割，交易之间以换行分隔，例如: 0xa7d246bcaf81967d981e18a64a1e6d0ed2224c38,3000\n0xc3bf8c8e700cf237badfc46e63b922b5c7786624,4000',
     },
     comment: {
       type: new NotNull(str),
@@ -231,7 +233,7 @@ export const createBatchTransactions = {
     }
     // 先创建批量任务的实体
     let task = await batchTransactinTaskModel.create({
-      amount: txCollection.length,
+      count: txCollection.length,
       comment,
     })
 

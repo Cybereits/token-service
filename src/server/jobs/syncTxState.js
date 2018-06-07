@@ -11,37 +11,26 @@ function getOnSendingTxs() {
   return txRecordModel.find({ status: STATUS.sending })
 }
 
-/**
- * 是否是已验证的交易
- * @param {number} heightLimit 已确认的区块高度限制（小于该高度为确认）
- * @param {string} txid 交易id
- */
-async function getTxState(heightLimit, txid) {
-  let conn = getConnection()
-  let txInfo = await conn.eth.getTransaction(txid).catch(() => false)
-  if (txInfo && txInfo.blockNumber && txInfo.blockNumber < heightLimit) {
-    // 确认成功
-    return STATUS.success
-  } else if (txInfo === null) {
-    // 交易丢失（未被确认也不在 pendingTransactions 里）
-    return STATUS.failure
-  } else {
-    return STATUS.sending
-  }
-}
-
 export default async function (job, done) {
   if (!executable) {
     console.info('尚有未完成交易状态同步任务...')
     done()
   }
-  executable = false
   console.log('开始同步交易状态')
 
-  let conn = getConnection()
+  let conn
+
+  try {
+    conn = getConnection()
+  } catch (ex) {
+    console.error(ex.message)
+    return
+  }
+
+  executable = false
   let currBlockNumber = await conn.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
-  let confirmedBlockHeight = currBlockNumber - 30
+  let blockHeightLimitation = currBlockNumber - 30
   let sendingTxs = await getOnSendingTxs().catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
     executable = true
@@ -58,18 +47,26 @@ export default async function (job, done) {
       queue.add(new TaskCapsule(() => new Promise(async (resolve, reject) => {
         let { txid } = transaction
         if (txid) {
-          let state = await getTxState(confirmedBlockHeight, txid).catch(reject)
-          if (state === STATUS.sending) {
+          let conn = getConnection()
+          let txInfo = await conn.eth.getTransaction(txid).catch(() => false)
+          if (txInfo && txInfo.blockNumber && txInfo.blockNumber < blockHeightLimitation) {
+            // 确认成功
+            transaction.status = STATUS.success
+            transaction.confirmTime = new Date()
+            transaction.save().then(resolve).catch(reject)
+          } else if (txInfo === null) {
+            // 交易丢失（未被确认也不在 pendingTransactions 里）
+            transaction.status = STATUS.failure
+            transaction.exceptionMsg = '交易已广播，但长时间内未被确认'
+            transaction.save().then(resolve).catch(reject)
+          } else {
             // 尚未确认
             resolve()
-          } else {
-            // 确认或已经丢失
-            transaction.status = state
-            transaction.save().then(resolve).catch(reject)
           }
         } else {
           // 交易失败 没有 txid 却被置为 sending
-          transaction.status = STATUS.failure
+          transaction.status = STATUS.error
+          transaction.exceptionMsg = '缺失 transaction hash 却被标记为 sending'
           transaction.save().then(resolve).catch(reject)
         }
       })))

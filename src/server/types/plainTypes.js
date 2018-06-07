@@ -53,9 +53,9 @@ export const batchTransactionTask = new OutputObj({
       description: 'Identity',
       resolve: t => t._id,
     },
-    amount: {
+    count: {
       type: int,
-      description: '交易数量',
+      description: '任务包含的交易的数量',
     },
     comment: {
       type: str,
@@ -80,7 +80,7 @@ export const txRecord = new OutputObj({
     },
     amount: {
       type: int,
-      description: '转账数量',
+      description: '转账数额',
     },
     from: {
       type: str,
@@ -169,7 +169,7 @@ export const txFilter = new InputObj({
   description: 'transactionRecord 查询过滤条件',
   fields: {
     to: { type: str, description: '入账钱包地址' },
-    amount: { type: int, description: '转账数量' },
+    amount: { type: int, description: '转账数额' },
     status: { type: int, description: '转账状态' },
     tokenType: { type: TokenTypeEnum, description: '代币类型' },
   },

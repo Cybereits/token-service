@@ -1,8 +1,7 @@
 import { SerialQueue, TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { creClientConnection as connect } from '../framework/web3'
-import { getEthBalance } from '../core/scenes/token'
-import transferAllEth from './transferAllEth'
+import { getEthBalance, transferAllEth } from '../core/scenes/token'
 
 export default async (gatherAddress, secret) => {
   let handledAddrList = []
@@ -37,7 +36,7 @@ export default async (gatherAddress, secret) => {
       addrList.forEach((addr) => {
         queue.add(
           new TaskCapsule(
-            () => transferAllEth(gatherAddress, addr, secret)
+            () => transferAllEth(addr, gatherAddress)
               .then(() => {
                 handledAddrList.push(addr)
               })
