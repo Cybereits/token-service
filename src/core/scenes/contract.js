@@ -44,14 +44,18 @@ const CONTRACT_INSTANCES = {}
  * @returns {object} 合约实例
  */
 export async function getContractInstance(contractName, connection) {
-  if (!CONTRACT_INSTANCES[contractName]) {
-    let conn = connection || getConnection()
-    const { abis, address, decimal } = await getTokenContractMeta(contractName)
+  if (contractName) {
+    if (!CONTRACT_INSTANCES[contractName]) {
+      let conn = connection || getConnection()
+      const { abis, address, decimal } = await getTokenContractMeta(contractName)
 
-    CONTRACT_INSTANCES[contractName] = new conn.eth.Contract(abis, address)
-    CONTRACT_INSTANCES[contractName].decimal = decimal
+      CONTRACT_INSTANCES[contractName] = new conn.eth.Contract(abis, address)
+      CONTRACT_INSTANCES[contractName].decimal = decimal
+    }
+    return CONTRACT_INSTANCES[contractName]
+  } else {
+    throw new TypeError('合约名称不能为空')
   }
-  return CONTRACT_INSTANCES[contractName]
 }
 
 /**

@@ -17,6 +17,7 @@ export default async function (job, done) {
     done()
   }
   console.log('开始同步交易状态')
+  executable = false
 
   let conn
 
@@ -24,10 +25,11 @@ export default async function (job, done) {
     conn = getConnection()
   } catch (ex) {
     console.error(ex.message)
+    executable = true
+    done()
     return
   }
 
-  executable = false
   let currBlockNumber = await conn.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
   let blockHeightLimitation = currBlockNumber - 30

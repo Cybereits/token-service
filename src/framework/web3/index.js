@@ -3,10 +3,10 @@ import Web3 from 'web3'
 import { ws } from '../../config/env.json'
 
 let _index = 0
-let _pool = []
+let _pool = {}
 
 function initEthConnect(wsUri, name) {
-  let connected = false
+  let connected = true
   let conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
 
   // 心跳检测
@@ -18,8 +18,6 @@ function initEthConnect(wsUri, name) {
         if (!connected) {
           connected = true
           console.info(`[${name || '默认'}] 钱包客户端连接成功!`)
-          _pool.push(conn)
-          console.info(`当前有效客户端链接 ${_pool.length}`)
         }
       })
       .catch(() => {
@@ -27,14 +25,11 @@ function initEthConnect(wsUri, name) {
           connected = false
         }
         console.warn(`[${name || '默认'}] 钱包客户端连接失败，尝试重连...`)
-        _pool = _pool.filter(conn => conn.__name !== name)
-        console.info(`当前有效客户端链接 ${_pool.length}`)
         conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
-        conn.__name = name
       })
   }, 3000)
 
-  conn.__name = name
+  _pool[name] = conn
   return conn
 }
 
@@ -43,10 +38,13 @@ function initEthConnect(wsUri, name) {
  * @returns {Object} web3 client
  */
 function getConnection() {
-  if (_pool.length > 0) {
-    return _pool[_index++ % _pool.length]
+  // console.info(`当前有效客户端链接 ${Object.keys(_pool).length}`)
+  let keys = Object.keys(_pool)
+  let length = keys.length
+  if (length > 0) {
+    return _pool[keys[_index++ % length]]
   } else {
-    throw new Error('没有可用的钱包客户端链接.')
+    return new Web3(new Web3.providers.WebsocketProvider(ws.cre))
   }
 }
 

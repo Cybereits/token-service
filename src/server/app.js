@@ -22,7 +22,7 @@ app.keys = ['some keys blah blah']
 
 const CONFIG = {
   key: 'sess', /** (string) cookie key (default is koa:sess) */
-  maxAge: 1 * 60 * 60 * 1000, /** 1 小时过期时间 */
+  maxAge: 24 * 60 * 60 * 1000, /** 24 小时过期时间 */
   overwrite: true, /** (boolean) can overwrite or not (default true) */
   httpOnly: false, /** (boolean) httpOnly or not (default true) */
   signed: true, /** (boolean) signed or not (default true) */

@@ -8,6 +8,7 @@ import {
 
 import { ethClientConnection } from '../../framework/web3'
 import { ethAccountModel } from '../../core/schemas'
+import { isSysAccount } from '../../core/scenes/account'
 
 export const createAccount = {
   type: str,
@@ -88,6 +89,6 @@ export const queryIsSysAccount = {
     },
   },
   async resolve(root, { address }) {
-    return ethAccountModel.findOne({ account: address }).then(res => !!res)
+    return isSysAccount(address)
   },
 }
