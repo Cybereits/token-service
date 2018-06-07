@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react';
-import { Table } from 'antd';
+import React, { PureComponent, Fragment } from 'react';
+import { Table, Alert } from 'antd';
 import styles from './index.less';
 
 function initTotalList(columns) {
@@ -21,7 +21,6 @@ class StandardTable extends PureComponent {
     this.state = {
       selectedRowKeys: [],
       needTotalList,
-      showSelect: this.props.showSelect,
     };
   }
 
@@ -37,6 +36,7 @@ class StandardTable extends PureComponent {
   }
 
   handleRowSelectChange = (selectedRowKeys, selectedRows) => {
+    console.log(selectedRowKeys, selectedRows);
     let needTotalList = [...this.state.needTotalList];
     needTotalList = needTotalList.map(item => {
       return {
@@ -46,7 +46,7 @@ class StandardTable extends PureComponent {
         }, 0),
       };
     });
-
+    /* 选中项发生变化的时的回调 */
     if (this.props.onSelectRow) {
       this.props.onSelectRow(selectedRows);
     }
@@ -64,7 +64,7 @@ class StandardTable extends PureComponent {
 
   render() {
     const { selectedRowKeys } = this.state;
-    const { data: { list, pagination }, loading, columns, rowKey } = this.props;
+    const { data: { list, pagination }, loading, columns, rowKey, isSelect = false } = this.props;
 
     const paginationProps = {
       showSizeChanger: true,
@@ -74,6 +74,7 @@ class StandardTable extends PureComponent {
 
     const rowSelection = {
       selectedRowKeys,
+      /* 选中项发生变化的时的回调 */
       onChange: this.handleRowSelectChange,
       getCheckboxProps: record => ({
         disabled: record.disabled,
@@ -82,36 +83,40 @@ class StandardTable extends PureComponent {
 
     return (
       <div className={styles.standardTable}>
-        {/* <div className={styles.tableAlert}>
-          <Alert
-            message={
-              <Fragment>
-                已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
-                {needTotalList.map(item => (
-                  <span style={{ marginLeft: 8 }} key={item.dataIndex}>
-                    {item.title}总计&nbsp;
-                    <span style={{ fontWeight: 600 }}>
-                      {item.render ? item.render(item.total) : item.total}
-                    </span>
-                  </span>
-                ))}
-                <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>
-                  清空
-                </a>
-              </Fragment>
-            }
-            type="info"
-            showIcon
-          />
-        </div> */}
+        {isSelect ? (
+          <div className={styles.tableAlert}>
+            <Alert
+              message={
+                <Fragment>
+                  已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
+                  {/* {needTotalList.map(item => (
+                      <span style={{ marginLeft: 8 }} key={item.dataIndex}>
+                        {item.title}总计&nbsp;
+                        <span style={{ fontWeight: 600 }}>
+                          {item.render ? item.render(item.total) : item.total}
+                        </span>
+                      </span>
+                    ))} */}
+                  <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>
+                    清空
+                  </a>
+                </Fragment>
+              }
+              type="info"
+              showIcon
+            />
+          </div>
+        ) : null}
         <Table
           loading={loading}
           rowKey={rowKey || 'key'}
-          rowSelection={this.state.showSelect && rowSelection}
+          rowSelection={isSelect ? rowSelection : null}
           dataSource={list}
           columns={columns}
           pagination={paginationProps}
+          // 分页、排序、筛选变化时触发
           onChange={this.handleTableChange}
+          {...this.props}
         />
       </div>
     );

@@ -6,7 +6,7 @@ import bodyParser from 'koa-bodyparser'
 
 import router from './routes'
 import env from '../config/env.json'
-import { sessionValid } from './middlewares/valid'
+// import { sessionValid } from './middlewares/valid'
 import logger from './middlewares/logger'
 
 const port = env.port

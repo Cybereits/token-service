@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 // import ApolloClient from 'apollo-boost';
 // import gql from 'graphql-tag';
@@ -28,6 +28,7 @@ import styles from './CoinSend.less';
 const { confirm } = Modal;
 const FormItem = Form.Item;
 const { Option } = Select;
+const { TextArea } = Input;
 // const getValue = obj =>
 //   Object.keys(obj)
 //     .map(key => obj[key])
@@ -70,7 +71,7 @@ const CreateForm = Form.create()(props => {
               },
             },
           ],
-        })(<Input style={{ width: '100%' }} placeholder="请输入所要发送到的钱包数量" />)}
+        })(<TextArea style={{ width: '100%' }} placeholder="请输入所要发送到的钱包数量" />)}
       </FormItem>
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="任务类型">
         {form.getFieldDecorator('status', {
@@ -223,12 +224,24 @@ export default class TableList extends PureComponent {
       //   formValues: fieldsValue,
       // });
       // console.log(fieldsValue)
+      const newParam = fieldsValue;
+      console.log(newParam);
+      Object.keys(newParam).forEach(item => {
+        console.log(newParam[item], item);
+        if (newParam[item] === '') {
+          delete newParam[item];
+        } else if (item === 'tokenType' && newParam[item]) {
+          newParam[item] = `Enum(${newParam[item]})`;
+        }
+      });
+      const newFieldsValue = { tokenType: 'Enum()', ...newParam };
+      console.log(newFieldsValue);
       dispatch({
-        type: 'coin/queryPrizeList',
+        type: 'coin/queryTx',
         params: {
           pageIndex,
           pageSize,
-          filter: fieldsValue,
+          filter: newFieldsValue,
         },
       });
       // const values = {
@@ -238,11 +251,11 @@ export default class TableList extends PureComponent {
     });
   };
 
-  handleModalVisible = flag => {
-    this.setState({
-      modalVisible: !!flag,
-    });
-  };
+  // handleModalVisible = flag => {
+  //   this.setState({
+  //     modalVisible: !!flag,
+  //   });
+  // };
 
   sendCoin = fields => {
     console.log(fields);
@@ -300,6 +313,20 @@ export default class TableList extends PureComponent {
   renderSimpleForm(statusEnum) {
     console.log(statusEnum);
     const { getFieldDecorator } = this.props.form;
+    const formItemLayout = {
+      labelCol: {
+        xl: { span: 6 },
+        md: { span: 8 },
+        sm: { span: 4 },
+        xs: { span: 4 },
+      },
+      wrapperCol: {
+        xl: { span: 18 },
+        md: { span: 16 },
+        sm: { span: 20 },
+        xs: { span: 20 },
+      },
+    };
     return (
       <Form
         onSubmit={() => {
@@ -308,13 +335,13 @@ export default class TableList extends PureComponent {
         layout="inline"
       >
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="钱包地址">
-              {getFieldDecorator('ethAddress')(<Input placeholder="请输入钱包地址" />)}
+          <Col md={8} sm={24} xs={24}>
+            <FormItem {...formItemLayout} label="入账地址">
+              {getFieldDecorator('to')(<Input placeholder="请输入入账地址" />)}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="发送状态">
+          <Col md={8} sm={24} xs={24}>
+            <FormItem {...formItemLayout} label="状态">
               {getFieldDecorator('status')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   {statusEnum.map((item, index) => {
@@ -330,8 +357,31 @@ export default class TableList extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
+          <Col md={8} sm={24} xs={24}>
+            <FormItem {...formItemLayout} label="发送数量">
+              {getFieldDecorator('amount')(<Input placeholder="请输入发送数量" />)}
+            </FormItem>
+          </Col>
+          <Col md={8} sm={24} xs={24}>
+            <FormItem {...formItemLayout} label="代币类型">
+              {getFieldDecorator('tokenType')(
+                <Select placeholder="请选择" style={{ width: '100%' }}>
+                  <Option value="cre">cre</Option>
+                  <Option value="eth">eth</Option>
+                  {/* {statusEnum.map((item, index) => {
+                    return (
+                      <Option key={index} value={item.value - 0}>
+                        {item.name}
+                      </Option>
+                    );
+                  })} */}
+                  {/* <Option value="1">运行中</Option> */}
+                </Select>
+              )}
+            </FormItem>
+          </Col>
+          <div style={{ overflow: 'hidden' }}>
+            <span style={{ float: 'right', marginBottom: 24 }}>
               <Button type="primary" htmlType="submit">
                 查询
               </Button>
@@ -339,10 +389,10 @@ export default class TableList extends PureComponent {
                 重置
               </Button>
               {/* <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-                展开 <Icon type="down" />
+                收起 <Icon type="up" />
               </a> */}
             </span>
-          </Col>
+          </div>
         </Row>
       </Form>
     );
@@ -430,24 +480,90 @@ export default class TableList extends PureComponent {
     console.log(this.props);
     const columns = [
       {
-        title: '钱包地址',
-        dataIndex: 'ethAddress',
+        title: '入账地址',
+        dataIndex: 'to',
+        fixed: 'left',
+      },
+      {
+        title: 'id',
+        dataIndex: 'id',
       },
       {
         title: '发送代币数量',
-        dataIndex: 'prize',
+        dataIndex: 'amount',
+      },
+      {
+        title: '出账地址',
+        dataIndex: 'from',
       },
       {
         title: '发送状态',
         dataIndex: 'status',
       },
       {
-        title: '发送代币类型',
-        dataIndex: 'type',
+        title: '代币类型',
+        dataIndex: 'tokenType',
+      },
+      {
+        title: '备注',
+        dataIndex: 'comment',
       },
       {
         title: 'txid',
         dataIndex: 'txid',
+      },
+      {
+        title: '任务id',
+        dataIndex: 'taskid',
+      },
+      {
+        title: '发送时间',
+        dataIndex: 'sendTime',
+      },
+      {
+        title: '确认时间',
+        dataIndex: 'confirmTime',
+      },
+      {
+        width: 100,
+        title: '操作',
+        fixed: 'right',
+        render: item => {
+          const { dispatch } = this.props;
+          const newThis = this;
+          return (
+            <Fragment>
+              <a
+                onClick={function() {
+                  console.log(newThis);
+                  confirm({
+                    okText: '确认',
+                    cancelText: '取消',
+                    title: <p>确定要发送此比转账吗？</p>,
+                    onOk() {
+                      return new Promise(resolve => {
+                        dispatch({
+                          type: 'coinTask/sendTransactionfFromIds',
+                          params: [item.id],
+                          callback: () => {
+                            message.success('发送成功！');
+                            resolve();
+                            newThis.handleSearch(0, 10);
+                          },
+                        });
+                      });
+                    },
+                    onCancel() {
+                      console.log('Cancel');
+                    },
+                  });
+                }}
+              >
+                发送代币
+              </a>
+            </Fragment>
+          );
+        },
       },
       // {
       //   title: '服务调用次数',
@@ -519,15 +635,15 @@ export default class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm(statusEnum)}</div>
             <div className={styles.tableListOperator}>
-              <Button
+              {/* <Button
                 icon="rocket"
                 type="primary"
                 onClick={() => {
                   this.handleModalVisible(true);
                 }}
               >
-                发送代币
-              </Button>
+                创建发送任务
+              </Button> */}
               {/* <span>
                  <Button>批量操作</Button> 
                 <Dropdown overlay={menu}>
@@ -544,7 +660,7 @@ export default class TableList extends PureComponent {
               columns={columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              showSelect={null}
+              scroll={{ x: 3000 }}
             />
           </div>
         </Card>

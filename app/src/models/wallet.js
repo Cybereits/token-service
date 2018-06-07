@@ -82,14 +82,14 @@ export default {
       });
       if (callback) callback();
     },
-    *addWallet({ params, callback }, { call, put }) {
+    *addWallet({ params, callback }, { call }) {
       const response = yield call(addWallet, params);
       console.log(response);
       if (response) {
-        yield put({
-          type: 'save',
-          payload: response,
-        });
+        // yield put({
+        //   type: 'addWallet',
+        //   payload: response,
+        // });
       }
       if (callback) callback();
     },
