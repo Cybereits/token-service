@@ -6,7 +6,7 @@ import {
   queryAllBalance,
   addWallet,
   createMultiAccount,
-  queryPrizeList,
+  queryTx,
   commonStatusEnum,
   sendCoinOverview,
   queryBatchTrasactionTasks,
@@ -125,7 +125,7 @@ export default {
       }
       if (callback) callback();
     },
-    *queryPrizeList(
+    *queryTx(
       {
         params = {
           pageIndex: 0,
@@ -137,21 +137,27 @@ export default {
       { call, put }
     ) {
       console.log(params);
-      const response = yield call(queryPrizeList, params);
+      const response = yield call(queryTx, params);
       console.log(response);
       const data = {};
       if (response) {
-        data.list = response.data.queryPrizeList.list.map((value, index) => {
+        data.list = response.data.queryTx.list.map((value, index) => {
           return {
-            ethAddress: value.ethAddress,
-            prize: value.prize,
+            id: value.id,
+            amount: value.amount,
+            from: value.from,
+            to: value.to,
             status: value.status,
-            type: value.type,
+            tokenType: value.tokenType,
+            comment: value.comment,
             txid: value.txid,
+            taskid: value.taskid,
+            sendTime: value.sendTime,
+            confirmTime: value.confirmTime,
             key: index,
           };
         });
-        data.pagination = response.data.queryPrizeList.pagination;
+        data.pagination = response.data.queryTx.pagination;
         yield put({
           type: 'save',
           payload: data,

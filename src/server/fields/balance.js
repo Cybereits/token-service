@@ -28,6 +28,7 @@ export const queryAllBalance = {
     },
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
+    console.log('debug1', filter)
     let listAccounts
     let { ethAddresses, orderBy } = filter
     let queryCondition = null

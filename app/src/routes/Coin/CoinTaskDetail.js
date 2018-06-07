@@ -11,13 +11,13 @@ import {
   // Form,
   // Input,
   // Select,
-  // Icon,
+  Icon,
   Button,
-  // Dropdown,
-  // Menu,
+  Dropdown,
+  Menu,
   // InputNumber,
   // DatePicker,
-  // Modal,
+  Modal,
   // message,
   // Badge,
   // Divider,
@@ -26,7 +26,7 @@ import StandardTable from 'components/StandardTable';
 // import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './CoinSend.less';
 // import { getQueryVariable } from '../../utils/utils';
-
+const { confirm } = Modal;
 @connect(({ coinTask, loading }) => ({
   coinTask,
   loading: loading.models.coinTask,
@@ -60,6 +60,57 @@ export default class CoinTaskDetail extends PureComponent {
     this.handleSearch(pagination.current - 1, pagination.pageSize);
   };
 
+  handleSelectRows = rows => {
+    console.log(rows);
+    this.setState({
+      selectedRows: rows,
+    });
+  };
+
+  handleMenuClick = e => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    const newthis = this;
+
+    if (!selectedRows) return;
+
+    switch (e.key) {
+      case 'sendCoin':
+        /*eslint-disable*/
+        confirm({
+          okText: '确认',
+          cancelText: '取消',
+          title: (
+            <p>
+              确定要发送<span style={{ color: 'red' }}> {selectedRows.length} </span>比转账吗？
+            </p>
+          ),
+          onOk() {
+            return new Promise(resolve => {
+              dispatch({
+                type: 'coinTask/sendTransactionfFromIds',
+                params: selectedRows.map(row => row.id),
+                callback: () => {
+                  console.log(newthis);
+                  resolve();
+                  newthis.setState({
+                    selectedRows: [],
+                  });
+                  newthis.handleSearch(0, 10);
+                },
+              });
+            });
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   render() {
     console.log(this.props);
     const { coinTask: { queryTxOperationRecords }, loading } = this.props;
@@ -67,20 +118,49 @@ export default class CoinTaskDetail extends PureComponent {
     console.log(this.props);
     const columns = [
       {
+        title: '入账地址',
+        dataIndex: 'to',
+        fixed: 'left',
+      },
+      {
+        title: 'id',
+        dataIndex: 'id',
+      },
+      {
+        title: '代币数量',
+        dataIndex: 'amount',
+      },
+      {
         title: '出账地址',
         dataIndex: 'from',
       },
       {
-        title: '入账地址',
-        dataIndex: 'to',
-      },
-      {
-        title: '转账数量',
-        dataIndex: 'amount',
+        title: '状态',
+        dataIndex: 'status',
       },
       {
         title: '代币类型',
         dataIndex: 'tokenType',
+      },
+      {
+        title: '备注',
+        dataIndex: 'comment',
+      },
+      {
+        title: 'txid',
+        dataIndex: 'txid',
+      },
+      {
+        title: 'taskid',
+        dataIndex: 'taskid',
+      },
+      {
+        title: '发送时间',
+        dataIndex: 'sendTime',
+      },
+      {
+        title: '确认时间',
+        dataIndex: 'confirmTime',
       },
       // {
       //   title: '创建时间',
@@ -142,6 +222,13 @@ export default class CoinTaskDetail extends PureComponent {
       // },
     ];
 
+    const menu = (
+      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
+        {/* <Menu.Item key="remove">删除</Menu.Item> */}
+        <Menu.Item key="sendCoin">发送代币</Menu.Item>
+      </Menu>
+    );
+
     // const parentMethods = {
     //   sendCoin: this.sendCoin,
     //   handleModalVisible: this.handleModalVisible,
@@ -160,16 +247,19 @@ export default class CoinTaskDetail extends PureComponent {
             >
               返回
             </Button>
-            {/* <span>
-                 <Button>批量操作</Button> 
+            {selectedRows.length > 0 && (
+              <span>
+                <Button>批量操作</Button>
                 <Dropdown overlay={menu}>
                   <Button>
                     更多操作 <Icon type="down" />
                   </Button>
                 </Dropdown>
-              </span> */}
+              </span>
+            )}
           </div>
           <StandardTable
+            isSelect
             selectedRows={selectedRows}
             loading={loading}
             data={queryTxOperationRecords}
@@ -177,6 +267,7 @@ export default class CoinTaskDetail extends PureComponent {
             onSelectRow={this.handleSelectRows}
             onChange={this.handleStandardTableChange}
             showSelect={null}
+            scroll={{ x: 2500 }}
           />
         </div>
       </Card>

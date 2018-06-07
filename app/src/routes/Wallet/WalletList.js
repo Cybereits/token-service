@@ -228,13 +228,20 @@ export default class TableList extends PureComponent {
       // this.setState({
       //   formValues: fieldsValue,
       // });
-      // console.log(fieldsValue)
+      const newParam = fieldsValue;
+      Object.keys(newParam).forEach(item => {
+        console.log(newParam[item], item);
+        if (newParam[item] === '') {
+          delete newParam[item];
+        }
+      });
+      const newFieldsValue = { orderBy: 'Enum(eth)', ...newParam };
       dispatch({
         type: 'wallet/queryAllBalance',
         params: {
           pageIndex,
           pageSize,
-          filter: fieldsValue,
+          filter: newFieldsValue,
         },
       });
       // const values = {
@@ -279,7 +286,10 @@ export default class TableList extends PureComponent {
 
   addWallet = () => {
     const { dispatch } = this.props;
+    console.log(this);
     confirm({
+      okText: '确认',
+      cancelText: '取消',
       title: '确定创建一个钱包吗？',
       onOk() {
         return new Promise(resolve => {
@@ -289,6 +299,7 @@ export default class TableList extends PureComponent {
             callback: () => {
               message.success('创建钱包成功!');
               resolve();
+              console.log(this);
             },
           });
         });
@@ -505,7 +516,7 @@ export default class TableList extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={this.addWallet}>
+              <Button icon="plus" type="primary" onClick={this.addWallet.bind(this)}>
                 创建钱包
               </Button>
               <span>

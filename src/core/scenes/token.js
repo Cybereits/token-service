@@ -151,6 +151,10 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
         gasPrice,
         gas,
       }, account.secret)
+      .then((hash) => {
+        console.info(`Transfer [${amount}] tokens to [${toAddress}] [txid ${hash}]`)
+        return hash
+      })
   }
 }
 
