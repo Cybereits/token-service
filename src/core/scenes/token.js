@@ -3,7 +3,7 @@ import getConnection, { ethClientConnection, creClientConnection } from '../../f
 
 import { unlockAccount, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
-import { TOKEN_TYPE, CONTRACT_NAMES } from '../enums'
+import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
 
 BN.config({ DECIMAL_PLACES: 18 })
 
@@ -19,9 +19,9 @@ export async function getConnByAccount(entity) {
 
   let { account, group, secret } = entity
   // 根据转出钱包地址的 group 类型判断出其所属的钱包客户端
-  if (group === TOKEN_TYPE.cre) {
+  if (group === TOKEN_TYPES.cre) {
     conn = creClientConnection
-  } else if (group === TOKEN_TYPE.eth) {
+  } else if (group === TOKEN_TYPES.eth) {
     conn = ethClientConnection
   } else {
     conn = getConnection()
@@ -84,14 +84,19 @@ export async function getTokenBalanceFullInfo(userAddress) {
  * @param {string} fromAddress 发送代币的钱包地址
  * @param {string} toAddress 接收代币的钱包地址
  * @param {number} amount 发送代币数额（个）
- * @param {number} gasPrice 油费（可选）
- * @param {number} gas 油量（可选）
+ * @param {object} options 其它配置（可选）
  */
-export async function sendToken(fromAddress, toAddress, amount, gasPrice, gas) {
+export async function sendToken(fromAddress, toAddress, amount, options = {}) {
   let _amount = new BN(amount)
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
+    let {
+      contractNameEnum = CONTRACT_NAMES.cre,
+      gasPrice,
+      gas,
+      priceRate = 1.1,  // 油费溢价率
+    } = options
     let account = await getAccountInfoByAddress(fromAddress)
     let conn = await getConnByAccount(account)
 
@@ -99,11 +104,11 @@ export async function sendToken(fromAddress, toAddress, amount, gasPrice, gas) {
       gasPrice = await conn
         .eth
         .getGasPrice()
-        .then(price => price * 1.1) // gasPrice 多给 10% 油价
+        .then(price => price * priceRate)
     }
 
     return new Promise(async (resolve, reject) => {
-      let tokenContract = await getContractInstance(CONTRACT_NAMES.cre, conn)
+      let tokenContract = await getContractInstance(contractNameEnum, conn)
       let _multiplier = 10 ** tokenContract.decimal
       let _sendAmount = _amount.mul(_multiplier)
 
@@ -126,10 +131,10 @@ export async function sendToken(fromAddress, toAddress, amount, gasPrice, gas) {
  * @param {string} fromAddress 发送 eth 的地址
  * @param {string} toAddress 接收 eth 的地址
  * @param {number} amount 发送数额（个）
- * @param {number} gasPrice 油费（可选）
- * @param {number} gas 油量（可选）
+ * @param {object} options 其它配置（可选）
  */
-export async function sendETH(fromAddress, toAddress, amount, gasPrice, gas) {
+export async function sendETH(fromAddress, toAddress, amount, options = {}) {
+  let { gasPrice, gas } = options
   let _amount = new BN(amount)
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')

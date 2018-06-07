@@ -7,7 +7,7 @@ import {
 } from 'graphql'
 
 import { ethClientConnection } from '../../framework/web3'
-import { ethAccountModel } from '../../core/schemas'
+import { EthAccountModel } from '../../core/schemas'
 import { isSysAccount } from '../../core/scenes/account'
 
 export const createAccount = {
@@ -29,7 +29,7 @@ export const createAccount = {
       .personal
       .newAccount(password)
       // 将生成的钱包信息记录入库再返回
-      .then(account => ethAccountModel.create({ account, secret: password }).then(() => account))
+      .then(account => EthAccountModel.create({ account, secret: password }).then(() => account))
   },
 }
 
@@ -60,7 +60,7 @@ export const createMultiAccount = {
 
     return Promise
       .all(promises)
-      .then(() => ethAccountModel
+      .then(() => EthAccountModel
         .insertMany(addresses.map(account => ({
           account,
           secret: password,
@@ -75,7 +75,7 @@ export const queryAccountList = {
   type: new List(str),
   description: '查看钱包地址',
   async resolve(root) {
-    return ethAccountModel.find(null, { account: 1 }).then(t => t.map(({ account }) => account))
+    return EthAccountModel.find(null, { account: 1 }).then(t => t.map(({ account }) => account))
   },
 }
 

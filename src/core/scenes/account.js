@@ -1,5 +1,5 @@
 import { ethClientConnection, creClientConnection } from '../../framework/web3'
-import { ethAccountModel } from '../schemas'
+import { EthAccountModel } from '../schemas'
 import { getEthBalance, getTokenBalance } from './token'
 
 export function unlockAccount(connect, unlockAccount, passWord) {
@@ -27,7 +27,7 @@ export async function getAllAccounts() {
  * @returns {ethAccountModel} 钱包账户信息
  */
 export async function getAccountInfoByAddress(address) {
-  let account = await ethAccountModel
+  let account = await EthAccountModel
     .findOne({ account: address })
     .catch((ex) => {
       console.err(ex.message)
@@ -45,7 +45,7 @@ export async function getAccountInfoByAddress(address) {
  * @returns {Promise<bool>}
  */
 export function isSysAccount(address) {
-  return ethAccountModel.count({ account: address }).then(res => res >= 1)
+  return EthAccountModel.count({ account: address }).then(res => res >= 1)
 }
 
 /**
@@ -57,7 +57,7 @@ export async function updateBalanceOfAccount(address) {
   let creAmount = await getTokenBalance(address)
 
   // 更新账户信息
-  return ethAccountModel.update(
+  return EthAccountModel.update(
     {
       account: address,
     },

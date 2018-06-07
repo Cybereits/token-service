@@ -13,13 +13,4 @@ export function getStatus(_value) {
   return statusKeys.filter(t => STATUS[t] === _value)[0]
 }
 
-// 代币类型
-export const TOKEN_TYPE = {
-  eth: 'eth',
-  cre: 'cre',
-}
-
-export const CONTRACT_NAMES = {
-  cre: 'CybereitsToken',
-  lock: 'CybereitsTeamLock',
-}
+export { TOKEN_TYPES, CONTRACT_NAMES } from '../config/runtime.json'

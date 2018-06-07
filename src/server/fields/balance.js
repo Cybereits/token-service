@@ -2,8 +2,8 @@ import {
   GraphQLInt as int,
 } from 'graphql'
 
-import { TOKEN_TYPE } from '../../core/enums'
-import { ethAccountModel } from '../../core/schemas'
+import { TOKEN_TYPES } from '../../core/enums'
+import { EthAccountModel } from '../../core/schemas'
 import { balanceDetail, balanceFilter } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
@@ -23,7 +23,7 @@ export const queryAllBalance = {
       type: balanceFilter,
       description: '过滤条件',
       defaultValue: {
-        orderBy: TOKEN_TYPE.eth,
+        orderBy: TOKEN_TYPES.eth,
       },
     },
   },
@@ -31,13 +31,13 @@ export const queryAllBalance = {
     let listAccounts
     let { ethAddresses, orderBy } = filter
     let queryCondition = null
-    let sortCondition = orderBy === TOKEN_TYPE.eth ? { ethAmount: -1 } : { creAmount: -1 }
+    let sortCondition = orderBy === TOKEN_TYPES.eth ? { ethAmount: -1 } : { creAmount: -1 }
 
     if (ethAddresses && ethAddresses.length > 0) {
       queryCondition = { account: { $in: ethAddresses } }
     }
 
-    listAccounts = await ethAccountModel
+    listAccounts = await EthAccountModel
       .find(queryCondition, { account: 1, creAmount: 1, ethAmount: 1 })
       .sort(sortCondition)
       .then(accounts => accounts.map(({ account, creAmount, ethAmount }) => ({

@@ -3,32 +3,20 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
+import { adminRegister, adminLogin, adminLogout } from './fields/admin'
 import { queryAllBalance } from './fields/balance'
-import { commonStatusEnum } from './fields/enum'
 import { queryContractAbi, deployCREContract } from './fields/contract'
+import { statusEnum, tokenTypeEnum, contractNameEnum } from './fields/enum'
+import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
+import { queryBatchTrasactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
 
-import {
-  queryBatchTrasactionTasks,
-  queryTxRecordsViaTaskId,
-  queryTx,
-  createTransaction,
-  createBatchTransactions,
-  sendTransaction,
-} from './fields/transactions'
-
-import {
-  adminRegister,
-  adminLogin,
-  adminLogout,
-} from './fields/admin'
-
-// 通用的修改功能
 const queries = new Obj({
   name: 'Queries',
   description: '查询接口',
   fields: {
-    commonStatusEnum,
+    statusEnum,
+    tokenTypeEnum,
+    contractNameEnum,
     queryAccountList,
     queryAllBalance,
     queryContractAbi,

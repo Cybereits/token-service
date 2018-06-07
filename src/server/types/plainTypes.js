@@ -9,7 +9,7 @@ import {
   GraphQLBoolean as boolean,
 } from 'graphql'
 
-import { getStatus, TOKEN_TYPE } from '../../core/enums'
+import { getStatus, TOKEN_TYPES } from '../../core/enums'
 
 // #region Output Objects
 export const hashResult = new OutputObj({
@@ -149,7 +149,7 @@ export const txRecord = new OutputObj({
  */
 export const TokenTypeEnum = new GraphQLEnumType({
   name: 'TokenTypeEnum',
-  values: Object.entries(TOKEN_TYPE).reduce(
+  values: Object.entries(TOKEN_TYPES).reduce(
     (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
     {},
   ),

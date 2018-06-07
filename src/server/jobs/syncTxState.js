@@ -1,15 +1,10 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import getConnection from '../../framework/web3'
-import { txRecordModel } from '../../core/schemas'
+import { TxRecordModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
 
 let executable = true
-
-// 获取发送中的交易
-function getOnSendingTxs() {
-  return txRecordModel.find({ status: STATUS.sending })
-}
 
 export default async function (job, done) {
   if (!executable) {
@@ -33,7 +28,7 @@ export default async function (job, done) {
   let currBlockNumber = await conn.eth.getBlockNumber()
   // 60 个区块高度前的区块内的交易视作已确认
   let blockHeightLimitation = currBlockNumber - 30
-  let sendingTxs = await getOnSendingTxs().catch((ex) => {
+  let sendingTxs = await TxRecordModel.find({ status: STATUS.sending }).catch((ex) => {
     console.error(`交易状态同步失败 ${ex}`)
     executable = true
     done()

@@ -1,6 +1,6 @@
 import { unlockAccount } from './account'
 import getConnection, { creClientConnection } from '../../framework/web3'
-import { contractMetaModel } from '../schemas'
+import { ContractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
 /**
@@ -9,7 +9,7 @@ import { CONTRACT_NAMES } from '../enums'
  * @returns {object|null} 合约元信息对象
  */
 function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
-  return contractMetaModel
+  return ContractMetaModel
     .findOne({ name: contractName })
     .then(({
       name,

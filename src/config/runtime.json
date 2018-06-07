@@ -1,0 +1,10 @@
+{
+  "CONTRACT_NAMES": {
+    "cre": "CybereitsToken",
+    "lock": "CybereitsTeamLock"
+  },
+  "TOKEN_TYPES": {
+    "eth": "eth",
+    "cre": "cre"
+  }
+}
