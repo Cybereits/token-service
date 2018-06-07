@@ -4,9 +4,10 @@ import gql from 'graphql-tag';
 import { errorMesage } from '../utils/networkErrorMsg';
 import request from '../utils/request';
 import { toGql } from '../utils/utils';
-import config from '../../config/env.json'
+import config from '../../config/env.json';
 
-const { host, port, baseUrl } = config
+const { host, port, baseUrl } = config;
+console.log(`${host}${port ? `:${port}` : ''}${baseUrl}`);
 const client = new ApolloClient({
   uri: `${host}${port ? `:${port}` : ''}${baseUrl}`,
 });
@@ -77,6 +78,26 @@ export async function fakeAccountLogin(params) {
   });
 }
 
+export async function accountLogin({ userName, password }) {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          adminLogin(username: "${userName}", password: "${password}") {
+            username
+            message
+            role
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message);
+      errorMesage(err.message);
+    });
+}
+
 export async function fakeRegister(params) {
   return request('/api/register', {
     method: 'POST',
@@ -112,14 +133,15 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
       newFilter[key] = [newFilter[key]];
     }
   }
+  console.log(newFilter);
   return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         {
-          queryAllBalance(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
-          newFilter
-        )}) {
+          queryAllBalance(pageIndex: ${pageIndex}, pageSize: ${pageSize}, filter: ${toGql(
+        newFilter
+      )}) {
             pagination {
               total
               current
@@ -158,6 +180,61 @@ export async function addWallet() {
     });
 }
 
+export async function sendTransactionfFromIds(params) {
+  console.log(params);
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          sendTransaction(ids: ${JSON.stringify(params)})
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function createBatchTransactions({ transactions, comment, tokenType, outAccount }) {
+  console.log(transactions, comment, tokenType, outAccount, toGql(tokenType));
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: ${toGql(
+        tokenType
+      )}, outAccount: "${outAccount}") {
+            id,
+            amount,
+            comment,
+            createAt
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
+export async function sendTransactionfFromTaskid(params) {
+  console.log(params);
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          sendTransaction(taskid: "${params}")
+        }
+      `,
+    })
+    .catch(err => {
+      errorMesage(err.message);
+    });
+}
+
 export async function createMultiAccount(parmas) {
   console.log(parmas);
   console.log(typeof parmas.walletAmount);
@@ -173,7 +250,7 @@ export async function createMultiAccount(parmas) {
     });
 }
 
-export async function queryPrizeList({ pageIndex, pageSize, filter }) {
+export async function queryTx({ pageIndex, pageSize, filter }) {
   const newFilter = { ...filter };
   for (const key in newFilter) {
     if (filter[key] === undefined) {
@@ -185,9 +262,7 @@ export async function queryPrizeList({ pageIndex, pageSize, filter }) {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          queryPrizeList(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(
-          newFilter
-        )}) {
+          queryTx(pageIndex: ${pageIndex},pageSize: ${pageSize}, filter: ${toGql(newFilter)}) {
             pagination {
               total
               current
@@ -195,11 +270,17 @@ export async function queryPrizeList({ pageIndex, pageSize, filter }) {
               pageCount
             }
             list {
-              ethAddress
-              prize
-              status
-              type
-              txid
+              id,
+              amount,
+              from,
+              to,
+              status,
+              tokenType,
+              comment,
+              txid,
+              taskid,
+              sendTime,
+              confirmTime
             }
           }
         }
@@ -303,27 +384,27 @@ export async function sendCoinOverview() {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          pending: queryPrizeList(filter: { status: 0 }) {
+          pending: queryTx(filter: { status: 0 }) {
             pagination {
               total
             }
           }
-          sending: queryPrizeList(filter: { status: 1 }) {
+          sending: queryTx(filter: { status: 1 }) {
             pagination {
               total
             }
           }
-          success: queryPrizeList(filter: { status: 2 }) {
+          success: queryTx(filter: { status: 2 }) {
             pagination {
               total
             }
           }
-          failure: queryPrizeList(filter: { status: -1 }) {
+          failure: queryTx(filter: { status: -1 }) {
             pagination {
               total
             }
           }
-          total: queryPrizeList(filter: {}) {
+          total: queryTx(filter: {}) {
             pagination {
               total
             }
@@ -344,17 +425,17 @@ export async function queryBatchTrasactionTasks({ pageIndex, pageSize }) {
       query: gql`
         {
           queryBatchTrasactionTasks(pageSize: ${pageSize}, pageIndex: ${pageIndex}) {
-            list {
-              id
-              amount
-              type
-              createAt
-            }
             pagination {
-              total
-              current
-              pageSize
+              total,
+              current,
+              pageSize,
               pageCount
+            }
+            list {
+              id,
+              amount,
+              comment,
+              createAt
             }
           }
         }
@@ -365,26 +446,32 @@ export async function queryBatchTrasactionTasks({ pageIndex, pageSize }) {
     });
 }
 
-export async function queryTxOperationRecords({ pageIndex, pageSize, taskID }) {
+export async function queryTxRecordsViaTaskId({ pageIndex, pageSize, taskID }) {
   console.log(pageIndex, pageSize, taskID);
   return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         query {
-          queryTxOperationRecords(pageIndex: ${pageIndex},pageSize: ${pageSize},taskID: "${taskID}") {
-            pagination {
-              total
-              current
-              pageSize
-              pageCount
-            }
+          queryTxRecordsViaTaskId(pageIndex: ${pageIndex},pageSize: ${pageSize},taskID: "${taskID}") {
             list {
-              from
-              to
-              amount
-              tokenType
-              comment
+              id,
+              amount,
+              from,
+              to,
+              status,
+              tokenType,
+              comment,
+              txid,
+              taskid,
+              sendTime,
+              confirmTime,
+            },
+            pagination{
+              total,
+              current,
+              pageSize,
+              pageCount,
             }
           }
         }

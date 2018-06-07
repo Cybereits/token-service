@@ -9,6 +9,7 @@ import { balanceDetail, balanceFilter } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 function sortBalances(balances, tokenName) {
+  console.log('debug', tokenName, balances[0])
   return balances.sort((prev, next) => next.balances.filter(t => t.name === tokenName)[0].value - prev.balances.filter(t => t.name === tokenName)[0].value)
 }
 
@@ -33,6 +34,7 @@ export const queryAllBalance = {
     },
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
+    console.log('debug1', filter)
     let listAccounts
     let { ethAddresses, orderBy } = filter
 

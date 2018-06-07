@@ -85,11 +85,16 @@ const menuData = [
     path: 'coin',
     children: [
       {
-        name: '代币发放',
-        path: 'coin-send',
+        name: '创建任务',
+        path: 'coin-createTask',
       },
       {
-        name: '发放概览',
+        name: '代币发放',
+        path: 'coin-send',
+        authority: 'superAdmin',
+      },
+      {
+        name: '任务列表',
         path: 'coin-overview',
       },
     ],

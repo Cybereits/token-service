@@ -95,7 +95,7 @@ export async function sendToken(fromAddress, toAddress, amount) {
     let gasPrice = await conn
       .eth
       .getGasPrice()
-      .then(price => price * 1.1) // gasPrice 多给 10% 油价
+      .then(price => Math.ceil(price * 1.1)) // gasPrice 多给 10% 油价
 
     return new Promise(async (resolve, reject) => {
       let tokenContract = await getContractInstance(CONTRACT_NAMES.cre, conn)
@@ -139,6 +139,10 @@ export async function sendETH(fromAddress, toAddress, amount) {
         to: toAddress,
         value: conn.eth.extend.utils.toWei(amountInt.toString(), 'ether'),
       }, account.secret)
+      .then((hash) => {
+        console.info(`Transfer [${amount}] tokens to [${toAddress}] [txid ${hash}]`)
+        return hash
+      })
   }
 }
 

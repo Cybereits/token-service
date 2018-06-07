@@ -17,14 +17,16 @@ import {
   //   Menu,
   //   InputNumber,
   //   DatePicker,
-  //   Modal,
-  //   message,
+  Modal,
+  message,
   //   Badge,
-  //   Divider,
+  Divider,
 } from 'antd';
 import StandardTable from 'components/StandardTable';
 // import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './CoinSend.less';
+
+const { confirm } = Modal;
 
 @connect(({ coinTask, loading }) => ({
   coinTask,
@@ -59,7 +61,6 @@ export default class CoinTaskList extends PureComponent {
   };
 
   render() {
-    console.log(this.props);
     const { coinTask: { queryBatchTrasactionTasks }, loading } = this.props;
     const { selectedRows } = this.state;
     console.log(this.props);
@@ -72,18 +73,14 @@ export default class CoinTaskList extends PureComponent {
         title: '发送笔数',
         dataIndex: 'amount',
       },
-      // {
-      //   title: '发送状态',
-      //   dataIndex: 'status',
-      // },
       {
-        title: '任务类型',
-        dataIndex: 'type',
+        title: '备注',
+        dataIndex: 'comment',
       },
-      // {
-      //   title: '创建时间',
-      //   dataIndex: 'createAt',
-      // },
+      {
+        title: '创建时间',
+        dataIndex: 'createAt',
+      },
       // {
       //   title: '服务调用次数',
       //   dataIndex: 'callNo',
@@ -143,8 +140,37 @@ export default class CoinTaskList extends PureComponent {
               >
                 任务详情
               </a>
-              {/* <Divider type="vertical" />
-              <a href="">订阅警报</a> */}
+              <Divider type="vertical" />
+              <a
+                onClick={() => {
+                  console.log(item);
+                  const { dispatch } = this.props;
+                  confirm({
+                    title: (
+                      <p>
+                        确定要发送此任务下的<span style={{ color: 'red' }}> {item.amount} </span>比转账吗？
+                      </p>
+                    ),
+                    onOk() {
+                      return new Promise(resolve => {
+                        dispatch({
+                          type: 'coinTask/sendTransactionfFromTaskid',
+                          params: item.id,
+                          callback: () => {
+                            message.success('发送成功！');
+                            resolve();
+                          },
+                        });
+                      });
+                    },
+                    onCancel() {
+                      console.log('Cancel');
+                    },
+                  });
+                }}
+              >
+                发送代币
+              </a>
             </Fragment>
           );
         },

@@ -1,4 +1,10 @@
-import { queryBatchTrasactionTasks, queryTxOperationRecords } from '../services/api';
+import {
+  queryBatchTrasactionTasks,
+  queryTxRecordsViaTaskId,
+  sendTransactionfFromIds,
+  sendTransactionfFromTaskid,
+  createBatchTransactions,
+} from '../services/api';
 
 export default {
   namespace: 'coinTask',
@@ -15,6 +21,42 @@ export default {
   },
 
   effects: {
+    *createBatchTransactions({ params, callback }, { call }) {
+      console.log(params);
+      const response = yield call(createBatchTransactions, params);
+      callback();
+      console.log(response.data.createBatchTransactions);
+      // if (response) {
+      //   yield put({
+      //     type: 'getTaskData',
+      //     queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+      //   });
+      // }
+    },
+    *sendTransactionfFromTaskid({ params, callback }, { call }) {
+      console.log(params);
+      const response = yield call(sendTransactionfFromTaskid, params);
+      callback();
+      console.log(response.data.sendTransaction);
+      // if (response) {
+      //   yield put({
+      //     type: 'getTaskData',
+      //     queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+      //   });
+      // }
+    },
+    *sendTransactionfFromIds({ params, callback }, { call }) {
+      console.log(params);
+      const response = yield call(sendTransactionfFromIds, params);
+      callback();
+      console.log(response.data.sendTransaction);
+      // if (response) {
+      //   yield put({
+      //     type: 'getTaskData',
+      //     queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+      //   });
+      // }
+    },
     *queryBatchTrasactionTasks(
       {
         params = {
@@ -43,12 +85,12 @@ export default {
       { call, put }
     ) {
       console.log(params);
-      const response = yield call(queryTxOperationRecords, params);
-      console.log(response.data.queryTxOperationRecords);
+      const response = yield call(queryTxRecordsViaTaskId, params);
+      console.log(response.data.queryTxRecordsViaTaskId);
       if (response) {
         yield put({
           type: 'getTaskData',
-          queryTxOperationRecords: response.data.queryTxOperationRecords,
+          queryTxOperationRecords: response.data.queryTxRecordsViaTaskId,
         });
       }
     },
