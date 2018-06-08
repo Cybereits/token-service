@@ -20,4 +20,13 @@
     "node_modules",
     "geth-node"
   ]
+}, {
+  "name": "schedule-tasks",
+  "script": "./server/entry:schedule.js",
+  "instances": 1,
+  "cwd": "./",
+  "error_file": "logs/schedule-err.log",
+  "out_file": "logs/schedule-out.log",
+  "merge_logs": true,
+  "log_date_format": "YYYY-MM-DD HH:mm:ss"
 }]

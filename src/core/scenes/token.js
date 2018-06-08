@@ -1,11 +1,11 @@
-import bignumber from 'bignumber.js'
+import BN from 'bignumber.js'
 import getConnection, { ethClientConnection, creClientConnection } from '../../framework/web3'
 
 import { unlockAccount, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
-import { TOKEN_TYPE, CONTRACT_NAMES } from '../enums'
+import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
 
-bignumber.config({ DECIMAL_PLACES: 5 })
+BN.config({ DECIMAL_PLACES: 18 })
 
 /**
  * 根据转出的账户地址获得其所属钱包客户端链接
@@ -19,9 +19,9 @@ export async function getConnByAccount(entity) {
 
   let { account, group, secret } = entity
   // 根据转出钱包地址的 group 类型判断出其所属的钱包客户端
-  if (group === TOKEN_TYPE.cre) {
+  if (group === TOKEN_TYPES.cre) {
     conn = creClientConnection
-  } else if (group === TOKEN_TYPE.eth) {
+  } else if (group === TOKEN_TYPES.eth) {
     conn = ethClientConnection
   } else {
     conn = getConnection()
@@ -54,17 +54,18 @@ export async function getEthBalance(address) {
 }
 
 /**
- * 查询钱包地址下的代币数量
+ * 查询钱包地址下的代币数额
  * @param {*} userAddress 要查询的钱包地址
+ * @param {CONTRACT_NAMES} contractNameEnum 合约名称枚举（默认 cre）
  */
-export async function getTokenBalance(userAddress) {
-  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
+export async function getTokenBalance(userAddress, contractNameEnum = CONTRACT_NAMES.cre) {
+  let tokenContract = await getContractInstance(contractNameEnum)
   let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
   return getConnection().eth.extend.utils.fromWei(amount, 'ether')
 }
 
 /**
- * 查询钱包地址下的代币数量及代币总量，占比等信息
+ * 查询钱包地址下的代币数额及代币总量，占比等信息
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
@@ -80,36 +81,43 @@ export async function getTokenBalanceFullInfo(userAddress) {
 
 /**
  * 发送代币
- * @param {*} fromAddress 发送代币的钱包地址
- * @param {*} toAddress 接收代币的钱包地址
- * @param {*} amount 发送代币数量（个）
+ * @param {string} fromAddress 发送代币的钱包地址
+ * @param {string} toAddress 接收代币的钱包地址
+ * @param {number} amount 发送代币数额（个）
+ * @param {object} options 其它配置（可选）
  */
-export async function sendToken(fromAddress, toAddress, amount) {
-  let amountInt = +amount
-  if (amountInt <= 0) {
+export async function sendToken(fromAddress, toAddress, amount, options = {}) {
+  let _amount = new BN(amount)
+  if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
+    let {
+      contractNameEnum = CONTRACT_NAMES.cre,
+      gasPrice,
+      gas,
+      priceRate = 1.1,  // 油费溢价率
+    } = options
     let account = await getAccountInfoByAddress(fromAddress)
     let conn = await getConnByAccount(account)
 
-    let gasPrice = await conn
-      .eth
-      .getGasPrice()
-      .then(price => Math.ceil(price * 1.1)) // gasPrice 多给 10% 油价
+    if (!gasPrice) {
+      gasPrice = await conn
+        .eth
+        .getGasPrice()
+        .then(price => price * priceRate)
+    }
 
     return new Promise(async (resolve, reject) => {
-      let tokenContract = await getContractInstance(CONTRACT_NAMES.cre, conn)
-      let _amount = bignumber(amountInt.toFixed(5))
+      let tokenContract = await getContractInstance(contractNameEnum, conn)
       let _multiplier = 10 ** tokenContract.decimal
-      let _sendAmount = _amount.times(_multiplier)
-      console.log('debug1', _multiplier, _sendAmount)
+      let _sendAmount = _amount.mul(_multiplier)
 
       tokenContract
         .methods
         .transfer(toAddress, _sendAmount)
-        .send({ from: fromAddress, gasPrice: gasPrice })
+        .send({ from: fromAddress, gasPrice, gas })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer [${_amount}] tokens to [${toAddress}] [txid ${hash}]`)
+          console.info(`Transfer [${_amount.toString(10)}] tokens to [${toAddress}] [txid ${hash}]`)
           resolve(hash)
         })
         .on('error', reject)
@@ -122,11 +130,13 @@ export async function sendToken(fromAddress, toAddress, amount) {
  * 发送以太币
  * @param {string} fromAddress 发送 eth 的地址
  * @param {string} toAddress 接收 eth 的地址
- * @param {number} amount 发送数量（个）
+ * @param {number} amount 发送数额（个）
+ * @param {object} options 其它配置（可选）
  */
-export async function sendETH(fromAddress, toAddress, amount) {
-  let amountInt = +amount
-  if (amountInt <= 0) {
+export async function sendETH(fromAddress, toAddress, amount, options = {}) {
+  let { gasPrice, gas } = options
+  let _amount = new BN(amount)
+  if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
     let account = await getAccountInfoByAddress(fromAddress)
@@ -137,7 +147,9 @@ export async function sendETH(fromAddress, toAddress, amount) {
       .sendTransaction({
         from: fromAddress,
         to: toAddress,
-        value: conn.eth.extend.utils.toWei(amountInt.toString(), 'ether'),
+        value: conn.eth.extend.utils.toWei(_amount.toString(10), 'ether'),
+        gasPrice,
+        gas,
       }, account.secret)
       .then((hash) => {
         console.info(`Transfer [${amount}] tokens to [${toAddress}] [txid ${hash}]`)
@@ -146,10 +158,46 @@ export async function sendETH(fromAddress, toAddress, amount) {
   }
 }
 
+export async function transferAllEth(fromAddress, toAddress) {
+
+  if (toAddress === fromAddress) {
+    return
+  }
+
+  console.assert(toAddress, '接收地址不能为空!')
+
+  let connect = getConnection()
+
+  let total = await connect.eth.getBalance(fromAddress)
+  let gasPrice = await connect.eth.getGasPrice()
+  let gasFee = await connect.eth.estimateGas({ from: fromAddress })
+
+  total = new BN(total)
+  gasPrice = new BN(gasPrice)
+  gasFee = new BN(gasFee)
+
+  let txCost = gasPrice.mul(gasFee)
+  let transAmount = total.minus(txCost)
+
+  console.log(`余额\t${
+    connect.eth.extend.utils.fromWei(total.toString(10))
+    } 油费\t${
+    gasPrice.toString(10)
+    } 用量\t${
+    connect.eth.extend.utils.fromWei(gasFee.toString(10))
+    } 总花费\t${
+    connect.eth.extend.utils.fromWei(txCost.toString(10))
+    } 实际发送数额\t${
+    connect.eth.extend.utils.fromWei(transAmount.toString(10))
+    }`)
+
+  sendETH(fromAddress, toAddress, transAmount, gasPrice, gasFee)
+}
+
 /**
  * 估算发送代币所需油费
  * @param {string} toAddress 转入地址
- * @param {number} amount 发送代币数量
+ * @param {number} amount 发送代币数额
  */
 export async function estimateGasOfSendToken(toAddress, amount) {
   let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
@@ -160,10 +208,10 @@ export async function estimateGasOfSendToken(toAddress, amount) {
 }
 
 /**
- * 通过输入的数值计算得出对应的代币数量
+ * 通过输入的数值计算得出对应的代币数额
  * @param {string|number} inputBigNumber 输入的大数值
  * @param {number} decimal 合约规定的代币精度
- * @returns {number} 计算所得代币数量
+ * @returns {number} 计算所得代币数额
  */
 export function getTokenAmountByBigNumber(inputBigNumber, decimal) {
   let _bigNumber = +inputBigNumber
@@ -204,7 +252,7 @@ export function decodeTransferInput(inputStr, decimal) {
     // 第一个参数是函数的id 16进制格式，不需要改变
     // 第二个参数是转入地址，加 0x 前缀转换成有效地址
     arr[1] = `0x${arr[1]}`
-    // 第三个参数是交易的代币数量 需要转换成有效数值
+    // 第三个参数是交易的代币数额 需要转换成有效数值
     arr[2] = getTokenAmountByBigNumber(arr[2], decimal)
     return arr
   } else {

@@ -6,8 +6,8 @@ import {
 } from 'graphql'
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { STATUS, TOKEN_TYPE } from '../../core/enums'
-import { batchTransactinTaskModel, txRecordModel } from '../../core/schemas'
+import { STATUS, TOKEN_TYPES } from '../../core/enums'
+import { BatchTransactinTaskModel, TxRecordModel } from '../../core/schemas'
 import { batchTransactionTask, TokenTypeEnum, txRecord, txFilter } from '../types/plainTypes'
 import { PaginationResult, PaginationWrapper } from '../types/complexTypes'
 import { sendETH, sendToken } from '../../core/scenes/token'
@@ -26,14 +26,14 @@ async function sendBatchTxs(recordIds) {
       toleration: 0,
     })
 
-    let transactions = await txRecordModel.find({ _id: { $in: recordIds } })
+    let transactions = await TxRecordModel.find({ _id: { $in: recordIds } })
 
     transactions.forEach((transaction) => {
       let { amount, from, to, status, tokenType } = transaction
       // 当交易的发送状态为成功、发送中时 中断本次发送
       if (status !== STATUS.success && status !== STATUS.sending) {
         // 判断要发送的代币类型
-        if (tokenType === TOKEN_TYPE.cre) {
+        if (tokenType === TOKEN_TYPES.cre) {
           // 发送 cre
           // 添加发送代币的胶囊任务
           queue.add(new TaskCapsule(
@@ -42,6 +42,7 @@ async function sendBatchTxs(recordIds) {
                 // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                 transaction.status = STATUS.sending
                 transaction.txid = transactionHash
+                transaction.sendTime = new Date()
                 return transaction.save()
               })
               .catch(async (ex) => {
@@ -53,7 +54,7 @@ async function sendBatchTxs(recordIds) {
                 return transaction.save()
               })
           ))
-        } else if (tokenType === TOKEN_TYPE.eth) {
+        } else if (tokenType === TOKEN_TYPES.eth) {
           // 发送 eth
           queue.add(new TaskCapsule(
             () => sendETH(from, to, amount)
@@ -61,6 +62,7 @@ async function sendBatchTxs(recordIds) {
                 // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                 transaction.status = STATUS.sending
                 transaction.txid = transactionHash
+                transaction.sendTime = new Date()
                 return transaction.save()
               })
               .catch(async (ex) => {
@@ -109,8 +111,8 @@ export const queryBatchTrasactionTasks = {
       throw new TypeError('pageSize 必须为有效正整数')
     }
 
-    total = await batchTransactinTaskModel.find().count()
-    result = await batchTransactinTaskModel
+    total = await BatchTransactinTaskModel.find().count()
+    result = await BatchTransactinTaskModel
       .find()
       .sort({ createAt: -1 })
       .skip(pageIndex * pageSize)
@@ -142,8 +144,8 @@ export const queryTxRecordsViaTaskId = {
       throw new TypeError('pageSize 必须为有效正整数')
     }
 
-    let total = await txRecordModel.find({ taskid: taskID }).count()
-    let result = await txRecordModel.find({ taskid: taskID }).skip(pageIndex * pageSize).limit(pageSize)
+    let total = await TxRecordModel.find({ taskid: taskID }).count()
+    let result = await TxRecordModel.find({ taskid: taskID }).skip(pageIndex * pageSize).limit(pageSize)
 
     if (result) {
       return PaginationResult(result.slice((pageIndex * pageSize), ((pageIndex + 1) * pageSize)), pageIndex, pageSize, total)
@@ -167,13 +169,13 @@ export const createTransaction = {
     },
     amount: {
       type: new NotNull(int),
-      description: '转账代币数量',
+      description: '转账代币数额',
       defaultValue: 0,
     },
     tokenType: {
       type: TokenTypeEnum,
       description: '转账代币类型 默认cre',
-      defaultValue: TOKEN_TYPE.cre,
+      defaultValue: TOKEN_TYPES.cre,
     },
     comment: {
       type: str,
@@ -181,7 +183,7 @@ export const createTransaction = {
     },
   },
   async resolve(root, { outAccount, to, amount, tokenType, comment }) {
-    return txRecordModel.create({
+    return TxRecordModel.create({
       amount,
       from: outAccount,
       to,
@@ -198,7 +200,7 @@ export const createBatchTransactions = {
   args: {
     transactions: {
       type: new NotNull(str),
-      description: '要发送的信息，以地址和代币数量以逗号分割，交易之间以换行分隔，例如: 0xa7d246bcaf81967d981e18a64a1e6d0ed2224c38,3000\n0xc3bf8c8e700cf237badfc46e63b922b5c7786624,4000',
+      description: '要发送的信息，以地址和代币数额以逗号分割，交易之间以换行分隔，例如: 0xa7d246bcaf81967d981e18a64a1e6d0ed2224c38,3000\n0xc3bf8c8e700cf237badfc46e63b922b5c7786624,4000',
     },
     comment: {
       type: new NotNull(str),
@@ -207,7 +209,7 @@ export const createBatchTransactions = {
     tokenType: {
       type: TokenTypeEnum,
       description: '转账代币类型 默认cre',
-      defaultValue: TOKEN_TYPE.cre,
+      defaultValue: TOKEN_TYPES.cre,
     },
     outAccount: {
       type: str,
@@ -215,7 +217,7 @@ export const createBatchTransactions = {
     },
   },
   async resolve(root, { transactions, comment, tokenType, outAccount }) {
-    if (!TOKEN_TYPE[tokenType]) {
+    if (!TOKEN_TYPES[tokenType]) {
       throw new Error('不支持的代币类型')
     }
     // 获取所有待处理的
@@ -230,15 +232,15 @@ export const createBatchTransactions = {
       throw new Error('批量转账任务的所有转账金额必须大于0')
     }
     // 先创建批量任务的实体
-    let task = await batchTransactinTaskModel.create({
-      amount: txCollection.length,
+    let task = await BatchTransactinTaskModel.create({
+      count: txCollection.length,
       comment,
     })
 
     let taskID = task._id
 
     // 创建转账的交易实体
-    await txRecordModel.insertMany(txCollection.map(
+    await TxRecordModel.insertMany(txCollection.map(
       ([address, amount]) => ({
         amount,
         from: outAccount,
@@ -278,8 +280,8 @@ export const queryTx = {
       throw new TypeError('pageSize 必须为有效正整数')
     }
 
-    total = await txRecordModel.find(filter).count()
-    result = await txRecordModel.find(filter).skip(pageIndex * pageSize).limit(pageSize)
+    total = await TxRecordModel.find(filter).count()
+    result = await TxRecordModel.find(filter).skip(pageIndex * pageSize).limit(pageSize)
 
     return PaginationResult(result, pageIndex, pageSize, total)
   },
@@ -303,7 +305,7 @@ export const sendTransaction = {
       sendBatchTxs(ids)
       return 'success'
     } else if (taskid) {
-      let recordIds = await txRecordModel
+      let recordIds = await TxRecordModel
         .find({ taskid }, '_id') // 只获取 id
         .catch((ex) => { throw ex })
       if (recordIds && recordIds.length > 0) {

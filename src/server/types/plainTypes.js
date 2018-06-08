@@ -9,7 +9,7 @@ import {
   GraphQLBoolean as boolean,
 } from 'graphql'
 
-import { getStatus, TOKEN_TYPE } from '../../core/enums'
+import { getStatus, TOKEN_TYPES, STATUS } from '../../core/enums'
 
 // #region Output Objects
 export const hashResult = new OutputObj({
@@ -53,9 +53,9 @@ export const batchTransactionTask = new OutputObj({
       description: 'Identity',
       resolve: t => t._id,
     },
-    amount: {
+    count: {
       type: int,
-      description: '交易数量',
+      description: '任务包含的交易的数量',
     },
     comment: {
       type: str,
@@ -80,7 +80,7 @@ export const txRecord = new OutputObj({
     },
     amount: {
       type: int,
-      description: '转账数量',
+      description: '转账数额',
     },
     from: {
       type: str,
@@ -149,7 +149,18 @@ export const txRecord = new OutputObj({
  */
 export const TokenTypeEnum = new GraphQLEnumType({
   name: 'TokenTypeEnum',
-  values: Object.entries(TOKEN_TYPE).reduce(
+  values: Object.entries(TOKEN_TYPES).reduce(
+    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
+    {},
+  ),
+})
+
+/**
+ * 转账状态的枚举
+ */
+export const StatusEnum = new GraphQLEnumType({
+  name: 'StatusEnum',
+  values: Object.entries(STATUS).reduce(
     (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
     {},
   ),
@@ -169,8 +180,8 @@ export const txFilter = new InputObj({
   description: 'transactionRecord 查询过滤条件',
   fields: {
     to: { type: str, description: '入账钱包地址' },
-    amount: { type: int, description: '转账数量' },
-    status: { type: int, description: '转账状态' },
+    amount: { type: int, description: '转账数额' },
+    status: { type: StatusEnum, description: '转账状态' },
     tokenType: { type: TokenTypeEnum, description: '代币类型' },
   },
 })

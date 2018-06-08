@@ -26,7 +26,6 @@
     "koa-static": "^4.0.2",
     "koa2-cors": "^2.0.5",
     "mongoose": "^4.11.6",
-    "node-schedule": "^1.2.5",
     "prompt-checkbox": "^2.2.0",
     "prompt-input": "^3.0.0",
     "properties-reader": "0.0.16",

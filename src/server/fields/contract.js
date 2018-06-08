@@ -1,11 +1,15 @@
 import abi from 'ethereumjs-abi'
-import { GraphQLString as str, GraphQLNonNull as NotNull } from 'graphql'
 import solc from 'solc'
 import fs from 'fs'
 import path from 'path'
+import {
+  GraphQLString as str,
+  GraphQLNonNull as NotNull,
+  GraphQLInt as int,
+} from 'graphql'
 
 import { creClientConnection } from '../../framework/web3'
-import { contractMetaModel } from '../../core/schemas'
+import { ContractMetaModel } from '../../core/schemas'
 import { createAndDeployContract } from '../../core/scenes/contract'
 import { unlockAccount } from '../../core/scenes/account'
 import { getContractInstance } from '../../core/scenes/token'
@@ -22,7 +26,7 @@ export const queryContractAbi = {
     },
   },
   async resolve(root, { name }) {
-    let contract = await contractMetaModel.findOne({ name })
+    let contract = await ContractMetaModel.findOne({ name })
     if (contract) {
       const { decimal, args } = contract
       const { tokenSupply, lockPercent, lockAddresses } = JSON.parse(args)
@@ -139,7 +143,7 @@ export const deployCREContract = {
         .teamLockAddr()
         .call(null)
 
-      return contractMetaModel.insertMany([
+      return ContractMetaModel.insertMany([
         // 保存代币合约信息
         {
           name: CONTRACT_NAMES.cre,
@@ -149,6 +153,7 @@ export const deployCREContract = {
           owner: deployAddr,
           address: contractInstance.options.address,
           args: JSON.stringify(contractArgs),
+          isERC20: true,
         },
         // 保存锁仓合约信息
         {
@@ -173,6 +178,43 @@ export const deployCREContract = {
   },
 }
 
+export const addERC20ContractMeta = {
+  type: str,
+  description: '添加 ERC20 代币合约',
+  args: {
+    name: {
+      type: new NotNull(str),
+      description: '合约名称',
+    },
+    decimal: {
+      type: new NotNull(int),
+      description: '代币精度',
+    },
+    codes: {
+      type: new NotNull(str),
+      description: '合约 codes（JSON 字符串）',
+    },
+    abis: {
+      type: new NotNull(str),
+      description: '合约 abis（JSON 字符串）',
+    },
+    address: {
+      type: new NotNull(str),
+      description: '合约部署地址',
+    },
+  },
+  resolve(root, { name, decimal, codes, abis, address }) {
+    return ContractMetaModel.create({
+      name,
+      decimal,
+      codes,
+      abis,
+      address,
+      isERC20: true,
+    })
+  },
+}
+
 export const unlockTeamAllocation = {
   type: str,
   description: '解锁团队锁仓份额',
@@ -181,7 +223,10 @@ export const unlockTeamAllocation = {
       type: str,
       description: '解锁地址',
     },
-    ethAccount: ethAccount,
+    ethAccount: {
+      type: ethAccount,
+      description: '调用解锁方法的钱包信息',
+    },
   },
   async resolve(root, {
     unlockAddr,

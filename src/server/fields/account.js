@@ -7,7 +7,8 @@ import {
 } from 'graphql'
 
 import { ethClientConnection } from '../../framework/web3'
-import { ethAccountModel } from '../../core/schemas'
+import { EthAccountModel } from '../../core/schemas'
+import { isSysAccount } from '../../core/scenes/account'
 
 export const createAccount = {
   type: str,
@@ -28,7 +29,7 @@ export const createAccount = {
       .personal
       .newAccount(password)
       // 将生成的钱包信息记录入库再返回
-      .then(account => ethAccountModel.create({ account, secret: password }).then(() => account))
+      .then(account => EthAccountModel.create({ account, secret: password }).then(() => account))
   },
 }
 
@@ -36,7 +37,7 @@ export const createMultiAccount = {
   type: new List(str),
   description: '批量创建钱包',
   args: {
-    amount: {
+    count: {
       type: new NotNull(int),
       description: '需要创建的钱包数量',
     },
@@ -49,17 +50,17 @@ export const createMultiAccount = {
       description: '备注信息',
     },
   },
-  resolve(root, { amount = 1, password = '', comment }) {
+  resolve(root, { count = 1, password = '', comment }) {
     let promises = []
     let addresses = []
 
-    for (let index = 0; index < amount; index += 1) {
+    for (let index = 0; index < count; index += 1) {
       promises.push(ethClientConnection.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
     }
 
     return Promise
       .all(promises)
-      .then(() => ethAccountModel
+      .then(() => EthAccountModel
         .insertMany(addresses.map(account => ({
           account,
           secret: password,
@@ -74,7 +75,7 @@ export const queryAccountList = {
   type: new List(str),
   description: '查看钱包地址',
   async resolve(root) {
-    return ethAccountModel.find(null, 'account').then(t => t.map(({ account }) => account))
+    return EthAccountModel.find(null, { account: 1 }).then(t => t.map(({ account }) => account))
   },
 }
 
@@ -88,6 +89,6 @@ export const queryIsSysAccount = {
     },
   },
   async resolve(root, { address }) {
-    return ethAccountModel.findOne({ account: address }).then(res => !!res)
+    return isSysAccount(address)
   },
 }

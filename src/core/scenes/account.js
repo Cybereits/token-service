@@ -1,5 +1,6 @@
 import { ethClientConnection, creClientConnection } from '../../framework/web3'
-import { ethAccountModel } from '../schemas'
+import { EthAccountModel } from '../schemas'
+import { getEthBalance, getTokenBalance } from './token'
 
 export function unlockAccount(connect, unlockAccount, passWord) {
   return connect.eth.personal.unlockAccount(unlockAccount, passWord, 20)
@@ -26,7 +27,7 @@ export async function getAllAccounts() {
  * @returns {ethAccountModel} 钱包账户信息
  */
 export async function getAccountInfoByAddress(address) {
-  let account = await ethAccountModel
+  let account = await EthAccountModel
     .findOne({ account: address })
     .catch((ex) => {
       console.err(ex.message)
@@ -35,5 +36,49 @@ export async function getAccountInfoByAddress(address) {
     return account
   } else {
     throw new Error(`没有找到指定的钱包信息 [${address}]`)
+  }
+}
+
+/**
+ * 判断是否是系统地址
+ * @param {string} address 钱包地址
+ * @returns {Promise<bool>}
+ */
+export function isSysAccount(address) {
+  return EthAccountModel.count({ account: address }).then(res => res >= 1)
+}
+
+/**
+ * 更新指定钱包的账户余额
+ * @param {string} address 钱包地址
+ */
+export async function updateBalanceOfAccount(address) {
+  let ethAmount = await getEthBalance(address)
+  let creAmount = await getTokenBalance(address)
+
+  // 更新账户信息
+  return EthAccountModel.update(
+    {
+      account: address,
+    },
+    {
+      $set: {
+        creAmount,
+        ethAmount,
+      },
+    })
+}
+
+/**
+ * 检查是否为系统地址，如果是则更新账户余额
+ * @param {string} address 钱包地址
+ * @returns {Promise}
+ */
+export async function checkIsSysThenUpdate(address) {
+  let result = await isSysAccount(address)
+  if (result) {
+    return updateBalanceOfAccount(address)
+  } else {
+    return false
   }
 }

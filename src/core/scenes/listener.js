@@ -1,23 +1,59 @@
 import { EventEmitter } from 'events'
 
-import { subscribeContractAllEvents } from './contract'
-import { getContractInstance } from './token'
-
-const ContractEvents = new EventEmitter()
+import getConnection from '../../framework/web3'
+import { getContractInstance, subscribeContractAllEvents } from './contract'
+import { getAllAccounts } from '../scenes/account'
 
 /**
- * 部署合约事件监听器
+ * 创建合约事件监听器
+ * @param {CONTRACT_NAMES} contractNameEnum 合约名称枚举
+ * @returns {EventEmitter} 事件监听器
  */
-export async function deployContractEventListeners() {
-  let tokenContract = await getContractInstance()
-  subscribeContractAllEvents(tokenContract, (error, result) => {
-    if (error) {
-      console.error(`Contract event listeners get error: ${error}`)
-    } else if (result) {
-      let { event } = result
-      ContractEvents.emit(event, result)
-    }
-  })
+export function createContractEventListener(contractNameEnum) {
+  let eventBus = new EventEmitter()
+
+  getContractInstance(contractNameEnum)
+    .then((tokenContract) => {
+      subscribeContractAllEvents(tokenContract, (error, result) => {
+        if (error) {
+          throw error
+        } else if (result) {
+          eventBus.emit(result.event, result)
+        }
+      })
+    })
+
+  return eventBus
 }
 
-export default ContractEvents
+/**
+ * 创建 eth 事件监听器
+ * @returns {EventEmitter} 事件监听器
+ */
+export function createEthEventListener() {
+  let eventBus = new EventEmitter()
+  let connection = getConnection()
+
+  getAllAccounts().then((accounts) => {
+    connection.eth.subscribe('newBlockHeaders')
+      .on('data', async ({ hash: blockHash }) => {
+        let { transactions } = await connection.eth.getBlock(blockHash)
+        if (transactions && transactions.length > 0) {
+          // 将异步的任务放在串行队列中处理
+          transactions
+            .map(txid => () => connection.eth.getTransactionReceipt(txid)
+              .then(({ contractAddress, from, to }) => {
+                if (contractAddress === null) {
+                  eventBus.emit('Transaction', {
+                    from: connection.eth.extend.utils.toChecksumAddress(from),
+                    to: connection.eth.extend.utils.toChecksumAddress(to),
+                  })
+                }
+              }))
+            .reduce((prev, next) => prev.then(next), Promise.resolve())
+        }
+      })
+  })
+
+  return eventBus
+}

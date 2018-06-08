@@ -1,6 +1,6 @@
 import { unlockAccount } from './account'
 import getConnection, { creClientConnection } from '../../framework/web3'
-import { contractMetaModel } from '../schemas'
+import { ContractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
 /**
@@ -9,7 +9,7 @@ import { CONTRACT_NAMES } from '../enums'
  * @returns {object|null} 合约元信息对象
  */
 function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
-  return contractMetaModel
+  return ContractMetaModel
     .findOne({ name: contractName })
     .then(({
       name,
@@ -44,14 +44,18 @@ const CONTRACT_INSTANCES = {}
  * @returns {object} 合约实例
  */
 export async function getContractInstance(contractName, connection) {
-  if (!CONTRACT_INSTANCES[contractName]) {
-    let conn = connection || getConnection()
-    const { abis, address, decimal } = await getTokenContractMeta(contractName)
+  if (contractName) {
+    if (!CONTRACT_INSTANCES[contractName]) {
+      let conn = connection || getConnection()
+      const { abis, address, decimal } = await getTokenContractMeta(contractName)
 
-    CONTRACT_INSTANCES[contractName] = new conn.eth.Contract(abis, address)
-    CONTRACT_INSTANCES[contractName].decimal = decimal
+      CONTRACT_INSTANCES[contractName] = new conn.eth.Contract(abis, address)
+      CONTRACT_INSTANCES[contractName].decimal = decimal
+    }
+    return CONTRACT_INSTANCES[contractName]
+  } else {
+    throw new TypeError('合约名称不能为空')
   }
-  return CONTRACT_INSTANCES[contractName]
 }
 
 /**
