@@ -9,7 +9,7 @@ import {
   GraphQLBoolean as boolean,
 } from 'graphql'
 
-import { getStatus, TOKEN_TYPES } from '../../core/enums'
+import { getStatus, TOKEN_TYPES, STATUS } from '../../core/enums'
 
 // #region Output Objects
 export const hashResult = new OutputObj({
@@ -155,6 +155,17 @@ export const TokenTypeEnum = new GraphQLEnumType({
   ),
 })
 
+/**
+ * 转账状态的枚举
+ */
+export const StatusEnum = new GraphQLEnumType({
+  name: 'StatusEnum',
+  values: Object.entries(STATUS).reduce(
+    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
+    {},
+  ),
+})
+
 export const balanceFilter = new InputObj({
   name: 'balanceFilter',
   description: 'Balance 查询过滤条件',
@@ -170,7 +181,7 @@ export const txFilter = new InputObj({
   fields: {
     to: { type: str, description: '入账钱包地址' },
     amount: { type: int, description: '转账数额' },
-    status: { type: int, description: '转账状态' },
+    status: { type: StatusEnum, description: '转账状态' },
     tokenType: { type: TokenTypeEnum, description: '代币类型' },
   },
 })

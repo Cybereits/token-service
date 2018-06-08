@@ -13,4 +13,12 @@ export function getStatus(_value) {
   return statusKeys.filter(t => STATUS[t] === _value)[0]
 }
 
-export { TOKEN_TYPES, CONTRACT_NAMES } from '../config/runtime.json'
+export const CONTRACT_NAMES = {
+  cre: 'CybereitsToken',
+  lock: 'CybereitsTeamLock',
+}
+
+export const TOKEN_TYPES = {
+  eth: 'eth',
+  cre: 'cre',
+}
