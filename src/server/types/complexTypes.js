@@ -29,9 +29,7 @@ const PaginationData = new Obj({
   },
 })
 
-// eslint-disable-next-line
 export const PaginationWrapper = (innerType) => {
-
   if (!innerType) {
     throw new TypeError('First arguments [innerType] is required and should be a GraphqlObjectType instance.')
   }

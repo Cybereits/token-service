@@ -12,14 +12,12 @@ const TASKS = {
 
 agendaClient.define(TASKS.syncTxState, syncTransactionState)
 
-export default () => {
-  // 添加定时任务
-  agendaClient
-    .on('ready', () => {
-      agendaClient.every('5 minutes', TASKS.syncTxState).unique({ syncTxState: true })  // 同步交易状态
-      agendaClient.start()
-    })
-    .on('error', (ex) => {
-      console.log(ex)
-    })
-}
+// 添加定时任务
+agendaClient
+  .on('ready', () => {
+    agendaClient.every('5 minutes', TASKS.syncTxState).unique({ syncTxState: true })  // 同步交易状态
+    agendaClient.start()
+  })
+  .on('error', (ex) => {
+    console.log(ex)
+  })

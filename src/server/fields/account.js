@@ -8,7 +8,8 @@ import {
 
 import { ethClientConnection } from '../../framework/web3'
 import { EthAccountModel } from '../../core/schemas'
-import { isSysAccount } from '../../core/scenes/account'
+import { isSysAccount, getAllAccounts } from '../../core/scenes/account'
+import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 export const createAccount = {
   type: str,
@@ -72,10 +73,23 @@ export const createMultiAccount = {
 }
 
 export const queryAccountList = {
-  type: new List(str),
+  type: PaginationWrapper(str),
   description: '查看钱包地址',
-  async resolve(root) {
-    return EthAccountModel.find(null, { account: 1 }).then(t => t.map(({ account }) => account))
+  args: {
+    pageIndex: {
+      type: int,
+      description: '页码',
+    },
+    pageSize: {
+      type: int,
+      description: '页容',
+    },
+  },
+  async resolve(root, { pageIndex = 0, pageSize = 10 }) {
+    let list = await getAllAccounts()
+    let total = list.length
+    let result = list.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+    return PaginationResult(result, pageIndex, pageSize, total)
   },
 }
 
