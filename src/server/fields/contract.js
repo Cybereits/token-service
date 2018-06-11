@@ -87,9 +87,14 @@ export const deployCREContract = {
     if (!fs.existsSync(filepath)) {
       throw new Error('未找到对应的合约文件')
     }
+
     const meta = {
       sources: {
         [sourceName]: fs.readFileSync(filepath).toString(),
+        './Token.sol': fs.readFileSync(path.resolve(__dirname, '../../contracts/Token.sol')).toString(),
+        './Ownable.sol': fs.readFileSync(path.resolve(__dirname, '../../contracts/Ownable.sol')).toString(),
+        './SafeMath.sol': fs.readFileSync(path.resolve(__dirname, '../../contracts/SafeMath.sol')).toString(),
+        './ERC20.sol': fs.readFileSync(path.resolve(__dirname, '../../contracts/ERC20.sol')).toString(),
       },
       settings: {
         optimizer: {
