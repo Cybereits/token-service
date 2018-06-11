@@ -6,7 +6,7 @@ import bodyParser from 'koa-bodyparser'
 
 import router from './routes'
 import env from '../config/env.json'
-// import { sessionValid } from './middlewares/valid'
+import { sessionValid } from './middlewares/valid'
 import logger from './middlewares/logger'
 
 const port = env.port
@@ -33,7 +33,7 @@ const CONFIG = {
 app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }))
 app.use(session(CONFIG, app))
 app.use(logger)
-// app.use(sessionValid)
+app.use(sessionValid)
 app.use(router.routes(), router.allowedMethods())
 app.use(serve(`${__dirname}/../../app/dist`))
 

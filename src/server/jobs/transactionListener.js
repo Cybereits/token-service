@@ -16,7 +16,6 @@ createContractEventListener(CONTRACT_NAMES.cre)
 // eth 转账事件监听
 createEthEventListener()
   .on('Transaction', ({ from, to }) => {
-    console.log(`Eth Transaction from ${from} to ${to}`)
     checkIsSysThenUpdate(from)
     checkIsSysThenUpdate(to)
   })
