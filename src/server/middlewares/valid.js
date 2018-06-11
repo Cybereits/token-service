@@ -7,5 +7,10 @@ export const sessionValid = ({ request, response, session, path }, next) => {
     return next()
   } else {
     response.status = 401
+    response.body = {
+      errors: [{
+        message: 'Unauthorized!',
+      }],
+    }
   }
 }
