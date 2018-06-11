@@ -3,5 +3,5 @@ require('babel-register')({
 })
 
 // 开启定时任务
-require('./jobs').default()
+require('./jobs')
 

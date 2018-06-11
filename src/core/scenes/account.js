@@ -1,4 +1,3 @@
-import { ethClientConnection, creClientConnection } from '../../framework/web3'
 import { EthAccountModel } from '../schemas'
 import { getEthBalance, getTokenBalance } from './token'
 
@@ -15,10 +14,7 @@ export function lockAccount(connect, lockAccount) {
  * @returns {Array<string>} 所有的钱包地址
  */
 export async function getAllAccounts() {
-  let ethAccounts = await ethClientConnection.eth.getAccounts()
-  let creAcccounts = await creClientConnection.eth.getAccounts()
-  let tempSet = new Set([...ethAccounts, ...creAcccounts])
-  return [...tempSet]
+  return EthAccountModel.find(null, { account: 1 }).then(t => t.map(({ account }) => account))
 }
 
 /**
@@ -65,6 +61,7 @@ export async function updateBalanceOfAccount(address) {
       $set: {
         creAmount,
         ethAmount,
+        updatedAt: new Date(),
       },
     })
 }
