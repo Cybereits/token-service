@@ -232,6 +232,8 @@ export default class TableList extends PureComponent {
           newParam[item] = `Enum(${newParam[item]})`;
         } else if (item === 'status' && newParam[item]) {
           newParam[item] = `Enum(${newParam[item]})`;
+        } else if (item === 'amount' && newParam[item]) {
+          newParam[item]  = +newParam[item]
         }
       });
       const newFieldsValue = { tokenType: 'Enum()', ...newParam };
