@@ -14,7 +14,7 @@ const port = env.port
 const app = new Koa()
 
 app.use(cors({
-  origin: '*',
+  origin: 'http://localhost:8000',
   credentials: true,
 }))
 
