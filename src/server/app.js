@@ -17,7 +17,9 @@ app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }))
 app.keys = keys // koa-session need this
 app.use(session({ key: 'sess', httpOnly: false }, app))
 // 静态资源不需要身份验证
-app.use(serve(`${__dirname}/../../app/dist`))
+app.use(serve(`${__dirname}/../../app/dist`, {
+  maxage: 1000 * 60 * 60 * 24,
+}))
 // 身份验证只留给数据路由
 app.use(sessionValid)
 app.use(router.routes(), router.allowedMethods())
