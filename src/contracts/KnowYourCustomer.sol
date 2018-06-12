@@ -1,6 +1,6 @@
 pragma solidity ^0.4.6;
 
-import "./SafeMath.sol";
+import "SafeMath.sol";
 
 contract KycContract is SafeMath {
 
@@ -78,7 +78,7 @@ contract KycContract is SafeMath {
         }
     }
 
-    function incrementToken (uint256 _value) public {
+    function increaseToken (uint256 _value) public {
         assert(msg.sender == owner);
         totalSupply = add(totalSupply, _value);
         balances[msg.sender] = add(balances[msg.sender], _value);
@@ -102,7 +102,7 @@ contract KycContract is SafeMath {
         }
     }
 
-    function frozen(address addr) public payable {
+    function freeze(address addr) public payable {
         if (msg.sender == owner) {
             fzns[addr] = Fzn({
                 hash: msg.data,

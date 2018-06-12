@@ -35,13 +35,13 @@ async function register(username, password, validPassword, role) {
 
 async function login(username, password, ctx) {
   if (ctx.session.admin) {
-    throw new Error('Already logged in')
+    return new Error('Already logged in')
   }
 
   let res = {}
   let admin = await AdminModel.findOne({ username })
   if (!admin) {
-    throw new Error('user not exist')
+    return new Error('user not exist')
   } else {
     return admin
       .comparePassword(password, admin.password)
@@ -64,10 +64,11 @@ async function login(username, password, ctx) {
 }
 
 async function logout(ctx) {
-  if (!ctx.session.admin) return new Error('Not logged in')
-  let res = { result: true }
+  if (!ctx.session.admin) {
+    return new Error('Not logged in')
+  }
   ctx.session = null
-  return res
+  return { result: true }
 }
 
 export const adminRegister = {

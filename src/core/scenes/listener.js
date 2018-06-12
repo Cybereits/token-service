@@ -6,13 +6,13 @@ import { getAllAccounts } from '../scenes/account'
 
 /**
  * 创建合约事件监听器
- * @param {CONTRACT_NAMES} contractNameEnum 合约名称枚举
+ * @param {string} contractMetaName 合约名称枚举
  * @returns {EventEmitter} 事件监听器
  */
-export function createContractEventListener(contractNameEnum) {
+export function createContractEventListener(contractMetaName) {
   let eventBus = new EventEmitter()
 
-  getContractInstance(contractNameEnum)
+  getContractInstance(contractMetaName)
     .then((tokenContract) => {
       subscribeContractAllEvents(tokenContract, (error, result) => {
         if (error) {

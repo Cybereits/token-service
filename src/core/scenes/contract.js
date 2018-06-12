@@ -3,16 +3,20 @@ import getConnection, { creClientConnection } from '../../framework/web3'
 import { ContractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
+// 合约实例缓存对象
+const CONTRACT_INSTANCES = {}
+
 /**
  * 获取合约元信息
  * @param {string} contractName 合约名称
  * @returns {object|null} 合约元信息对象
  */
-function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
+export function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
   return ContractMetaModel
     .findOne({ name: contractName })
     .then(({
       name,
+      symbol,
       decimal,
       codes,
       abis,
@@ -21,6 +25,7 @@ function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
       args,
     }) => ({
       name,
+      symbol,
       decimal,
       codes,
       owner,
@@ -33,9 +38,6 @@ function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
       return null
     })
 }
-
-// 合约实例缓存对象
-const CONTRACT_INSTANCES = {}
 
 /**
  * 获取合约实例
@@ -132,4 +134,11 @@ export async function createAndDeployContract(contractCode, contractAbi, deployA
   compiledContract.options.address = newContractInstance.options.address
 
   return [compiledContract, newContractInstance]
+}
+
+/**
+ * 获取所有的代币合约
+ */
+export function getAllTokenContracts() {
+  return ContractMetaModel.find({ isERC20: true }, { name: 1, symbol: 1 })
 }

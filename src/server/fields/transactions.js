@@ -217,9 +217,6 @@ export const createBatchTransactions = {
     },
   },
   async resolve(root, { transactions, comment, tokenType, outAccount }) {
-    if (!TOKEN_TYPES[tokenType]) {
-      throw new Error('不支持的代币类型')
-    }
     // 获取所有待处理的
     let txCollection = transactions
       .split('\n')

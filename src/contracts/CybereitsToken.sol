@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
-import "./Token.sol";
-import "./Ownable.sol";
+import "Token.sol";
+import "Ownable.sol";
 
 contract CybereitsToken is Token, Ownable {
     string public name = "Cybereits Token";

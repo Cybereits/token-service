@@ -3,11 +3,12 @@ import { checkIsSysThenUpdate } from '../../core/scenes/account'
 import { CONTRACT_NAMES } from '../../core/enums'
 
 // 添加合约转账事件监听
+// todo：监听所有已存在的代币合约的转账事件
 createContractEventListener(CONTRACT_NAMES.cre)
   .on('Transfer', async ({ returnValues }) => {
     let { from, to } = returnValues
-    checkIsSysThenUpdate(from)
-    checkIsSysThenUpdate(to)
+    checkIsSysThenUpdate(from, CONTRACT_NAMES.cre)
+    checkIsSysThenUpdate(to, CONTRACT_NAMES.cre)
   })
   .on('Error', (err) => {
     console.error(`${CONTRACT_NAMES.cre} 合约转账事件处理失败：${err.message}`)

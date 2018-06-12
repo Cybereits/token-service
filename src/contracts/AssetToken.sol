@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "./KnowYourCustomer.sol";
-import "./Token.sol";
-import "./Ownable.sol";
+import "KnowYourCustomer.sol";
+import "Token.sol";
+import "Ownable.sol";
 
 contract KakaCoin is Token, Ownable {
     string public name;
