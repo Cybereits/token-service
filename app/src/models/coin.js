@@ -11,6 +11,7 @@ import {
   sendCoinOverview,
   queryBatchTrasactionTasks,
   handlePrizes,
+  tokenTypeEnum,
 } from '../services/api';
 
 export default {
@@ -22,6 +23,7 @@ export default {
       pagination: {},
     },
     statusEnum: [],
+    tokenTypeEnum: [],
     sendCoinOverviewData: [],
     coinTotal: 0,
     queryBatchTrasactionTasks: {
@@ -43,14 +45,22 @@ export default {
       if (response) {
         yield put({
           type: 'save',
-          statusEnum: response.data.commonStatusEnum,
+          statusEnum: response.data.statusEnum,
+        });
+      }
+    },
+    *tokenTypeEnum({ payload }, { call, put }) {
+      const response = yield call(tokenTypeEnum, payload);
+      if (response) {
+        yield put({
+          type: 'save',
+          tokenTypeEnum: response.data.tokenTypeEnum,
         });
       }
     },
     *sendCoinOverview({ payload }, { call, put }) {
       const response = yield call(sendCoinOverview, payload);
       if (response) {
-        console.log(response);
         const sendCoinOverviewData = [];
         let coinTotal;
         Object.keys(response.data).forEach(key => {
@@ -72,7 +82,6 @@ export default {
     },
     *queryBatchTrasactionTasks({ payload }, { call, put }) {
       const response = yield call(queryBatchTrasactionTasks, payload);
-      console.log(response.data.queryBatchTrasactionTasks);
       if (response) {
         yield put({
           type: 'save',
@@ -104,9 +113,7 @@ export default {
       },
       { call, put }
     ) {
-      console.log(params);
       const response = yield call(queryAllBalance, params);
-      console.log(response);
       const data = {};
       if (response) {
         data.list = response.data.queryAllBalance.list.map((value, index) => {
@@ -136,9 +143,7 @@ export default {
       },
       { call, put }
     ) {
-      console.log(params);
       const response = yield call(queryTx, params);
-      console.log(response);
       const data = {};
       if (response) {
         data.list = response.data.queryTx.list.map((value, index) => {
@@ -175,7 +180,6 @@ export default {
     },
     *addWallet({ params, callback }, { call }) {
       const response = yield call(addWallet, params);
-      console.log(response);
       if (response) {
         // yield put({
         //   type: 'save',
@@ -186,7 +190,6 @@ export default {
     },
     *createMultiAccount({ params, callback }, { call }) {
       const response = yield call(createMultiAccount, params);
-      console.log(response);
       if (response) {
         // yield put({
         //   type: 'save',
@@ -197,7 +200,6 @@ export default {
     },
     *handlePrizes({ params, callback }, { call }) {
       const response = yield call(handlePrizes, params);
-      console.log(response);
       if (response) {
         // yield put({
         //   type: 'save',
@@ -218,12 +220,11 @@ export default {
 
   reducers: {
     save(state, action) {
-      console.log(state);
-      console.log(action);
       return {
         ...state,
         data: { ...state.data, ...action.payload },
         statusEnum: action.statusEnum || state.statusEnum,
+        tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
         sendCoinOverviewData: action.sendCoinOverviewData || state.sendCoinOverviewData,
         coinTotal: action.coinTotal || state.coinTotal,
         queryBatchTrasactionTasks:

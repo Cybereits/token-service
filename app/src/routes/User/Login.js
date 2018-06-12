@@ -28,14 +28,22 @@ export default class LoginPage extends Component {
     // autoLogin: true,
   };
 
+  componentDidMount = () => {
+    this.props.dispatch({
+      type: 'login/logout',
+    });
+    // console.log(window.location.href.split('login'))
+    // if (window.location.href.split('login').length >= 2) {
+    //   window.location.href = `${window.location.origin}/#/user/login`
+    // }
+  };
+
   onTabChange = type => {
     this.setState({ type });
   };
 
   handleSubmit = (err, values) => {
     const { type } = this.state;
-    console.log(type);
-    console.log(values);
     if (!err) {
       this.props.dispatch({
         type: 'login/login',

@@ -63,7 +63,6 @@ export default class CoinTaskList extends PureComponent {
   render() {
     const { coinTask: { queryBatchTrasactionTasks }, loading } = this.props;
     const { selectedRows } = this.state;
-    console.log(this.props);
     const columns = [
       {
         title: '任务id',
@@ -71,7 +70,7 @@ export default class CoinTaskList extends PureComponent {
       },
       {
         title: '发送笔数',
-        dataIndex: 'amount',
+        dataIndex: 'count',
       },
       {
         title: '备注',
@@ -125,12 +124,10 @@ export default class CoinTaskList extends PureComponent {
       {
         title: '操作',
         render: item => {
-          console.log(item);
           return (
             <Fragment>
               <a
                 onClick={() => {
-                  console.log(item);
                   this.props.dispatch(
                     routerRedux.push({
                       pathname: `/coin/coin-overview/taskDetail/${item.id}`,
@@ -143,12 +140,11 @@ export default class CoinTaskList extends PureComponent {
               <Divider type="vertical" />
               <a
                 onClick={() => {
-                  console.log(item);
                   const { dispatch } = this.props;
                   confirm({
                     title: (
                       <p>
-                        确定要发送此任务下的<span style={{ color: 'red' }}> {item.amount} </span>比转账吗？
+                        确定要发送此任务下的<span style={{ color: 'red' }}> {item.count} </span>比转账吗？
                       </p>
                     ),
                     onOk() {

@@ -111,6 +111,11 @@ export const txRecord = new OutputObj({
       type: str,
       description: '关联的任务ID',
     },
+    errorMsg: {
+      type: str,
+      description: '错误信息',
+      resolve: t => t.exceptionMsg,
+    },
     sendTime: {
       type: str,
       description: 'Transaction 发出时间',

@@ -64,7 +64,14 @@ class StandardTable extends PureComponent {
 
   render() {
     const { selectedRowKeys } = this.state;
-    const { data: { list, pagination }, loading, columns, rowKey, isSelect = false } = this.props;
+    const {
+      data: { list, pagination },
+      loading,
+      columns,
+      rowKey,
+      isSelect = false,
+      getCheckboxProps,
+    } = this.props;
 
     const paginationProps = {
       showSizeChanger: true,
@@ -76,10 +83,20 @@ class StandardTable extends PureComponent {
       selectedRowKeys,
       /* 选中项发生变化的时的回调 */
       onChange: this.handleRowSelectChange,
-      getCheckboxProps: record => ({
-        disabled: record.disabled,
-      }),
+      getCheckboxProps,
     };
+
+    // const rowSelection = {
+    //   selectedRowKeys,
+    //   /* 选中项发生变化的时的回调 */
+    //   onChange: this.handleRowSelectChange,
+    //   getCheckboxProps: record => {
+    //     console.log(record)
+    //     return ({
+    //     disabled: record.disabled,
+    //   })},
+
+    // };
 
     return (
       <div className={styles.standardTable}>
@@ -111,6 +128,7 @@ class StandardTable extends PureComponent {
           loading={loading}
           rowKey={rowKey || 'key'}
           rowSelection={isSelect ? rowSelection : null}
+          getCheckboxProps={getCheckboxProps}
           dataSource={list}
           columns={columns}
           pagination={paginationProps}

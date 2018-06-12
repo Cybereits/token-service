@@ -1,6 +1,6 @@
 import React, { createElement } from 'react';
 import classNames from 'classnames';
-import { Button } from 'antd';
+// import { Button } from 'antd';
 import config from './typeConfig';
 import styles from './index.less';
 
@@ -26,7 +26,7 @@ export default ({ className, linkElement = 'a', type, title, desc, img, actions,
                 to: '/',
                 href: '/',
               },
-              <Button type="primary">返回首页</Button>
+              <div />
             )}
         </div>
       </div>

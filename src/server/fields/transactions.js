@@ -200,7 +200,7 @@ export const createBatchTransactions = {
   args: {
     transactions: {
       type: new NotNull(str),
-      description: '要发送的信息，以地址和代币数额以逗号分割，交易之间以换行分隔，例如: 0xa7d246bcaf81967d981e18a64a1e6d0ed2224c38,3000\n0xc3bf8c8e700cf237badfc46e63b922b5c7786624,4000',
+      description: '要发送的信息，以地址和代币数额以逗号分割，交易之间以换行分隔，最终的字符串需要 encodeURIComponent',
     },
     comment: {
       type: new NotNull(str),
@@ -218,7 +218,7 @@ export const createBatchTransactions = {
   },
   async resolve(root, { transactions, comment, tokenType, outAccount }) {
     // 获取所有待处理的
-    let txCollection = transactions
+    let txCollection = decodeURIComponent(transactions)
       .split('\n')
       .map(str => str.split(','))
 
@@ -278,7 +278,7 @@ export const queryTx = {
     }
 
     total = await TxRecordModel.find(filter).count()
-    result = await TxRecordModel.find(filter).skip(pageIndex * pageSize).limit(pageSize)
+    result = await TxRecordModel.find(filter).sort({ createAt: -1 }).skip(pageIndex * pageSize).limit(pageSize)
 
     return PaginationResult(result, pageIndex, pageSize, total)
   },

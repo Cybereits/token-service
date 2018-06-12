@@ -4,12 +4,14 @@ import {
   sendTransactionfFromIds,
   sendTransactionfFromTaskid,
   createBatchTransactions,
+  tokenTypeEnum,
 } from '../services/api';
 
 export default {
   namespace: 'coinTask',
 
   state: {
+    tokenTypeEnum: [],
     queryBatchTrasactionTasks: {
       list: [],
       pagination: {},
@@ -21,11 +23,20 @@ export default {
   },
 
   effects: {
+    *tokenTypeEnum({ payload }, { call, put }) {
+      const response = yield call(tokenTypeEnum, payload);
+      if (response) {
+        yield put({
+          type: 'getTaskData',
+          tokenTypeEnum: response.data.tokenTypeEnum,
+        });
+      }
+    },
     *createBatchTransactions({ params, callback }, { call }) {
-      console.log(params);
       const response = yield call(createBatchTransactions, params);
-      callback();
-      console.log(response.data.createBatchTransactions);
+      if (response) {
+        callback();
+      }
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
@@ -34,10 +45,10 @@ export default {
       // }
     },
     *sendTransactionfFromTaskid({ params, callback }, { call }) {
-      console.log(params);
       const response = yield call(sendTransactionfFromTaskid, params);
-      callback();
-      console.log(response.data.sendTransaction);
+      if (response) {
+        callback();
+      }
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
@@ -46,10 +57,10 @@ export default {
       // }
     },
     *sendTransactionfFromIds({ params, callback }, { call }) {
-      console.log(params);
       const response = yield call(sendTransactionfFromIds, params);
-      callback();
-      console.log(response.data.sendTransaction);
+      if (response) {
+        callback();
+      }
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
@@ -67,7 +78,6 @@ export default {
       { call, put }
     ) {
       const response = yield call(queryBatchTrasactionTasks, params);
-      console.log(response.data.queryBatchTrasactionTasks);
       if (response) {
         yield put({
           type: 'getTaskData',
@@ -84,9 +94,7 @@ export default {
       },
       { call, put }
     ) {
-      console.log(params);
       const response = yield call(queryTxRecordsViaTaskId, params);
-      console.log(response.data.queryTxRecordsViaTaskId);
       if (response) {
         yield put({
           type: 'getTaskData',
@@ -98,10 +106,9 @@ export default {
 
   reducers: {
     getTaskData(state, action) {
-      console.log(state);
-      console.log(action);
       return {
         ...state,
+        tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
         queryBatchTrasactionTasks:
           action.queryBatchTrasactionTasks || state.queryBatchTrasactionTasks,
         queryTxOperationRecords: action.queryTxOperationRecords || state.queryTxOperationRecords,

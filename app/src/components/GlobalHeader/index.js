@@ -56,7 +56,6 @@ export default class GlobalHeader extends PureComponent {
     window.dispatchEvent(event);
   }
   render() {
-    console.log(this.props);
     const {
       currentUser,
       collapsed,

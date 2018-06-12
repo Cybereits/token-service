@@ -5,19 +5,17 @@ import serve from 'koa-static'
 import bodyParser from 'koa-bodyparser'
 
 import router from './routes'
-import { port, keys } from '../config/env.json'
+import { port, keys, origin } from '../config/env.json'
 import { sessionValid } from './middlewares/valid'
-import logger from './middlewares/logger'
 
 const app = new Koa()
 
 // just for dev env usage
-app.use(cors({ origin: 'http://localhost:8000', credentials: true }))
+app.use(cors({ origin, credentials: true }))
 
 app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }))
 app.keys = keys // koa-session need this
 app.use(session({ key: 'sess', httpOnly: false }, app))
-app.use(logger)
 // 静态资源不需要身份验证
 app.use(serve(`${__dirname}/../../app/dist`))
 // 身份验证只留给数据路由
