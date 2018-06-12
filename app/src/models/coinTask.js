@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   queryBatchTrasactionTasks,
   queryTxRecordsViaTaskId,
@@ -79,9 +80,21 @@ export default {
     ) {
       const response = yield call(queryBatchTrasactionTasks, params);
       if (response) {
+        const newQueryBatchTrasactionTasks = {};
+        newQueryBatchTrasactionTasks.list = response.data.queryBatchTrasactionTasks.list.map(
+          (item, index) => {
+            return {
+              ...item,
+              createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD hh:mm:ss'),
+              key: index,
+            };
+          }
+        );
+        newQueryBatchTrasactionTasks.pagination =
+          response.data.queryBatchTrasactionTasks.pagination;
         yield put({
           type: 'getTaskData',
-          queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+          queryBatchTrasactionTasks: newQueryBatchTrasactionTasks,
         });
       }
     },
@@ -96,9 +109,22 @@ export default {
     ) {
       const response = yield call(queryTxRecordsViaTaskId, params);
       if (response) {
+        const newQueryTxRecordsViaTaskId = {};
+        newQueryTxRecordsViaTaskId.list = response.data.queryTxRecordsViaTaskId.list.map(
+          (item, index) => {
+            return {
+              ...item,
+              confirmTime:
+                item.confirmTime === '' || moment(item.confirmTime).format('YYYY-MM-DD hh:mm:ss'),
+              sendTime: item.sendTime === '' || moment(item.sendTime).format('YYYY-MM-DD hh:mm:ss'),
+              key: index,
+            };
+          }
+        );
+        newQueryTxRecordsViaTaskId.pagination = response.data.queryTxRecordsViaTaskId.pagination;
         yield put({
           type: 'getTaskData',
-          queryTxOperationRecords: response.data.queryTxRecordsViaTaskId,
+          queryTxOperationRecords: newQueryTxRecordsViaTaskId,
         });
       }
     },

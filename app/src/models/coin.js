@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   queryRule,
   removeRule,
@@ -157,8 +158,9 @@ export default {
             comment: value.comment,
             txid: value.txid,
             taskid: value.taskid,
-            sendTime: value.sendTime,
-            confirmTime: value.confirmTime,
+            sendTime: value.sendTime === '' || moment(value.sendTime).format('YYYY-MM-DD hh:mm:ss'),
+            confirmTime:
+              value.confirmTime === '' || moment(value.confirmTime).format('YYYY-MM-DD hh:mm:ss'),
             key: index,
           };
         });
