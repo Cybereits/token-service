@@ -42,12 +42,15 @@ export function createEthEventListener() {
           // 将异步的任务放在串行队列中处理
           transactions
             .map(txid => () => connection.eth.getTransactionReceipt(txid)
-              .then(({ contractAddress, from, to }) => {
-                if (contractAddress === null) {
-                  eventBus.emit('Transaction', {
-                    from: connection.eth.extend.utils.toChecksumAddress(from),
-                    to: connection.eth.extend.utils.toChecksumAddress(to),
-                  })
+              .then((receipt) => {
+                if (receipt) {
+                  let { contractAddress, from, to } = receipt
+                  if (contractAddress === null) {
+                    eventBus.emit('Transaction', {
+                      from: connection.eth.extend.utils.toChecksumAddress(from),
+                      to: connection.eth.extend.utils.toChecksumAddress(to),
+                    })
+                  }
                 }
               }))
             .reduce((prev, next) => prev.then(next), Promise.resolve())
