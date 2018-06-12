@@ -80,7 +80,7 @@ const CreateForm = Form.create()(props => {
             <Option value={0}>待处理</Option>
             <Option value={-1}>失败</Option>
           </Select>
-        )}
+          )}
       </FormItem>
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="出账钱包地址">
         {form.getFieldDecorator('address', {
@@ -233,7 +233,7 @@ export default class TableList extends PureComponent {
         } else if (item === 'status' && newParam[item]) {
           newParam[item] = `Enum(${newParam[item]})`;
         } else if (item === 'amount' && newParam[item]) {
-          newParam[item]  = +newParam[item]
+          newParam[item] = +newParam[item]
         }
       });
       const newFieldsValue = { tokenType: 'Enum()', ...newParam };
@@ -530,7 +530,8 @@ export default class TableList extends PureComponent {
           return (
             <Fragment>
               <a
-                onClick={function() {
+                disabled={item.status === 'pending' || item.status === 'failure' ? false : true}
+                onClick={function () {
                   confirm({
                     okText: '确认',
                     cancelText: '取消',
@@ -548,7 +549,7 @@ export default class TableList extends PureComponent {
                         });
                       });
                     },
-                    onCancel() {},
+                    onCancel() { },
                   });
                 }}
               >
