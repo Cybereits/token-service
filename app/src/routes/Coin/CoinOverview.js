@@ -73,8 +73,6 @@ export default class Analysis extends Component {
     const { location } = this.props;
     const { pathname } = location;
     const pathList = pathname.split('/');
-    console.log(pathList);
-    console.log(pathList[pathList.length - 1]);
     if (pathList.indexOf('taskList') !== -1) {
       return 0;
     } else if (pathList.indexOf('taskDetail') !== -1) {
@@ -141,8 +139,6 @@ export default class Analysis extends Component {
   render() {
     // const { rangePickerValue } = this.state;
     const { coin: { sendCoinOverviewData, coinTotal }, loading, match, routerData } = this.props;
-    console.log(match);
-    console.log(routerData);
     // const {
     //   visitData,
     //   visitData2,
@@ -511,7 +507,6 @@ export default class Analysis extends Component {
                 </Steps>
                 <Switch>
                   {getRoutes(match.path, routerData).map(item => {
-                    console.log(item);
                     return (
                       <Route
                         key={item.key}

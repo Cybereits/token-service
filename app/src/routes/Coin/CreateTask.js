@@ -27,10 +27,15 @@ const { TextArea } = Input;
 }))
 @Form.create()
 export default class CreateTask extends PureComponent {
+  componentDidMount = () => {
+    this.props.dispatch({
+      type: 'coinTask/tokenTypeEnum',
+    });
+  };
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
-      console.log(err, values);
       if (!err) {
         this.props.dispatch({
           type: 'coinTask/createBatchTransactions',
@@ -49,7 +54,7 @@ export default class CreateTask extends PureComponent {
     });
   };
   render() {
-    const { submitting } = this.props;
+    const { submitting, coinTask: { tokenTypeEnum } } = this.props;
     const { getFieldDecorator } = this.props.form;
 
     const formItemLayout = {
@@ -102,8 +107,14 @@ export default class CreateTask extends PureComponent {
                 ],
               })(
                 <Select style={{ width: '100%' }} placeholder="请选择">
-                  <Option value="Enum(cre)">cre</Option>
-                  <Option value="Enum(eth)">eth</Option>
+                  {tokenTypeEnum.map((item, index) => {
+                    return (
+                      /* eslint-disable */
+                      <Option key={index} value={`Enum(${item.value})`}>
+                        {item.name}
+                      </Option>
+                    );
+                  })}
                 </Select>
               )}
             </FormItem>

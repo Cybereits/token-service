@@ -18,7 +18,7 @@ import {
   // InputNumber,
   // DatePicker,
   Modal,
-  // message,
+  message,
   // Badge,
   // Divider,
 } from 'antd';
@@ -61,7 +61,6 @@ export default class CoinTaskDetail extends PureComponent {
   };
 
   handleSelectRows = rows => {
-    console.log(rows);
     this.setState({
       selectedRows: rows,
     });
@@ -91,8 +90,8 @@ export default class CoinTaskDetail extends PureComponent {
                 type: 'coinTask/sendTransactionfFromIds',
                 params: selectedRows.map(row => row.id),
                 callback: () => {
-                  console.log(newthis);
                   resolve();
+                  message.success('发送成功！');
                   newthis.setState({
                     selectedRows: [],
                   });
@@ -112,10 +111,8 @@ export default class CoinTaskDetail extends PureComponent {
   };
 
   render() {
-    console.log(this.props);
     const { coinTask: { queryTxOperationRecords }, loading } = this.props;
     const { selectedRows } = this.state;
-    console.log(this.props);
     const columns = [
       {
         title: '入账地址',

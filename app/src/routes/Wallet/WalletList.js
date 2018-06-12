@@ -39,8 +39,6 @@ const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      console.log(err);
       if (err) {
         // form.resetFields();
         return;
@@ -95,7 +93,6 @@ export default class TableList extends PureComponent {
   }
 
   handleStandardTableChange = pagination => {
-    console.log(pagination);
     // const { dispatch } = this.props;
     // const { formValues } = this.state;
 
@@ -230,7 +227,6 @@ export default class TableList extends PureComponent {
       // });
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
-        console.log(newParam[item], item);
         if (newParam[item] === '') {
           delete newParam[item];
         }
@@ -258,7 +254,6 @@ export default class TableList extends PureComponent {
   };
 
   handleAdd = fields => {
-    console.log(fields);
     this.setState(
       {
         confirmLoading: true,
@@ -270,7 +265,6 @@ export default class TableList extends PureComponent {
             walletAmount: fields.walletAmount,
           },
           callback: res => {
-            console.log(res);
             this.setState({
               modalVisible: false,
               confirmLoading: false,
@@ -286,7 +280,6 @@ export default class TableList extends PureComponent {
 
   addWallet = () => {
     const { dispatch } = this.props;
-    console.log(this);
     confirm({
       okText: '确认',
       cancelText: '取消',
@@ -299,7 +292,6 @@ export default class TableList extends PureComponent {
             callback: () => {
               message.success('创建钱包成功!');
               resolve();
-              console.log(this);
             },
           });
         });
@@ -432,7 +424,6 @@ export default class TableList extends PureComponent {
   render() {
     const { wallet: { data }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
-    console.log(this.props);
     const columns = [
       {
         title: '钱包地址',

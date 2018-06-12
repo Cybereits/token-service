@@ -40,8 +40,6 @@ const CreateForm = Form.create()(props => {
   const { modalVisible, form, sendCoin, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      console.log(err);
       if (err) {
         // form.resetFields();
         return;
@@ -120,10 +118,12 @@ export default class TableList extends PureComponent {
     dispatch({
       type: 'coin/commonStatusEnum',
     });
+    dispatch({
+      type: 'coin/tokenTypeEnum',
+    });
   }
 
   handleStandardTableChange = pagination => {
-    console.log(pagination);
     // const { dispatch } = this.props;
     // const { formValues } = this.state;
 
@@ -225,17 +225,16 @@ export default class TableList extends PureComponent {
       // });
       // console.log(fieldsValue)
       const newParam = fieldsValue;
-      console.log(newParam);
       Object.keys(newParam).forEach(item => {
-        console.log(newParam[item], item);
         if (newParam[item] === '') {
           delete newParam[item];
         } else if (item === 'tokenType' && newParam[item]) {
           newParam[item] = `Enum(${newParam[item]})`;
+        } else if (item === 'status' && newParam[item]) {
+          newParam[item] = `Enum(${newParam[item]})`;
         }
       });
       const newFieldsValue = { tokenType: 'Enum()', ...newParam };
-      console.log(newFieldsValue);
       dispatch({
         type: 'coin/queryTx',
         params: {
@@ -258,7 +257,6 @@ export default class TableList extends PureComponent {
   // };
 
   sendCoin = fields => {
-    console.log(fields);
     // this.props.dispatch({
     //   type: 'coin/queryPrizeList',
     //   params: {
@@ -274,7 +272,6 @@ export default class TableList extends PureComponent {
           type: 'coin/handlePrizes',
           params: fields,
           callback: res => {
-            console.log(res);
             this.setState({
               modalVisible: false,
               confirmLoading: false,
@@ -310,8 +307,7 @@ export default class TableList extends PureComponent {
     });
   };
 
-  renderSimpleForm(statusEnum) {
-    console.log(statusEnum);
+  renderSimpleForm(statusEnum, tokenTypeEnum) {
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
@@ -347,12 +343,11 @@ export default class TableList extends PureComponent {
                   {statusEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={item.value - 0}>
+                      <Option key={index} value={item.name}>
                         {item.name}
                       </Option>
                     );
                   })}
-                  {/* <Option value="1">运行中</Option> */}
                 </Select>
               )}
             </FormItem>
@@ -366,16 +361,14 @@ export default class TableList extends PureComponent {
             <FormItem {...formItemLayout} label="代币类型">
               {getFieldDecorator('tokenType')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="cre">cre</Option>
-                  <Option value="eth">eth</Option>
-                  {/* {statusEnum.map((item, index) => {
+                  {tokenTypeEnum.map((item, index) => {
                     return (
-                      <Option key={index} value={item.value - 0}>
+                      /* eslint-disable */
+                      <Option key={index} value={item.name}>
                         {item.name}
                       </Option>
                     );
-                  })} */}
-                  {/* <Option value="1">运行中</Option> */}
+                  })}
                 </Select>
               )}
             </FormItem>
@@ -470,14 +463,15 @@ export default class TableList extends PureComponent {
     );
   }
 
-  renderForm(statusEnum) {
-    return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm(statusEnum);
+  renderForm(statusEnum, tokenTypeEnum) {
+    return this.state.expandForm
+      ? this.renderAdvancedForm()
+      : this.renderSimpleForm(statusEnum, tokenTypeEnum);
   }
 
   render() {
-    const { coin: { data, statusEnum }, loading } = this.props;
+    const { coin: { data, statusEnum, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
-    console.log(this.props);
     const columns = [
       {
         title: '入账地址',
@@ -535,7 +529,6 @@ export default class TableList extends PureComponent {
             <Fragment>
               <a
                 onClick={function() {
-                  console.log(newThis);
                   confirm({
                     okText: '确认',
                     cancelText: '取消',
@@ -553,9 +546,7 @@ export default class TableList extends PureComponent {
                         });
                       });
                     },
-                    onCancel() {
-                      console.log('Cancel');
-                    },
+                    onCancel() {},
                   });
                 }}
               >
@@ -633,7 +624,7 @@ export default class TableList extends PureComponent {
       <PageHeaderLayout title="代币发放">
         <Card bordered={false}>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm(statusEnum)}</div>
+            <div className={styles.tableListForm}>{this.renderForm(statusEnum, tokenTypeEnum)}</div>
             <div className={styles.tableListOperator}>
               {/* <Button
                 icon="rocket"

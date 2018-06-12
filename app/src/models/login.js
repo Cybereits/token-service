@@ -1,5 +1,5 @@
 import { routerRedux } from 'dva/router';
-import { accountLogin } from '../services/api';
+import { accountLogin, accountLogout } from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 
@@ -13,7 +13,6 @@ export default {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(accountLogin, payload);
-      console.log(response);
       if (response) {
         yield put({
           type: 'changeLoginStatus',
@@ -23,24 +22,29 @@ export default {
         yield put(routerRedux.push('/'));
       }
     },
-    *logout(_, { put, select }) {
-      try {
-        // get location pathname
-        const urlParams = new URL(window.location.href);
-        const pathname = yield select(state => state.routing.location.pathname);
-        // add the parameters in the url
-        urlParams.searchParams.set('redirect', pathname);
-        window.history.replaceState(null, 'login', urlParams.href);
-      } finally {
-        yield put({
-          type: 'changeLoginStatus',
-          payload: {
-            status: false,
-            currentAuthority: 'guest',
-          },
-        });
-        reloadAuthorized();
-        yield put(routerRedux.push('/user/login'));
+    *logout(_, { put, call, select }) {
+      const response = yield call(accountLogout);
+      if (response) {
+        try {
+          // get location pathname
+          const urlParams = new URL(window.location.href);
+          const pathname = yield select(state => state.routing.location.pathname);
+          // add the parameters in the url
+          // urlParams.searchParams.set('redirect', pathname);
+          // window.history.replaceState(null, 'login', urlParams.href);
+          console.log(urlParams, pathname);
+        } finally {
+          yield put({
+            type: 'changeLoginStatus',
+            payload: {
+              status: false,
+            },
+          });
+          const currentAuthority = '';
+          setAuthority(currentAuthority);
+          reloadAuthorized();
+          yield put(routerRedux.push('/user/login'));
+        }
       }
     },
   },

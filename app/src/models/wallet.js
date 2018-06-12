@@ -52,9 +52,7 @@ export default {
       },
       { call, put }
     ) {
-      console.log(params);
       const response = yield call(queryAllBalance, params);
-      console.log(response);
       const data = {};
       if (response) {
         data.list = response.data.queryAllBalance.list.map((value, index) => {
@@ -66,7 +64,6 @@ export default {
           };
         });
         data.pagination = response.data.queryAllBalance.pagination;
-        console.log(data);
         yield put({
           type: 'save',
           payload: data,
@@ -84,7 +81,6 @@ export default {
     },
     *addWallet({ params, callback }, { call }) {
       const response = yield call(addWallet, params);
-      console.log(response);
       if (response) {
         // yield put({
         //   type: 'addWallet',
@@ -95,7 +91,6 @@ export default {
     },
     *createMultiAccount({ params, callback }, { call, put }) {
       const response = yield call(createMultiAccount, params);
-      console.log(response);
       if (response) {
         yield put({
           type: 'save',
@@ -116,8 +111,6 @@ export default {
 
   reducers: {
     save(state, action) {
-      console.log(state);
-      console.log(action.payload);
       return {
         ...state,
         data: action.payload,

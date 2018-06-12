@@ -214,7 +214,7 @@ export default class SiderMenu extends PureComponent {
       >
         <div className={styles.logo} key="logo">
           <Link to="/">
-            <img src="../../../public/logo-cre.png" alt="logo" />
+            <img src="/logo-cre.png" alt="logo" />
             <h1>Cybereits代币系统</h1>
           </Link>
         </div>
