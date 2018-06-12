@@ -261,6 +261,11 @@ export default class CoinTaskDetail extends PureComponent {
             loading={loading}
             data={queryTxOperationRecords}
             columns={columns}
+            getCheckboxProps={(item) => {
+              return ({
+                disabled: item.status === 'pending' || item.status === 'failure' ? false : true
+              })
+            }}
             onSelectRow={this.handleSelectRows}
             onChange={this.handleStandardTableChange}
             showSelect={null}
