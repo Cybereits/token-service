@@ -162,18 +162,22 @@ export function isUrl(path) {
 
 export function toGql(obj) {
   if (typeof obj === 'object') {
-    return JSON.stringify(obj).replace(/\"(\w+)\":/ig, '$1:').replace(/\"Enum\((\w+)\)\"/ig,'$1')
-  } else if(typeof obj === 'string') {
-    return obj.replace(/Enum\((\w+)\)/ig,'$1')
+    return JSON.stringify(obj)
+      .replace(/\"(\w+)\":/gi, '$1:')
+      .replace(/\"Enum\((\w+)\)\"/gi, '$1');
+  } else if (typeof obj === 'string') {
+    return obj.replace(/Enum\((\w+)\)/gi, '$1');
   }
 }
 
 export function getQueryVariable(variable) {
-  const query = window.location.href.split('?')[window.location.href.split('?').length - 1]
-  const vars = query.split("&");
+  const query = window.location.href.split('?')[window.location.href.split('?').length - 1];
+  const vars = query.split('&');
   for (let i = 0; i < vars.length; i += 1) {
-    const pair = vars[i].split("=");
-    if (pair[0] === variable) { return pair[1]; }
+    const pair = vars[i].split('=');
+    if (pair[0] === variable) {
+      return pair[1];
+    }
   }
-  return (false);
+  return false;
 }

@@ -37,8 +37,8 @@ export default class CreateTask extends PureComponent {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const newValues = { ...values}
-        newValues.transactions = encodeURIComponent(newValues.transactions)
+        const newValues = { ...values };
+        newValues.transactions = encodeURIComponent(newValues.transactions);
         this.props.dispatch({
           type: 'coinTask/createBatchTransactions',
           params: newValues,
