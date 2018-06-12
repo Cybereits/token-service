@@ -31,7 +31,7 @@ const CONFIG = {
 
 app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }))
 app.use(session(CONFIG, app))
-app.use(serve(`${__dirname}/../../app/dist`))
+app.use(serve(`${__dirname}/../../app/dist`, { maxage: 1000 * 60 * 60 * 24 }))
 app.use(sessionValid)
 app.use(router.routes(), router.allowedMethods())
 
