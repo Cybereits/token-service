@@ -22,7 +22,7 @@ function readSoliditySource(filename) {
 }
 
 // #region CRE 合约相关
-export const queryContractAbi = {
+export const queryCREContractAbi = {
   type: str,
   description: '查询 cre 代币合约 abi',
   async resolve(root, { name }) {

@@ -146,19 +146,9 @@ export const txRecord = new OutputObj({
   },
 })
 
-export const amdinLoginType = new OutputObj({
-  name: 'adminLogin',
-  description: '管理员登录',
-  fields: {
-    username: { type: str },
-    message: { type: str },
-    role: { type: int },
-  },
-})
-
-export const adminRegisterType = new OutputObj({
-  name: 'adminRegister',
-  description: '管理员注册',
+export const adminInfo = new OutputObj({
+  name: 'adminInfo',
+  description: '管理员账户信息',
   fields: {
     username: { type: str },
     role: { type: int },

@@ -2,11 +2,6 @@ import mongoose from 'mongoose'
 
 import connection from '../../framework/dbProviders/mongo'
 
-// const balanceInfo = mongoose.Schema({
-//   symbol: String,
-//   amount: Number,
-// })
-
 // 钱包信息
 const ethAccount = mongoose.Schema({
   account: {

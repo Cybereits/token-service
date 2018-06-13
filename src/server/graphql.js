@@ -3,9 +3,9 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { adminRegister, adminLogin, adminLogout } from './fields/admin'
+import { adminRegister, adminLogin, adminLogout, changePwd } from './fields/admin'
 import { queryAllBalance, gatherAllEth } from './fields/balance'
-import { queryContractAbi, deployCREContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
+import { queryCREContractAbi, deployCREContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
 import { statusEnum, tokenTypeEnum } from './fields/enum'
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 import { queryBatchTrasactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
@@ -18,7 +18,7 @@ const queries = new Obj({
     adminLogout,
     queryAccountList,
     queryAllBalance,
-    queryContractAbi,
+    queryCREContractAbi,
     queryBatchTrasactionTasks,
     queryTx,
     queryTxRecordsViaTaskId,
@@ -33,6 +33,7 @@ const mutations = new Obj({
   description: '修改接口',
   fields: {
     adminRegister,
+    changePwd,
     addERC20ContractMeta,
     createAccount,
     createBatchTransactions,

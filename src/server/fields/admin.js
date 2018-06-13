@@ -4,17 +4,15 @@ import {
 } from 'graphql'
 
 import {
-  adminRegisterType,
-  amdinLoginType,
+  adminInfo,
   adminLogoutType,
 } from '../types/plainTypes'
 
 import { AdminModel } from '../../core/schemas'
 
 async function register(username, password, validPassword, role) {
-
   if (password !== validPassword) {
-    throw Error('password not valid')
+    return new Error('password not valid')
   }
   let res = {}
 
@@ -30,6 +28,37 @@ async function register(username, password, validPassword, role) {
         res.message = 'registered successfully'
         return res
       })
+  }
+}
+
+async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
+  if (newPwd !== confirmPwd) {
+    return new Error('password not valid')
+  }
+  let admin = await AdminModel.findOne({ username })
+  if (!admin) {
+    return new Error('无效的身份')
+  } else {
+    let isMatch = await admin.comparePassword(originPwd, admin.password)
+    if (!isMatch) {
+      throw new Error('username or password not match')
+    } else {
+      admin.password = newPwd
+      return admin.save()
+        .then(() => {
+          let res = {}
+
+          ctx.session.admin = {
+            username: admin.username,
+            role: admin.role,
+          }
+
+          res.username = admin.username
+          res.role = admin.role
+          res.message = 'logined successfully'
+          return res
+        })
+    }
   }
 }
 
@@ -72,7 +101,7 @@ async function logout(ctx) {
 }
 
 export const adminRegister = {
-  type: adminRegisterType,
+  type: adminInfo,
   args: {
     username: { type: str },
     password: { type: str },
@@ -90,7 +119,7 @@ export const adminRegister = {
 }
 
 export const adminLogin = {
-  type: amdinLoginType,
+  type: adminInfo,
   args: {
     username: { type: str },
     password: { type: str },
@@ -104,5 +133,31 @@ export const adminLogout = {
   type: adminLogoutType,
   resolve(root, _, ctx) {
     return logout(ctx)
+  },
+}
+
+export const changePwd = {
+  type: adminInfo,
+  args: {
+    originPassword: {
+      type: str,
+      description: '原始密码',
+    },
+    newPassword: {
+      type: str,
+      description: '新密码',
+    },
+    validPassword: {
+      type: str,
+      description: '确认密码',
+    },
+  },
+  resolve(root, { originPassword, newPassword, validPassword }, ctx) {
+    let { session } = ctx
+    if (!session || !session.admin) {
+      return new Error('您还没有登录')
+    } else {
+      return resetPwd(session.admin.username, originPassword, newPassword, validPassword, ctx)
+    }
   },
 }
