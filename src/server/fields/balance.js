@@ -28,13 +28,14 @@ export const queryAllBalance = {
       type: balanceFilter,
       description: '过滤条件',
       defaultValue: {
+        tokenType: TOKEN_TYPES.cre,
         orderBy: TOKEN_TYPES.eth,
       },
     },
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
     let listAccounts
-    let { ethAddresses, orderBy } = filter
+    let { ethAddresses, orderBy, tokenType } = filter
     let queryCondition = null
     let sortCondition = { [`balances.${orderBy}`]: -1 }
 
@@ -45,15 +46,16 @@ export const queryAllBalance = {
     listAccounts = await EthAccountModel
       .find(queryCondition, { account: 1, balances: 1 })
       .sort(sortCondition)
+      .skip(pageSize * pageIndex)
+      .limit(pageSize)
       .then(accounts => accounts.map(({ account, balances }) => ({
-        ethAddress: account,
-        balances: Object.entries(balances).map(([name, value]) => ({ name, value })),
+        address: account,
+        eth: balances[TOKEN_TYPES.eth],
+        token: balances[tokenType],
       })))
 
     // 结果数量
-    let total = listAccounts.length
-    // 分页数据
-    listAccounts = listAccounts.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+    let total = await EthAccountModel.find(queryCondition, { _id: 1 }).count()
     return PaginationResult(listAccounts, pageIndex, pageSize, total)
   },
 }
