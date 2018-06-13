@@ -1,6 +1,6 @@
 import { AdminModel } from '../core/schemas'
 
-export default async (username, password, validPassword, role = 2) => {
+export default async (username, password, validPassword, role = 1) => {
   if (password !== validPassword) {
     console.log('两次输入密码不一致')
     process.exit()

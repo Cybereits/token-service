@@ -5,7 +5,7 @@ import { unlockAccount, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
 import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
 
-BN.config({ DECIMAL_PLACES: 18 })
+BN.config({ DECIMAL_PLACES: 5 })
 
 /**
  * 根据转出的账户地址获得其所属钱包客户端链接
@@ -56,10 +56,10 @@ export async function getEthBalance(address) {
 /**
  * 查询钱包地址下的代币数额
  * @param {*} userAddress 要查询的钱包地址
- * @param {CONTRACT_NAMES} contractNameEnum 合约名称枚举（默认 cre）
+ * @param {string} contractMetaName 合约名称枚举（默认 cre）
  */
-export async function getTokenBalance(userAddress, contractNameEnum = CONTRACT_NAMES.cre) {
-  let tokenContract = await getContractInstance(contractNameEnum)
+export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_NAMES.cre) {
+  let tokenContract = await getContractInstance(contractMetaName)
   let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
   return getConnection().eth.extend.utils.fromWei(amount, 'ether')
 }
@@ -92,7 +92,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
     let {
-      contractNameEnum = CONTRACT_NAMES.cre,
+      contractMetaName = CONTRACT_NAMES.cre,
       gasPrice,
       gas,
       priceRate = 1.1,  // 油费溢价率
@@ -108,7 +108,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     }
 
     return new Promise(async (resolve, reject) => {
-      let tokenContract = await getContractInstance(contractNameEnum, conn)
+      let tokenContract = await getContractInstance(contractMetaName, conn)
       let _multiplier = 10 ** tokenContract.decimal
       let _sendAmount = _amount.mul(_multiplier)
 
@@ -158,6 +158,11 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
   }
 }
 
+/**
+ * 将出账地址下的所有以太转移到指定入账地址
+ * @param {string} fromAddress 出账地址
+ * @param {string} toAddress 入账地址
+ */
 export async function transferAllEth(fromAddress, toAddress) {
 
   if (toAddress === fromAddress) {
@@ -172,26 +177,30 @@ export async function transferAllEth(fromAddress, toAddress) {
   let gasPrice = await connect.eth.getGasPrice()
   let gasFee = await connect.eth.estimateGas({ from: fromAddress })
 
+  // if (+gasPrice === 0) {
+  //   gasPrice = 30000
+  // }
+
   total = new BN(total)
   gasPrice = new BN(gasPrice)
   gasFee = new BN(gasFee)
 
   let txCost = gasPrice.mul(gasFee)
-  let transAmount = total.minus(txCost)
+  let transAmount = connect.eth.extend.utils.fromWei(total.minus(txCost).toString(10))
 
   console.log(`余额\t${
     connect.eth.extend.utils.fromWei(total.toString(10))
     } 油费\t${
     gasPrice.toString(10)
     } 用量\t${
-    connect.eth.extend.utils.fromWei(gasFee.toString(10))
+    gasFee.toString(10)
     } 总花费\t${
     connect.eth.extend.utils.fromWei(txCost.toString(10))
     } 实际发送数额\t${
-    connect.eth.extend.utils.fromWei(transAmount.toString(10))
+    transAmount
     }`)
 
-  sendETH(fromAddress, toAddress, transAmount, gasPrice, gasFee)
+  sendETH(fromAddress, toAddress, transAmount, { gasPrice, gasFee })
 }
 
 /**

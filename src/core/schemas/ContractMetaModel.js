@@ -11,6 +11,12 @@ const contractMeta = mongoose.Schema({
     index: true,
     required: true,
   },
+  // 代币缩写
+  symbol: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   // ERC20 代币精度 (可选)
   decimal: {
     type: Number,

@@ -2,6 +2,11 @@ import mongoose from 'mongoose'
 
 import connection from '../../framework/dbProviders/mongo'
 
+// const balanceInfo = mongoose.Schema({
+//   symbol: String,
+//   amount: Number,
+// })
+
 // 钱包信息
 const ethAccount = mongoose.Schema({
   account: {
@@ -18,13 +23,9 @@ const ethAccount = mongoose.Schema({
     type: String,
     default: 'normal',
   },
-  creAmount: {
-    type: Number,
-    default: 0,
-  },
-  ethAmount: {
-    type: Number,
-    default: 0,
+  balances: {
+    type: Object,
+    default: {},
   },
   comment: {
     type: String,

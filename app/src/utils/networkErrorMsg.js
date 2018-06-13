@@ -19,17 +19,17 @@
 //     504: '网关超时。',
 //     'Failed to fetch': '获取数据失败',
 //   };
-  // console.log(errMessage)
-  // console.log(codeMessage);
-  // message.error(errMessage.replace(/GraphQL error: (\w+)/gi, '$1'));
-  // for (const key in codeMessage) {
-  //   if (errMessage.indexOf(codeMessage) > 0) {
-  //     message.error(codeMessage[key]);
-  //     break;
-  //   } else {
-  //     console.log(key)
-  //     message.error(errMessage);
-  //     break;
-  //   }
-  // }
+// console.log(errMessage)
+// console.log(codeMessage);
+// message.error(errMessage.replace(/GraphQL error: (\w+)/gi, '$1'));
+// for (const key in codeMessage) {
+//   if (errMessage.indexOf(codeMessage) > 0) {
+//     message.error(codeMessage[key]);
+//     break;
+//   } else {
+//     console.log(key)
+//     message.error(errMessage);
+//     break;
+//   }
+// }
 // }

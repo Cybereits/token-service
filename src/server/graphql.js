@@ -4,9 +4,9 @@ import {
 } from 'graphql'
 
 import { adminRegister, adminLogin, adminLogout } from './fields/admin'
-import { queryAllBalance } from './fields/balance'
+import { queryAllBalance, gatherAllEth } from './fields/balance'
 import { queryContractAbi, deployCREContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
-import { statusEnum, tokenTypeEnum, contractNameEnum } from './fields/enum'
+import { statusEnum, tokenTypeEnum } from './fields/enum'
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 import { queryBatchTrasactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
 
@@ -25,7 +25,6 @@ const queries = new Obj({
     queryIsSysAccount,
     statusEnum,
     tokenTypeEnum,
-    contractNameEnum,
   },
 })
 
@@ -42,6 +41,7 @@ const mutations = new Obj({
     deployCREContract,
     sendTransaction,
     unlockTeamAllocation,
+    gatherAllEth,
   },
 })
 

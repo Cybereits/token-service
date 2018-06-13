@@ -5,6 +5,7 @@ import path from 'path'
 import {
   GraphQLString as str,
   GraphQLNonNull as NotNull,
+  GraphQLList as List,
   GraphQLInt as int,
 } from 'graphql'
 
@@ -16,17 +17,16 @@ import { getContractInstance } from '../../core/scenes/token'
 import { CONTRACT_NAMES } from '../../core/enums'
 import { creContractArgs, ethAccount } from '../types/plainTypes'
 
+function readSoliditySource(filename) {
+  return fs.readFileSync(path.resolve(__dirname, `../../contracts/${filename}.sol`)).toString()
+}
+
+// #region CRE 合约相关
 export const queryContractAbi = {
   type: str,
-  description: '查询代币合约 abi',
-  args: {
-    name: {
-      type: new NotNull(str),
-      description: '已部署的合约名称',
-    },
-  },
+  description: '查询 cre 代币合约 abi',
   async resolve(root, { name }) {
-    let contract = await ContractMetaModel.findOne({ name })
+    let contract = await ContractMetaModel.findOne({ name: CONTRACT_NAMES.cre })
     if (contract) {
       const { decimal, args } = contract
       const { tokenSupply, lockPercent, lockAddresses } = JSON.parse(args)
@@ -81,15 +81,15 @@ export const deployCREContract = {
       lockAddresses,
     } = contractArgs
 
-    const filepath = path.resolve(__dirname, `../../contracts/${CONTRACT_NAMES.cre}.sol`)
-    const sourceName = 'default'
+    const sourceName = 'mainContract'
 
-    if (!fs.existsSync(filepath)) {
-      throw new Error('未找到对应的合约文件')
-    }
     const meta = {
       sources: {
-        [sourceName]: fs.readFileSync(filepath).toString(),
+        'SafeMath.sol': readSoliditySource('SafeMath'),
+        'Ownable.sol': readSoliditySource('Ownable'),
+        'ERC20.sol': readSoliditySource('ERC20'),
+        'Token.sol': readSoliditySource('Token'),
+        [sourceName]: readSoliditySource(CONTRACT_NAMES.cre),
       },
       settings: {
         optimizer: {
@@ -113,18 +113,18 @@ export const deployCREContract = {
     }
 
     // console.log(Object.keys(output.contracts))
-    // console.log(`${sourceName}:${CONTRACT_NAMES.cre}`)
-    // console.log(output.contracts[`${sourceName}:${CONTRACT_NAMES.cre}`])
+    // console.log(`${ sourceName }: ${ CONTRACT_NAMES.cre } `)
+    // console.log(output.contracts[`${ sourceName }: ${ CONTRACT_NAMES.cre } `])
 
-    let creContractCode = output.contracts[`${sourceName}:${CONTRACT_NAMES.cre}`].bytecode
-    let creContractAbi = output.contracts[`${sourceName}:${CONTRACT_NAMES.cre}`].interface
-    let lockContractCode = output.contracts[`${sourceName}:${CONTRACT_NAMES.lock}`].bytecode
-    let lockContractAbi = output.contracts[`${sourceName}:${CONTRACT_NAMES.lock}`].interface
+    let creContractCode = output.contracts[`${sourceName}: ${CONTRACT_NAMES.cre} `].bytecode
+    let creContractAbi = output.contracts[`${sourceName}: ${CONTRACT_NAMES.cre} `].interface
+    let lockContractCode = output.contracts[`${sourceName}: ${CONTRACT_NAMES.lock} `].bytecode
+    let lockContractAbi = output.contracts[`${sourceName}: ${CONTRACT_NAMES.lock} `].interface
 
     if (errCounter === 0) {
 
       let [compiledContract, contractInstance] = await createAndDeployContract(
-        `0x${creContractCode}`,
+        `0x${creContractCode} `,
         JSON.parse(creContractAbi),
         deployAddr,
         deploySecret,
@@ -135,7 +135,7 @@ export const deployCREContract = {
           ...lockAddresses,
         ]
       ).catch((err) => {
-        throw new Error(`合约部署失败 ${err.message}`)
+        throw new Error(`合约部署失败 ${err.message} `)
       })
 
       let lockContractAddr = await compiledContract
@@ -147,6 +147,7 @@ export const deployCREContract = {
         // 保存代币合约信息
         {
           name: CONTRACT_NAMES.cre,
+          symbol: 'cre',
           decimal: contractDecimals,
           codes: creContractCode,
           abis: creContractAbi,
@@ -170,48 +171,11 @@ export const deployCREContract = {
           return 'success'
         })
         .catch((err) => {
-          throw new Error(`合约保存失败 ${err.message}`)
+          throw new Error(`合约保存失败 ${err.message} `)
         })
     } else {
       throw new Error('合约编译失败')
     }
-  },
-}
-
-export const addERC20ContractMeta = {
-  type: str,
-  description: '添加 ERC20 代币合约',
-  args: {
-    name: {
-      type: new NotNull(str),
-      description: '合约名称',
-    },
-    decimal: {
-      type: new NotNull(int),
-      description: '代币精度',
-    },
-    codes: {
-      type: new NotNull(str),
-      description: '合约 codes（JSON 字符串）',
-    },
-    abis: {
-      type: new NotNull(str),
-      description: '合约 abis（JSON 字符串）',
-    },
-    address: {
-      type: new NotNull(str),
-      description: '合约部署地址',
-    },
-  },
-  resolve(root, { name, decimal, codes, abis, address }) {
-    return ContractMetaModel.create({
-      name,
-      decimal,
-      codes,
-      abis,
-      address,
-      isERC20: true,
-    })
   },
 }
 
@@ -248,3 +212,54 @@ export const unlockTeamAllocation = {
       .send({ from: address })
   },
 }
+// #endregion
+
+// #region ERC20 代币合约
+
+export const getERC20ContractNames = {
+  type: new List(str),
+  description: '',
+}
+
+export const addERC20ContractMeta = {
+  type: str,
+  description: '添加 ERC20 代币合约',
+  args: {
+    name: {
+      type: new NotNull(str),
+      description: '合约名称',
+    },
+    symbol: {
+      type: new NotNull(str),
+      description: '代币缩写',
+    },
+    decimal: {
+      type: new NotNull(int),
+      description: '代币精度',
+    },
+    codes: {
+      type: new NotNull(str),
+      description: '合约 codes（JSON 字符串）',
+    },
+    abis: {
+      type: new NotNull(str),
+      description: '合约 abis（JSON 字符串）',
+    },
+    address: {
+      type: new NotNull(str),
+      description: '合约部署地址',
+    },
+  },
+  resolve(root, { name, symbol, decimal, codes, abis, address }) {
+    return ContractMetaModel.create({
+      name,
+      symbol,
+      decimal,
+      codes,
+      abis,
+      address,
+      isERC20: true,
+    })
+  },
+}
+// #endregion

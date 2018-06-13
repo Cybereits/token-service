@@ -1,5 +1,6 @@
 import { EthAccountModel } from '../schemas'
 import { getEthBalance, getTokenBalance } from './token'
+import { getTokenContractMeta } from './contract'
 
 export function unlockAccount(connect, unlockAccount, passWord) {
   return connect.eth.personal.unlockAccount(unlockAccount, passWord, 20)
@@ -47,34 +48,44 @@ export function isSysAccount(address) {
 /**
  * 更新指定钱包的账户余额
  * @param {string} address 钱包地址
+ * @param {string} contractName 代币合约名称
+ * @returns {Promise}
  */
-export async function updateBalanceOfAccount(address) {
-  let ethAmount = await getEthBalance(address)
-  let creAmount = await getTokenBalance(address)
+export async function updateBalanceOfAccount(address, contractName) {
+  let amount
+  let symbol
 
-  // 更新账户信息
-  return EthAccountModel.update(
-    {
-      account: address,
-    },
-    {
-      $set: {
-        creAmount,
-        ethAmount,
-        updatedAt: new Date(),
-      },
-    })
+  if (!contractName) {
+    // 默认视作 eth 账户
+    amount = await getEthBalance(address)
+    symbol = 'eth'
+  } else {
+    amount = await getTokenBalance(address, contractName)
+    let tokenContract = await getTokenContractMeta(contractName)
+    symbol = tokenContract.symbol
+  }
+
+  let account = await EthAccountModel.findOne({ account: address })
+
+  if (!account.balances) {
+    account.balances = {}
+  }
+
+  account.balances[symbol] = +amount
+
+  return EthAccountModel.update({ account: address }, account)
 }
 
 /**
  * 检查是否为系统地址，如果是则更新账户余额
  * @param {string} address 钱包地址
+ * @param {string} tokenType 代币类型
  * @returns {Promise}
  */
-export async function checkIsSysThenUpdate(address) {
+export async function checkIsSysThenUpdate(address, tokenType) {
   let result = await isSysAccount(address)
   if (result) {
-    return updateBalanceOfAccount(address)
+    return updateBalanceOfAccount(address, tokenType)
   } else {
     return false
   }
