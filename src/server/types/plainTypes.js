@@ -33,13 +33,17 @@ export const balanceDetail = new OutputObj({
   name: 'balanceDetail',
   description: '账户详情',
   fields: {
-    ethAddress: {
+    address: {
       type: str,
       description: '钱包地址',
     },
-    balances: {
-      type: new List(hashResult),
-      description: '账户信息详情',
+    eth: {
+      type: int,
+      description: 'eth 余额',
+    },
+    token: {
+      type: int,
+      description: '代币余额',
     },
   },
 })
@@ -140,6 +144,35 @@ export const txRecord = new OutputObj({
     },
   },
 })
+
+export const amdinLoginType = new OutputObj({
+  name: 'adminLogin',
+  description: '管理员登录',
+  fields: {
+    username: { type: str },
+    message: { type: str },
+    role: { type: int },
+  },
+})
+
+export const adminRegisterType = new OutputObj({
+  name: 'adminRegister',
+  description: '管理员注册',
+  fields: {
+    username: { type: str },
+    role: { type: int },
+    message: { type: str },
+  },
+})
+
+export const adminLogoutType = new OutputObj({
+  name: 'loginout',
+  description: '管理员登出',
+  fields: {
+    result: { type: boolean },
+  },
+})
+
 // #endregion
 
 // #region Input Objects
@@ -177,6 +210,7 @@ export const balanceFilter = new InputObj({
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
     orderBy: { type: TokenTypeEnum, description: '排序方式' },
+    tokenType: { type: TokenTypeEnum, description: '查询的代币类型' },
   },
 })
 
@@ -211,32 +245,3 @@ export const ethAccount = new InputObj({
   },
 })
 // #endregion
-
-// admin
-export const amdinLoginType = new OutputObj({
-  name: 'adminLogin',
-  description: '管理员登录',
-  fields: {
-    username: { type: str },
-    message: { type: str },
-    role: { type: int },
-  },
-})
-
-export const adminRegisterType = new OutputObj({
-  name: 'adminRegister',
-  description: '管理员注册',
-  fields: {
-    username: { type: str },
-    role: { type: int },
-    message: { type: str },
-  },
-})
-
-export const adminLogoutType = new OutputObj({
-  name: 'loginout',
-  description: '管理员登出',
-  fields: {
-    result: { type: boolean },
-  },
-})
