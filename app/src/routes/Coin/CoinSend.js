@@ -29,12 +29,6 @@ const { confirm } = Modal;
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
-// const getValue = obj =>
-//   Object.keys(obj)
-//     .map(key => obj[key])
-//     .join(',');
-// const statusMap = ['default', 'processing', 'success', 'error'];
-// const status = ['关闭', '运行中', '已上线', '异常'];
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, sendCoin, handleModalVisible, confirmLoading } = props;
@@ -220,10 +214,6 @@ export default class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      // this.setState({
-      //   formValues: fieldsValue,
-      // });
-      // console.log(fieldsValue)
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
         if (newParam[item] === '') {
@@ -245,26 +235,10 @@ export default class TableList extends PureComponent {
           filter: newFieldsValue,
         },
       });
-      // const values = {
-      //   ...fieldsValue,
-      //   updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      // };
     });
   };
 
-  // handleModalVisible = flag => {
-  //   this.setState({
-  //     modalVisible: !!flag,
-  //   });
-  // };
-
   sendCoin = fields => {
-    // this.props.dispatch({
-    //   type: 'coin/queryPrizeList',
-    //   params: {
-    //     filter: fields,
-    //   },
-    // });
     this.setState(
       {
         confirmLoading: true,
