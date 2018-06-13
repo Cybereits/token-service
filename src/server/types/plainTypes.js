@@ -1,6 +1,7 @@
 import {
   GraphQLObjectType as OutputObj,
   GraphQLString as str,
+  GraphQLFloat as float,
   GraphQLList as List,
   GraphQLInt as int,
   GraphQLInputObjectType as InputObj,
@@ -38,11 +39,11 @@ export const balanceDetail = new OutputObj({
       description: '钱包地址',
     },
     eth: {
-      type: int,
+      type: float,
       description: 'eth 余额',
     },
     token: {
-      type: int,
+      type: float,
       description: '代币余额',
     },
   },
