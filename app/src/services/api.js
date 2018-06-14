@@ -29,7 +29,7 @@ const client = new ApolloClient({
         const currentAuthority = '';
         setAuthority(currentAuthority);
         reloadAuthorized();
-        window.location.href = `${window.location.origin}/#/user/login`;
+        window.location.href = `${window.location.origin}/#/entry/login`;
       }
     }
   },
@@ -109,7 +109,6 @@ export async function accountLogin({ userName, password }) {
         {
           adminLogin(username: "${userName}", password: "${password}") {
             username
-            message
             role
           }
         }

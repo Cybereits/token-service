@@ -99,6 +99,22 @@ const menuData = [
       },
     ],
   },
+  {
+    name: '用户管理',
+    icon: 'user',
+    path: 'user',
+    children: [
+      {
+        name: '创建用户',
+        path: 'user-createUser',
+        authority: 'superAdmin',
+      },
+      {
+        name: '修改密码',
+        path: 'user-changePwd',
+      },
+    ],
+  },
   // {
   //   name: '详情页',
   //   icon: 'profile',

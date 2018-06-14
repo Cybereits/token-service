@@ -43,7 +43,7 @@ export default {
           const currentAuthority = '';
           setAuthority(currentAuthority);
           reloadAuthorized();
-          yield put(routerRedux.push('/user/login'));
+          yield put(routerRedux.push('/entry/login'));
         }
       }
     },
