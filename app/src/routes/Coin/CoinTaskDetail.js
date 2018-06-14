@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 // import ApolloClient from 'apollo-boost';
 // import gql from 'graphql-tag';
+import DescriptionList from 'components/DescriptionList'
 import { routerRedux } from 'dva/router';
 // import moment from 'moment';
 import {
@@ -27,6 +28,7 @@ import StandardTable from 'components/StandardTable';
 import styles from './CoinSend.less';
 // import { getQueryVariable } from '../../utils/utils';
 const { confirm } = Modal;
+const { Description } = DescriptionList;
 @connect(({ coinTask, loading }) => ({
   coinTask,
   loading: loading.models.coinTask,
@@ -117,48 +119,48 @@ export default class CoinTaskDetail extends PureComponent {
       {
         title: '入账地址',
         dataIndex: 'to',
-        fixed: 'left',
       },
-      {
-        title: 'id',
-        dataIndex: 'id',
-      },
+      // {
+      //   title: 'id',
+      //   dataIndex: 'id',
+      // },
       {
         title: '代币数量',
         dataIndex: 'amount',
       },
-      {
-        title: '出账地址',
-        dataIndex: 'from',
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-      },
+      // {
+      //   title: '出账地址',
+      //   dataIndex: 'from',
+      // },
+      // {
+      //   title: '状态',
+      //   dataIndex: 'status',
+      // },
       {
         title: '代币类型',
         dataIndex: 'tokenType',
       },
-      {
-        title: '备注',
-        dataIndex: 'comment',
-      },
-      {
-        title: 'txid',
-        dataIndex: 'txid',
-      },
-      {
-        title: 'taskid',
-        dataIndex: 'taskid',
-      },
-      {
-        title: '发送时间',
-        dataIndex: 'sendTime',
-      },
-      {
-        title: '确认时间',
-        dataIndex: 'confirmTime',
-      },
+      // {
+      //   title: '备注',
+      //   dataIndex: 'comment',
+      // },
+      // {
+      //   title: 'txid',
+      //   dataIndex: 'txid',
+      // },
+      // {
+      //   title: 'taskid',
+      //   dataIndex: 'taskid',
+      // },
+      // {
+      //   title: '发送时间',
+      //   dataIndex: 'sendTime',
+      // },
+      // {
+      //   title: '确认时间',
+      //   dataIndex: 'confirmTime',
+      // },
+
       // {
       //   title: '创建时间',
       //   dataIndex: 'createAt',
@@ -226,11 +228,6 @@ export default class CoinTaskDetail extends PureComponent {
       </Menu>
     );
 
-    // const parentMethods = {
-    //   sendCoin: this.sendCoin,
-    //   handleModalVisible: this.handleModalVisible,
-    // };
-
     return (
       <Card bordered={false}>
         <div className={styles.tableList}>
@@ -269,7 +266,23 @@ export default class CoinTaskDetail extends PureComponent {
             onSelectRow={this.handleSelectRows}
             onChange={this.handleStandardTableChange}
             showSelect={null}
-            scroll={{ x: 2500 }}
+            expandedRowRender={item => {
+              console.log(item)
+              return (
+                <Card bordered={false}>
+                  <DescriptionList size="large">
+                    <Description term="id">{item.id}</Description>
+                    <Description term="出账地址">{item.from}</Description>
+                    <Description term="状态">{item.status}</Description>
+                    <Description term="备注">{item.comment}</Description>
+                    <Description term="txid">{item.txid}</Description>
+                    <Description term="taskid">{item.taskid}</Description>
+                    <Description term="发送时间">{item.sendTime}</Description>
+                    <Description term="确认时间">{item.confirmTime}</Description>
+                  </DescriptionList>
+                </Card>
+              )
+            }}
           />
         </div>
       </Card>
