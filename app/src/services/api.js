@@ -186,11 +186,9 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
               pageCount
             }
             list {
-              ethAddress
-              balances {
-                name
-                value
-              }
+              address
+              eth
+              token
             }
           }
         }
