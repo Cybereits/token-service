@@ -270,7 +270,7 @@ export default class TableList extends PureComponent {
               confirmLoading: false,
             });
             if (res) {
-              message.success(`成功创建 ${fields.walletAmount}个 钱包!`);
+              message.success(`成功创建了 ${fields.walletAmount}个 钱包!`);
             }
           },
         });
