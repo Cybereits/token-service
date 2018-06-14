@@ -3,7 +3,7 @@ export const STATUS = {
   pending: 0, // 待处理
   sending: 1, // 处理中
   success: 2, // 成功
-  failure: -1,  // 失败
+  failure: -1, // 失败
   error: -2, // 异常
 }
 
@@ -16,6 +16,12 @@ export function getStatus(_value) {
 export const CONTRACT_NAMES = {
   cre: 'CybereitsToken',
   lock: 'CybereitsTeamLock',
+  asset: 'AssetToken',
+  kyc: 'KnowYourCustomer',
+  erc20: 'ERC20',
+  ownable: 'Ownable',
+  math: 'SafeMath',
+  token: 'Token',
 }
 
 export const TOKEN_TYPES = {

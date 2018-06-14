@@ -5,7 +5,6 @@ import path from 'path'
 import {
   GraphQLString as str,
   GraphQLNonNull as NotNull,
-  GraphQLList as List,
   GraphQLInt as int,
 } from 'graphql'
 
@@ -15,13 +14,14 @@ import { createAndDeployContract } from '../../core/scenes/contract'
 import { unlockAccount } from '../../core/scenes/account'
 import { getContractInstance } from '../../core/scenes/token'
 import { CONTRACT_NAMES } from '../../core/enums'
-import { creContractArgs, ethAccount } from '../types/plainTypes'
+import { creContractArgs, assetContractArgs, ethAccount } from '../types/plainTypes'
 
 function readSoliditySource(filename) {
   return fs.readFileSync(path.resolve(__dirname, `../../contracts/${filename}.sol`)).toString()
 }
 
-// #region CRE 合约相关
+// #region Cybereits 合约相关
+
 export const queryCREContractAbi = {
   type: str,
   description: '查询 cre 代币合约 abi',
@@ -41,8 +41,7 @@ export const queryCREContractAbi = {
           'address',
           'address',
           'address',
-        ],
-        [
+        ], [
           tokenSupply,
           decimal,
           lockPercent,
@@ -73,7 +72,7 @@ export const deployCREContract = {
     deployer,
     contractArgs,
   }) {
-    const { address: deployAddr, secret: deploySecret } = deployer
+    const { address, secret } = deployer
     const {
       tokenSupply,
       contractDecimals,
@@ -81,24 +80,24 @@ export const deployCREContract = {
       lockAddresses,
     } = contractArgs
 
-    const sourceName = 'mainContract'
+    const sourceName = 'main'
 
     const meta = {
-      sources: {
-        'SafeMath.sol': readSoliditySource('SafeMath'),
-        'Ownable.sol': readSoliditySource('Ownable'),
-        'ERC20.sol': readSoliditySource('ERC20'),
-        'Token.sol': readSoliditySource('Token'),
-        [sourceName]: readSoliditySource(CONTRACT_NAMES.cre),
-      },
-      settings: {
-        optimizer: {
-          enabled: true,
-          runs: 500,
+        sources: {
+          'SafeMath.sol': readSoliditySource(CONTRACT_NAMES.math),
+          'Ownable.sol': readSoliditySource(CONTRACT_NAMES.ownable),
+          'ERC20.sol': readSoliditySource(CONTRACT_NAMES.erc20),
+          'Token.sol': readSoliditySource(CONTRACT_NAMES.token),
+          [sourceName]: readSoliditySource(CONTRACT_NAMES.cre),
         },
-      },
-    }
-    // 编译合约
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 500,
+          },
+        },
+      }
+      // 编译合约
     const output = solc.compile(meta, 1)
 
     let errCounter = 0
@@ -126,9 +125,8 @@ export const deployCREContract = {
       let [compiledContract, contractInstance] = await createAndDeployContract(
         `0x${creContractCode} `,
         JSON.parse(creContractAbi),
-        deployAddr,
-        deploySecret,
-        [
+        address,
+        secret, [
           tokenSupply,
           contractDecimals,
           lockPercent,
@@ -144,28 +142,28 @@ export const deployCREContract = {
         .call(null)
 
       return ContractMetaModel.insertMany([
-        // 保存代币合约信息
-        {
-          name: CONTRACT_NAMES.cre,
-          symbol: 'cre',
-          decimal: contractDecimals,
-          codes: creContractCode,
-          abis: creContractAbi,
-          owner: deployAddr,
-          address: contractInstance.options.address,
-          args: JSON.stringify(contractArgs),
-          isERC20: true,
-        },
-        // 保存锁仓合约信息
-        {
-          name: CONTRACT_NAMES.lock,
-          codes: lockContractCode,
-          abis: lockContractAbi,
-          owner: deployAddr,
-          address: lockContractAddr,
-          args: JSON.stringify(lockAddresses),
-        },
-      ])
+          // 保存代币合约信息
+          {
+            name: CONTRACT_NAMES.cre,
+            symbol: 'cre',
+            decimal: contractDecimals,
+            codes: creContractCode,
+            abis: creContractAbi,
+            owner: address,
+            address: contractInstance.options.address,
+            args: JSON.stringify(contractArgs),
+            isERC20: true,
+          },
+          // 保存锁仓合约信息
+          {
+            name: CONTRACT_NAMES.lock,
+            codes: lockContractCode,
+            abis: lockContractAbi,
+            owner: address,
+            address: lockContractAddr,
+            args: JSON.stringify(lockAddresses),
+          },
+        ])
         .then(() => {
           console.log('合约部署成功!')
           return 'success'
@@ -212,14 +210,111 @@ export const unlockTeamAllocation = {
       .send({ from: address })
   },
 }
+
+export const deployAssetContract = {
+  type: str,
+  description: '部署资产合约',
+  args: {
+    deployer: {
+      type: ethAccount,
+      description: '部署账户',
+    },
+    contractArgs: {
+      type: assetContractArgs,
+      description: '资产合约初始化参数',
+    },
+  },
+  async resolve(root, { deployer, contractArgs }) {
+    const { address, secret } = deployer
+    const {
+      tokenSupply,
+      tokenSymbol,
+      contractDecimals,
+      contractName,
+      kycAddress,
+    } = contractArgs
+
+    const sourceName = 'main'
+
+    const meta = {
+      sources: {
+        'SafeMath.sol': readSoliditySource(CONTRACT_NAMES.math),
+        'Ownable.sol': readSoliditySource(CONTRACT_NAMES.ownable),
+        'ERC20.sol': readSoliditySource(CONTRACT_NAMES.erc20),
+        'Token.sol': readSoliditySource(CONTRACT_NAMES.token),
+        [sourceName]: readSoliditySource(CONTRACT_NAMES.asset),
+      },
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 500,
+        },
+      },
+    }
+
+    // 编译合约
+    const output = solc.compile(meta, 1)
+
+    let errCounter = 0
+
+    if (output.errors) {
+      output.errors.forEach((err) => {
+        console.log(err)
+        if (~err.indexOf('Error')) {
+          errCounter += 1
+        }
+      })
+    }
+
+    let assetContractCode = output.contracts[`${sourceName}: ${CONTRACT_NAMES.asset} `].bytecode
+    let assetContractAbi = output.contracts[`${sourceName}: ${CONTRACT_NAMES.asset} `].interface
+
+    if (errCounter === 0) {
+
+      let [contractInstance] = await createAndDeployContract(
+        `0x${assetContractCode} `,
+        JSON.parse(assetContractAbi),
+        address,
+        secret, [
+          tokenSupply,
+          contractDecimals,
+          contractName,
+          tokenSymbol,
+          kycAddress,
+        ]
+      ).catch((err) => {
+        throw new Error(`合约部署失败 ${err.message} `)
+      })
+
+      // 保存代币合约信息
+      return ContractMetaModel
+        .create({
+          name: contractName,
+          symbol: tokenSymbol,
+          decimal: contractDecimals,
+          codes: assetContractCode,
+          abis: assetContractAbi,
+          owner: address,
+          address: contractInstance.options.address,
+          args: JSON.stringify(contractArgs),
+          isERC20: true,
+        })
+        .then(() => {
+          console.log('合约部署成功!')
+          return 'success'
+        })
+        .catch((err) => {
+          throw new Error(`合约保存失败 ${err.message} `)
+        })
+    } else {
+      throw new Error(`合约编译失败 ${output.errors[0]}`)
+    }
+  },
+}
+
 // #endregion
 
 // #region ERC20 代币合约
-
-export const getERC20ContractNames = {
-  type: new List(str),
-  description: '',
-}
 
 export const addERC20ContractMeta = {
   type: str,
@@ -262,4 +357,5 @@ export const addERC20ContractMeta = {
     })
   },
 }
+
 // #endregion

@@ -1,8 +1,5 @@
 {
   "globals": {
-    "document": true,
-    "window": true,
-    "React": true,
     "describe": true,
     "it": true
   },

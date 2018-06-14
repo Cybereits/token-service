@@ -4,7 +4,7 @@ import "KnowYourCustomer.sol";
 import "Token.sol";
 import "Ownable.sol";
 
-contract KakaCoin is Token, Ownable {
+contract AssetToken is Token, Ownable {
     string public name;
     string public symbol;
 

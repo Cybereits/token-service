@@ -152,7 +152,6 @@ export const adminInfo = new OutputObj({
   fields: {
     username: { type: str },
     role: { type: int },
-    message: { type: str },
   },
 })
 
@@ -173,14 +172,14 @@ export const adminLogoutType = new OutputObj({
  * {
  *  eth: { value : 'eth' },
  *  cre: { value : 'cre' },
- *  eos: { value : 'eos' },
  * }
  */
 export const TokenTypeEnum = new GraphQLEnumType({
   name: 'TokenTypeEnum',
   values: Object.entries(TOKEN_TYPES).reduce(
-    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
-    {},
+    (prev, [key, value]) => Object.assign(prev, {
+      [key]: { value },
+    }), {},
   ),
 })
 
@@ -190,8 +189,9 @@ export const TokenTypeEnum = new GraphQLEnumType({
 export const StatusEnum = new GraphQLEnumType({
   name: 'StatusEnum',
   values: Object.entries(STATUS).reduce(
-    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
-    {},
+    (prev, [key, value]) => Object.assign(prev, {
+      [key]: { value },
+    }), {},
   ),
 })
 
@@ -227,12 +227,24 @@ export const creContractArgs = new InputObj({
   },
 })
 
-export const ethAccount = new InputObj({
-  name: 'ethAccount',
-  description: 'eth 账户信息',
+export const assetContractArgs = new InputObj({
+  name: 'assetContractArgs',
+  description: '资产合约参数',
   fields: {
-    address: { type: new NotNull(str), description: '钱包地址' },
-    secret: { type: str, description: '钱包创建时的密钥 (非私钥)', defaultValue: '' },
+    tokenSupply: { type: new NotNull(int), description: '代币总量' },
+    tokenSymbol: { type: new NotNull(str), description: '代币缩写' },
+    contractDecimals: { type: new NotNull(int), description: '合约精度' },
+    contractName: { type: new NotNull(str), description: '合约名称' },
+    kycAddress: { type: new NotNull(str), description: 'kyc 合约地址' },
   },
 })
-// #endregion
+
+export const ethAccount = new InputObj({
+    name: 'ethAccount',
+    description: 'eth 账户信息',
+    fields: {
+      address: { type: new NotNull(str), description: '钱包地址' },
+      secret: { type: str, description: '钱包创建时的密钥 (非私钥)', defaultValue: '' },
+    },
+  })
+  // #endregion

@@ -2,7 +2,7 @@ pragma solidity ^0.4.6;
 
 import "SafeMath.sol";
 
-contract KycContract is SafeMath {
+contract KnowYourCustomer is SafeMath {
 
     address public owner = msg.sender;
     string public name;

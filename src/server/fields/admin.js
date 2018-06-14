@@ -1,6 +1,6 @@
 import {
   GraphQLString as str,
-  GraphQLInt as int,
+  GraphQLNonNull as NotNull,
 } from 'graphql'
 
 import {
@@ -12,20 +12,19 @@ import { AdminModel } from '../../core/schemas'
 
 async function register(username, password, validPassword, role) {
   if (password !== validPassword) {
-    return new Error('password not valid')
+    return new Error('两次输入的密码不一致')
   }
   let res = {}
 
   let admin = await AdminModel.findOne({ username })
   if (admin) {
-    throw new Error('username is already registered')
+    throw new Error('用户名已存在')
   } else {
     admin = new AdminModel({ username, password, role })
     return admin.save()
       .then((newAdmin) => {
         res.username = newAdmin.username
         res.role = newAdmin.role
-        res.message = 'registered successfully'
         return res
       })
   }
@@ -33,7 +32,7 @@ async function register(username, password, validPassword, role) {
 
 async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
   if (newPwd !== confirmPwd) {
-    return new Error('password not valid')
+    return new Error('两次输入的密码不一致')
   }
   let admin = await AdminModel.findOne({ username })
   if (!admin) {
@@ -41,7 +40,7 @@ async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
   } else {
     let isMatch = await admin.comparePassword(originPwd, admin.password)
     if (!isMatch) {
-      throw new Error('username or password not match')
+      throw new Error('用户名或者密码不匹配')
     } else {
       admin.password = newPwd
       return admin.save()
@@ -55,7 +54,6 @@ async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
 
           res.username = admin.username
           res.role = admin.role
-          res.message = 'logined successfully'
           return res
         })
     }
@@ -63,20 +61,24 @@ async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
 }
 
 async function login(username, password, ctx) {
-  if (ctx.session.admin) {
-    return new Error('Already logged in')
+  if (ctx.session && ctx.session.admin) {
+    let { username, role } = ctx.session.admin
+    return {
+      username,
+      role,
+    }
   }
 
   let res = {}
   let admin = await AdminModel.findOne({ username })
   if (!admin) {
-    return new Error('user not exist')
+    return new Error('用户不存在')
   } else {
     return admin
       .comparePassword(password, admin.password)
       .then((isMath) => {
         if (!isMath) {
-          throw new Error('username or password not match')
+          throw new Error('用户名或者密码不匹配')
         } else {
           ctx.session.admin = {
             username: admin.username,
@@ -85,7 +87,6 @@ async function login(username, password, ctx) {
 
           res.username = admin.username
           res.role = admin.role
-          res.message = 'logined successfully'
           return res
         }
       })
@@ -93,36 +94,46 @@ async function login(username, password, ctx) {
 }
 
 async function logout(ctx) {
-  if (!ctx.session.admin) {
-    return new Error('Not logged in')
-  }
   ctx.session = null
   return { result: true }
 }
 
-export const adminRegister = {
+export const createAdmin = {
   type: adminInfo,
+  description: '创建管理员',
   args: {
-    username: { type: str },
-    password: { type: str },
-    validPassword: { type: str },
-    role: { type: int },
+    username: {
+      type: new NotNull(str),
+    },
+    password: {
+      type: new NotNull(str),
+    },
+    validPassword: {
+      type: new NotNull(str),
+    },
   },
-  resolve(root, { username, password, validPassword, role }, ctx) {
+  resolve(root, { username, password, validPassword }, ctx) {
     let { session } = ctx
     if (!session || !session.admin || session.admin.role !== 1) {
       throw new Error('您没有权限创建用户，请联系超级管理员')
     } else {
-      return register(username, password, validPassword, role)
+      return register(username, password, validPassword, 2)
     }
   },
 }
 
 export const adminLogin = {
   type: adminInfo,
+  description: '管理员登录',
   args: {
-    username: { type: str },
-    password: { type: str },
+    username: {
+      type: new NotNull(str),
+      description: '用户名',
+    },
+    password: {
+      type: new NotNull(str),
+      description: '用户登录密码',
+    },
   },
   resolve(root, { username, password }, ctx) {
     return login(username, password, ctx)
@@ -131,6 +142,7 @@ export const adminLogin = {
 
 export const adminLogout = {
   type: adminLogoutType,
+  description: '管理员注销',
   resolve(root, _, ctx) {
     return logout(ctx)
   },
@@ -138,17 +150,18 @@ export const adminLogout = {
 
 export const changePwd = {
   type: adminInfo,
+  description: '更改密码',
   args: {
     originPassword: {
-      type: str,
+      type: new NotNull(str),
       description: '原始密码',
     },
     newPassword: {
-      type: str,
+      type: new NotNull(str),
       description: '新密码',
     },
     validPassword: {
-      type: str,
+      type: new NotNull(str),
       description: '确认密码',
     },
   },

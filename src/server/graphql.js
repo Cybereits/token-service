@@ -3,7 +3,7 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { adminRegister, adminLogin, adminLogout, changePwd } from './fields/admin'
+import { createAdmin, adminLogin, adminLogout, changePwd } from './fields/admin'
 import { queryAllBalance, gatherAllEth } from './fields/balance'
 import { queryCREContractAbi, deployCREContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
 import { statusEnum, tokenTypeEnum } from './fields/enum'
@@ -32,7 +32,7 @@ const mutations = new Obj({
   name: 'Mutations',
   description: '修改接口',
   fields: {
-    adminRegister,
+    createAdmin,
     changePwd,
     addERC20ContractMeta,
     createAccount,
