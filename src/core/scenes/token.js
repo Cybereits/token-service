@@ -4,6 +4,7 @@ import getConnection, { ethClientConnection, creClientConnection } from '../../f
 import { unlockAccount, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
 import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
+import { ContractMetaModel } from '../schemas';
 
 BN.config({ DECIMAL_PLACES: 5 })
 
@@ -92,11 +93,12 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
     let {
-      contractMetaName = CONTRACT_NAMES.cre,
+      tokenType = TOKEN_TYPES.cre,
       gasPrice,
       gas,
       priceRate = 1.1,  // 油费溢价率
     } = options
+    let { name } = await ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
     let account = await getAccountInfoByAddress(fromAddress)
     let conn = await getConnByAccount(account)
 
@@ -108,7 +110,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     }
 
     return new Promise(async (resolve, reject) => {
-      let tokenContract = await getContractInstance(contractMetaName, conn)
+      let tokenContract = await getContractInstance(name, conn)
       let _multiplier = 10 ** tokenContract.decimal
       let _sendAmount = _amount.mul(_multiplier)
 

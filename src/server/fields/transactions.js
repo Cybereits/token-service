@@ -32,29 +32,7 @@ async function sendBatchTxs(recordIds) {
       let { amount, from, to, status, tokenType } = transaction
       // 当交易的发送状态为成功、发送中时 中断本次发送
       if (status !== STATUS.success && status !== STATUS.sending) {
-        // 判断要发送的代币类型
-        if (tokenType === TOKEN_TYPES.cre) {
-          // 发送 cre
-          // 添加发送代币的胶囊任务
-          queue.add(new TaskCapsule(
-            () => sendToken(from, to, amount)
-              .then((transactionHash) => {
-                // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
-                transaction.status = STATUS.sending
-                transaction.txid = transactionHash
-                transaction.sendTime = new Date()
-                return transaction.save()
-              })
-              .catch(async (ex) => {
-                console.error(ex.message)
-                // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
-                transaction.status = STATUS.failure
-                transaction.exceptionMsg = ex.message
-                transaction.txid = null
-                return transaction.save()
-              })
-          ))
-        } else if (tokenType === TOKEN_TYPES.eth) {
+        if (tokenType === TOKEN_TYPES.eth) {
           // 发送 eth
           queue.add(new TaskCapsule(
             () => sendETH(from, to, amount)
@@ -75,8 +53,25 @@ async function sendBatchTxs(recordIds) {
               })
           ))
         } else {
-          // 不支持的代币类型
-          console.warn(`不支持的代币类型 [${tokenType}]`)
+          // 添加发送代币的胶囊任务
+          queue.add(new TaskCapsule(
+            () => sendToken(from, to, amount, { tokenType })
+              .then((transactionHash) => {
+                // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
+                transaction.status = STATUS.sending
+                transaction.txid = transactionHash
+                transaction.sendTime = new Date()
+                return transaction.save()
+              })
+              .catch(async (ex) => {
+                console.error(ex.message)
+                // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
+                transaction.status = STATUS.failure
+                transaction.exceptionMsg = ex.message
+                transaction.txid = null
+                return transaction.save()
+              })
+          ))
         }
       } else {
         // 忽略发送中或者已经发送成功的交易

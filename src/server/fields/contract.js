@@ -51,6 +51,8 @@ function compileContract(sources) {
   return output.contracts
 }
 
+// #region 合约查询及创建
+
 export const queryAllContract = {
   type: new List(contractMetaResult),
   description: '查询所有的合约信息',
@@ -179,40 +181,6 @@ export const deployCREContract = {
       .catch((err) => {
         throw new Error(`合约保存失败 ${err.message} `)
       })
-  },
-}
-
-export const unlockTeamAllocation = {
-  type: str,
-  description: '解锁团队锁仓份额',
-  args: {
-    unlockAccount: {
-      type: str,
-      description: '解锁地址',
-    },
-    ethAccount: {
-      type: ethAccount,
-      description: '调用解锁方法的钱包信息',
-    },
-  },
-  async resolve(root, {
-    unlockAddr,
-    ethAccount: {
-      address,
-      secret,
-    },
-  }) {
-    // 解锁账户
-    await unlockAccount(creClientConnection, address, secret)
-
-    // 获取合约实例
-    let subContract = await getContractInstance(CONTRACT_NAMES.lock)
-
-    // 解锁锁定的代币
-    return subContract
-      .methods
-      .unlock(unlockAddr)
-      .send({ from: address })
   },
 }
 
@@ -394,3 +362,43 @@ export const addERC20ContractMeta = {
     })
   },
 }
+
+// #endregion
+
+// #region 合约特殊方法
+
+export const unlockTeamAllocation = {
+  type: str,
+  description: '解锁团队锁仓份额',
+  args: {
+    unlockAccount: {
+      type: str,
+      description: '解锁地址',
+    },
+    ethAccount: {
+      type: ethAccount,
+      description: '调用解锁方法的钱包信息',
+    },
+  },
+  async resolve(root, {
+    unlockAddr,
+    ethAccount: {
+      address,
+      secret,
+    },
+  }) {
+    // 解锁账户
+    await unlockAccount(creClientConnection, address, secret)
+
+    // 获取合约实例
+    let subContract = await getContractInstance(CONTRACT_NAMES.lock)
+
+    // 解锁锁定的代币
+    return subContract
+      .methods
+      .unlock(unlockAddr)
+      .send({ from: address })
+  },
+}
+
+// #endregion
