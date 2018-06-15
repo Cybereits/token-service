@@ -1,4 +1,4 @@
-import { createAdmin } from '../services/api';
+import { changePwd, createAdmin } from '../services/api';
 
 export default {
   namespace: 'user',
@@ -9,6 +9,13 @@ export default {
     *createAdmin({ params, callback }, { call }) {
       const response = yield call(createAdmin, params);
       if (response) {
+        callback();
+      }
+    },
+    *changePwd({ params, callback }, { call }) {
+      const response = yield call(changePwd, params);
+      if (response) {
+        console.log('debug');
         callback();
       }
     },

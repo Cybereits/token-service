@@ -4,7 +4,7 @@ import getConnection, { ethClientConnection, creClientConnection } from '../../f
 import { unlockAccount, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
 import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
-import { ContractMetaModel } from '../schemas';
+import { ContractMetaModel } from '../schemas'
 
 BN.config({ DECIMAL_PLACES: 5 })
 
