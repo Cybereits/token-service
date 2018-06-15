@@ -50,8 +50,8 @@ export const queryAllBalance = {
       .limit(pageSize)
       .then(accounts => accounts.map(({ account, balances }) => ({
         address: account,
-        eth: balances[TOKEN_TYPES.eth],
-        token: balances[tokenType],
+        eth: balances[TOKEN_TYPES.eth] || 0,
+        token: balances[tokenType] || 0,
       })))
 
     // 结果数量

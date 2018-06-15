@@ -11,25 +11,25 @@ contract AssetToken is Token, Ownable {
     uint public decimals;
     uint public fee = 0;
 
-    KycContract kyc;
+    KnowYourCustomer kyc;
 
     address public migrationMaster = msg.sender;
     address public chargeAddress = msg.sender;
 
     event Transfer(address indexed from, address indexed to, uint value, uint fee);
 
-    constructor(uint256 total, uint _decimals, string _name, string _symbol, address _kycContract) public {
+    constructor(uint256 total, uint _decimals, string _name, string _symbol, address _kycContractAddress) public {
         decimals = _decimals;
         uint256 multiplier = 10 ** decimals;
         supply = mul(total, multiplier);
         balances[msg.sender] = supply;
         name = _name;
         symbol = _symbol;
-        initKyc(_kycContract);
+        initKyc(_kycContractAddress);
     }
 
     function initKyc(address _addr) onlyOwner public {
-        kyc = KycContract(_addr);
+        kyc = KnowYourCustomer(_addr);
     }
 
     function changeChargeAddress(address _addr) onlyOwner public {

@@ -5,7 +5,7 @@ import {
 
 import { createAdmin, adminLogin, adminLogout, changePwd } from './fields/admin'
 import { queryAllBalance, gatherAllEth } from './fields/balance'
-import { queryCREContractAbi, deployCREContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
+import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, unlockTeamAllocation } from './fields/contract'
 import { statusEnum, tokenTypeEnum } from './fields/enum'
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 import { queryBatchTrasactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
@@ -40,6 +40,8 @@ const mutations = new Obj({
     createMultiAccount,
     createTransaction,
     deployCREContract,
+    deployKycContract,
+    deployAssetContract,
     sendTransaction,
     unlockTeamAllocation,
     gatherAllEth,

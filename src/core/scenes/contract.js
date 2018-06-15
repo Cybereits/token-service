@@ -120,17 +120,15 @@ export async function createAndDeployContract(contractCode, contractAbi, deployA
   // 创建合约对象
   let compiledContract = new creClientConnection.eth.Contract(contractAbi)
   let result = await deploy(creClientConnection, compiledContract, contractCode, deployAccount, accountPwd, contractArguments)
-  // 合约部署后的实例对象
-  // gas 低了就失败呀
+    // 合约部署后的实例对象
   let newContractInstance = await result.send({
     from: deployAccount,
     gas: 1500000,
-    gasPrice: '30000000000000',
   })
 
   // 锁定部署合约的钱包地址
   creClientConnection.eth.personal.lockAccount(deployAccount)
-  // 记录合约地址
+    // 记录合约地址
   compiledContract.options.address = newContractInstance.options.address
 
   return [compiledContract, newContractInstance]

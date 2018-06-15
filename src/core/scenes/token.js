@@ -39,7 +39,7 @@ export async function getConnByAccount(entity) {
 export async function getTotal(connect) {
   let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
   let amount = await tokenContract.methods.totalSupply().call(null)
-  return connect.eth.extend.utils.fromWei(amount, 'ether')
+  return amount / (10 ** tokenContract.decimal)
 }
 
 /**
@@ -50,7 +50,7 @@ export async function getTotal(connect) {
 export async function getEthBalance(address) {
   let conn = getConnection()
   let amount = await conn.eth.getBalance(address)
-  return ethClientConnection.eth.extend.utils.fromWei(amount, 'ether')
+  return conn.eth.extend.utils.fromWei(amount, 'ether')
 }
 
 /**
@@ -61,7 +61,7 @@ export async function getEthBalance(address) {
 export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_NAMES.cre) {
   let tokenContract = await getContractInstance(contractMetaName)
   let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
-  return getConnection().eth.extend.utils.fromWei(amount, 'ether')
+  return amount / (10 ** tokenContract.decimal)
 }
 
 /**
