@@ -114,7 +114,7 @@ export default class ChangePwd extends PureComponent {
                     message: '新密码为必填项',
                   },
                 ],
-              })(<Input type="password" style={{ width: '100%' }} placeholder="请输入新密码" />)}
+              })(<Input type="password" style={{ width: '100%' }} placeholder="请输入密码" />)}
             </FormItem>
             <FormItem {...formItemLayout} label="确认密码">
               {getFieldDecorator('validPassword', {
@@ -126,7 +126,7 @@ export default class ChangePwd extends PureComponent {
                     message: '确认密码为必填项',
                   },
                 ],
-              })(<Input type="password" style={{ width: '100%' }} placeholder="请输入确认密码" />)}
+              })(<Input type="password" style={{ width: '100%' }} placeholder="请再次输入密码" />)}
             </FormItem>
             {/* <FormItem {...formItemLayout} label="目标描述">
               {getFieldDecorator('goal', {

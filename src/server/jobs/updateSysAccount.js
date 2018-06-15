@@ -1,14 +1,16 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { getAllAccounts, updateBalanceOfAccount } from '../../core/scenes/account'
-import { CONTRACT_NAMES } from '../../core/enums'
+import { getAllTokenContracts } from '../../core/scenes/contract'
 
-getAllAccounts().then((accounts) => {
+getAllAccounts().then(async (accounts) => {
   const taskQueue = new ParallelQueue({ limit: 20 })
-
+  const tokenContractNames = await getAllTokenContracts().then(res => res.map(({ name }) => name))
   accounts.forEach((address) => {
     taskQueue.add(new TaskCapsule(() => updateBalanceOfAccount(address)))
-    taskQueue.add(new TaskCapsule(() => updateBalanceOfAccount(address, CONTRACT_NAMES.cre)))
+    tokenContractNames.forEach((contractName) => {
+      taskQueue.add(new TaskCapsule(() => updateBalanceOfAccount(address, contractName)))
+    })
   })
 
   taskQueue.consume().then(() => {

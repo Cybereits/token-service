@@ -213,6 +213,24 @@ export async function addWallet() {
     });
 }
 
+export async function createAdmin({ username, password, validPassword }) {
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          createAdmin(username: "${username}", password: "${password}", validPassword: "${validPassword}"){
+            username
+            role
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 export async function sendTransactionfFromIds(params) {
   return client
     .mutate({

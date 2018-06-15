@@ -8,7 +8,7 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { STATUS, TOKEN_TYPES } from '../../core/enums'
 import { BatchTransactinTaskModel, TxRecordModel } from '../../core/schemas'
-import { batchTransactionTask, TokenTypeEnum, txRecord, txFilter } from '../types/plainTypes'
+import { batchTransactionTask, txRecord, txFilter } from '../types/plainTypes'
 import { PaginationResult, PaginationWrapper } from '../types/complexTypes'
 import { sendETH, sendToken } from '../../core/scenes/token'
 
@@ -173,7 +173,7 @@ export const createTransaction = {
       defaultValue: 0,
     },
     tokenType: {
-      type: TokenTypeEnum,
+      type: str,
       description: '转账代币类型 默认cre',
       defaultValue: TOKEN_TYPES.cre,
     },
@@ -207,7 +207,7 @@ export const createBatchTransactions = {
       description: '批量任务描述',
     },
     tokenType: {
-      type: TokenTypeEnum,
+      type: str,
       description: '转账代币类型 默认cre',
       defaultValue: TOKEN_TYPES.cre,
     },
@@ -245,8 +245,7 @@ export const createBatchTransactions = {
         tokenType,
         taskid: taskID,
         status: STATUS.pending,
-      }))
-    )
+      })))
 
     return task
   },

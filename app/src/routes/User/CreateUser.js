@@ -1,569 +1,122 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-// import ApolloClient from 'apollo-boost';
-// import gql from 'graphql-tag';
-// import moment from 'moment';
+// import { routerRedux } from 'dva/router';
 import {
-  Row,
-  Col,
-  Card,
   Form,
   Input,
-  Select,
-  Icon,
+  // DatePicker,
+  // Select,
   Button,
-  Dropdown,
-  Menu,
-  InputNumber,
-  DatePicker,
-  Modal,
+  Card,
   message,
-  // Badge,
-  // Divider,
+  // InputNumber,
+  // Radio,
+  // Icon,
+  // Tooltip,
 } from 'antd';
-import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import styles from '../Wallet/WalletList.less';
+// import styles from '../Wallet/WalletList.less';
 
-const { confirm } = Modal;
 const FormItem = Form.Item;
-const { Option } = Select;
-// const getValue = obj =>
-//   Object.keys(obj)
-//     .map(key => obj[key])
-//     .join(',');
-// const statusMap = ['default', 'processing', 'success', 'error'];
-// const status = ['关闭', '运行中', '已上线', '异常'];
 
-const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible, confirmLoading } = props;
-  const okHandle = () => {
-    form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      console.log(err);
-      if (err) {
-        // form.resetFields();
-        return;
-      }
-      handleAdd(fieldsValue);
-    });
-  };
-  return (
-    <Modal
-      title="批量创建钱包"
-      visible={modalVisible}
-      onOk={okHandle}
-      confirmLoading={confirmLoading}
-      onCancel={() => handleModalVisible()}
-    >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="钱包数量">
-        {form.getFieldDecorator('walletAmount', {
-          validateFirst: true,
-          rules: [
-            { required: true, message: '不能为空' },
-            {
-              validator: (rule, value, callback) => {
-                if (isNaN(Number(value)) || value.indexOf('.') >= 0 || value - 0 <= 0) {
-                  callback('必须为正整数');
-                }
-                callback();
-              },
-            },
-          ],
-        })(<Input style={{ width: '100%' }} placeholder="请输入所要创建的钱包数量" />)}
-      </FormItem>
-    </Modal>
-  );
-});
-
-@connect(({ wallet, loading }) => ({
-  wallet,
-  loading: loading.models.wallet,
+@connect(({ coinTask, loading }) => ({
+  coinTask,
+  submitting: loading.effects['user/createAdmin'],
 }))
 @Form.create()
 export default class CreateUser extends PureComponent {
-  state = {
-    modalVisible: false,
-    expandForm: false,
-    selectedRows: [],
-    // formValues: {},
-    confirmLoading: false,
-  };
-
-  componentDidMount() {
-    this.handleSearch(0, 10);
-    const { dispatch } = this.props;
-    // dispatch({
-    //   type: 'coin/commonStatusEnum',
-    // });
-    dispatch({
-      type: 'wallet/tokenTypeEnum',
-    });
-  }
-
-  handleStandardTableChange = pagination => {
-    console.log(pagination);
-    // const { dispatch } = this.props;
-    // const { formValues } = this.state;
-
-    // const filters = Object.keys(filtersArg).reduce((obj, key) => {
-    //   const newObj = { ...obj };
-    //   newObj[key] = getValue(filtersArg[key]);
-    //   return newObj;
-    // }, {});
-
-    // const params = {
-    //   currentPage: pagination.current,
-    //   pageSize: pagination.pageSize,
-    //   ...formValues,
-    //   ...filters,
-    // };
-    // if (sorter.field) {
-    //   params.sorter = `${sorter.field}_${sorter.order}`;
-    // }
-
-    // dispatch({
-    //   type: 'rule/fetch',
-    //   payload: params,
-    // });
-
-    this.handleSearch(pagination.current - 1, pagination.pageSize);
-  };
-
-  handleFormReset = () => {
-    const { form } = this.props;
-    form.resetFields();
-    this.setState({
-      // formValues: {},
-    });
-    // dispatch({
-    //   type: 'rule/fetch',
-    //   payload: {},
-    // });
-  };
-
-  toggleForm = () => {
-    this.setState({
-      expandForm: !this.state.expandForm,
+  componentDidMount = () => {
+    this.props.dispatch({
+      type: 'coinTask/tokenTypeEnum',
     });
   };
 
-  handleMenuClick = e => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-
-    // if (!selectedRows) return;
-
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'wallet/remove',
-          payload: {
-            no: selectedRows.map(row => row.no).join(','),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
-        break;
-      case 'approval':
-        this.handleModalVisible(true);
-        break;
-      default:
-        break;
-    }
-  };
-
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows,
-    });
-  };
-
-  // handleSearch = (pageIndex, pageSize) => {
-  //   // dispatch({
-  //   //   type: 'rule/queryAllBalance',
-  //   // });
-  //   e.preventDefault();
-
-  //   const { dispatch, form } = this.props;
-
-  //   form.validateFields((err, fieldsValue) => {
-  //     if (err) return;
-  //     if (!fieldsValue.walletAddress) {
-  //       dispatch({
-  //         type: 'wallet/queryAllBalance',
-  //       });
-  //     } else {
-  //       dispatch({
-  //         type: 'wallet/queryAllBalance',
-  //         params: {
-  //           pageIndex: 0,
-  //           pageSize: 10,
-  //           filter: {
-  //             "ethAddresses": [fieldsValue.walletAddress],
-  //           },
-  //         },
-  //       });
-  //     }
-  //     console.log(fieldsValue)
-  //     console.log(fieldsValue)
-  //     // const values = {
-  //     //   ...fieldsValue,
-  //     //   updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-  //     // };
-
-  //     // this.setState({
-  //     //   formValues: values,
-  //     // });
-
-  //   });
-  // };
-
-  handleSearch = (pageIndex, pageSize) => {
-    // dispatch({
-    //   type: 'rule/queryAllBalance',
-    // });
-    // e.preventDefault();
-
-    const { dispatch, form } = this.props;
-
-    form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      if (err) return;
-      // this.setState({
-      //   formValues: fieldsValue,
-      // });
-      const newParam = fieldsValue;
-      Object.keys(newParam).forEach(item => {
-        console.log(newParam[item], item);
-        if (newParam[item] === '') {
-          delete newParam[item];
-        } else if (item === 'tokenType' && newParam[item] === undefined) {
-          newParam[item] = 'Enum(eth)';
-        }
-      });
-      const newFieldsValue = { ...newParam };
-      dispatch({
-        type: 'wallet/queryAllBalance',
-        params: {
-          pageIndex,
-          pageSize,
-          filter: newFieldsValue,
-        },
-      });
-      // const values = {
-      //   ...fieldsValue,
-      //   updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      // };
-    });
-  };
-
-  handleModalVisible = flag => {
-    this.setState({
-      modalVisible: !!flag,
-    });
-  };
-
-  handleAdd = fields => {
-    console.log(fields);
-    this.setState(
-      {
-        confirmLoading: true,
-      },
-      () => {
+  handleSubmit = e => {
+    e.preventDefault();
+    this.props.form.validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        const newValues = { ...values };
         this.props.dispatch({
-          type: 'wallet/createMultiAccount',
-          params: {
-            walletAmount: fields.walletAmount,
-          },
-          callback: res => {
-            console.log(res);
-            this.setState({
-              modalVisible: false,
-              confirmLoading: false,
-            });
-            if (res) {
-              message.success(`成功创建 ${fields.walletAmount}个 钱包!`);
-            }
+          type: 'user/createAdmin',
+          params: newValues,
+          callback: () => {
+            message.success('创建用户成功!');
           },
         });
       }
-    );
-  };
-
-  addWallet = () => {
-    const { dispatch } = this.props;
-    console.log(this);
-    confirm({
-      okText: '确认',
-      cancelText: '取消',
-      title: '确定创建一个钱包吗？',
-      onOk() {
-        return new Promise(resolve => {
-          dispatch({
-            type: 'wallet/addWallet',
-            params: {},
-            callback: () => {
-              message.success('创建钱包成功!');
-              resolve();
-              console.log(this);
-            },
-          });
-        });
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
     });
   };
-
-  renderSimpleForm(tokenTypeEnum) {
-    const { getFieldDecorator } = this.props.form;
-    return (
-      <Form
-        onSubmit={() => {
-          this.handleSearch(0, 10);
-        }}
-        ayout="inline"
-      >
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="钱包地址">
-              {getFieldDecorator('address')(<Input placeholder="请输入钱包地址" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="代币类型">
-              {getFieldDecorator('tokenType', {
-                initialValue: tokenTypeEnum[0] && `Enum(${tokenTypeEnum[0].name})`,
-              })(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  {/* <Option value="Enum(eth)">eth</Option>
-                  <Option value="Enum(cre)">cre</Option> */}
-                  {tokenTypeEnum.map((item, index) => {
-                    return (
-                      /* eslint-disable */
-                      <Option key={index} value={`Enum(${item.name})`}>
-                        {item.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                查询
-              </Button>
-              <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-                重置
-              </Button>
-              {/* <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-                展开 <Icon type="down" />
-              </a> */}
-            </span>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-
-  renderAdvancedForm() {
-    const { getFieldDecorator } = this.props.form;
-    return (
-      <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="规则编号">
-              {getFieldDecorator('no')(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="调用次数">
-              {getFieldDecorator('number')(<InputNumber style={{ width: '100%' }} />)}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="更新日期">
-              {getFieldDecorator('date')(
-                <DatePicker style={{ width: '100%' }} placeholder="请输入更新日期" />
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status3')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status4')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-        <div style={{ overflow: 'hidden' }}>
-          <span style={{ float: 'right', marginBottom: 24 }}>
-            <Button type="primary" htmlType="submit">
-              查询
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-              重置
-            </Button>
-            <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-              收起 <Icon type="up" />
-            </a>
-          </span>
-        </div>
-      </Form>
-    );
-  }
-
-  renderForm(tokenTypeEnum) {
-    return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm(tokenTypeEnum);
-  }
-
   render() {
-    const { wallet: { data, tokenTypeEnum }, loading } = this.props;
-    const { selectedRows, modalVisible, confirmLoading } = this.state;
-    console.log(this.props);
-    const columns = [
-      {
-        title: '钱包地址',
-        dataIndex: 'address',
-      },
-      {
-        title: 'eth余额',
-        dataIndex: 'eth',
-      },
-      {
-        title: '所选代笔余额',
-        dataIndex: 'token',
-      },
-      // {
-      //   title: '服务调用次数',
-      //   dataIndex: 'callNo',
-      //   sorter: true,
-      //   align: 'right',
-      //   render: val => `${val} 万`,
-      //   // mark to display a total number
-      //   needTotal: true,
-      // },
-      // {
-      //   title: '状态',
-      //   dataIndex: 'status',
-      //   filters: [
-      //     {
-      //       text: status[0],
-      //       value: 0,
-      //     },
-      //     {
-      //       text: status[1],
-      //       value: 1,
-      //     },
-      //     {
-      //       text: status[2],
-      //       value: 2,
-      //     },
-      //     {
-      //       text: status[3],
-      //       value: 3,
-      //     },
-      //   ],
-      //   onFilter: (value, record) => record.status.toString() === value,
-      //   render(val) {
-      //     return <Badge status={statusMap[val]} text={status[val]} />;
-      //   },
-      // },
-      // {
-      //   title: '更新时间',
-      //   dataIndex: 'updatedAt',
-      //   sorter: true,
-      //   render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-      // },
-      // {
-      //   title: '操作',
-      //   render: () => (
-      //     <Fragment>
-      //       <a href="">配置</a>
-      //       <Divider type="vertical" />
-      //       <a href="">订阅警报</a>
-      //     </Fragment>
-      //   ),
-      // },
-    ];
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        {/* <Menu.Item key="remove">删除</Menu.Item> */}
-        <Menu.Item key="approval">批量创建</Menu.Item>
-      </Menu>
-    );
+    const { submitting } = this.props;
+    const { getFieldDecorator } = this.props.form;
 
-    const parentMethods = {
-      handleAdd: this.handleAdd,
-      handleModalVisible: this.handleModalVisible,
+    const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 12 },
+        md: { span: 10 },
+      },
+    };
+
+    const submitFormLayout = {
+      wrapperCol: {
+        xs: { span: 24, offset: 0 },
+        sm: { span: 10, offset: 7 },
+      },
     };
 
     return (
       <PageHeaderLayout title="创建用户">
         <Card bordered={false}>
-          <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm(tokenTypeEnum)}</div>
-            <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={this.addWallet.bind(this)}>
-                创建钱包
+          <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
+            <FormItem {...formItemLayout} label="用户名">
+              {getFieldDecorator('username', {
+                validateFirst: true,
+                rules: [
+                  {
+                    whitespace: true,
+                    required: true,
+                    message: '用户名为必填项',
+                  },
+                ],
+              })(<Input style={{ width: '100%' }} placeholder="请输入用户名" />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="密码">
+              {getFieldDecorator('password', {
+                validateFirst: true,
+                rules: [
+                  {
+                    whitespace: true,
+                    required: true,
+                    message: '密码为必填项',
+                  },
+                ],
+              })(<Input type="password" style={{ width: '100%' }} placeholder="请输入密码" />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="确认密码">
+              {getFieldDecorator('validPassword', {
+                validateFirst: true,
+                rules: [
+                  {
+                    whitespace: true,
+                    required: true,
+                    message: '确认密码为必填项',
+                  },
+                ],
+              })(<Input type="password" style={{ width: '100%' }} placeholder="请再次输入密码" />)}
+            </FormItem>
+            <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
+              <Button type="primary" htmlType="submit" loading={submitting}>
+                创建
               </Button>
-              <span>
-                {/* <Button>批量操作</Button> */}
-                <Dropdown overlay={menu}>
-                  <Button>
-                    更多操作 <Icon type="down" />
-                  </Button>
-                </Dropdown>
-              </span>
-            </div>
-            <StandardTable
-              selectedRows={selectedRows}
-              loading={loading}
-              data={data}
-              columns={columns}
-              onSelectRow={this.handleSelectRows}
-              onChange={this.handleStandardTableChange}
-              showSelect={null}
-            />
-          </div>
+              {/* <Button style={{ marginLeft: 8 }}>保存</Button> */}
+            </FormItem>
+          </Form>
         </Card>
-        <CreateForm
-          {...parentMethods}
-          modalVisible={modalVisible}
-          confirmLoading={confirmLoading}
-        />
       </PageHeaderLayout>
     );
   }

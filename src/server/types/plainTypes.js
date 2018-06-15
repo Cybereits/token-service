@@ -168,22 +168,6 @@ export const adminLogoutType = new OutputObj({
 // #region Input Objects
 
 /**
- * 这里需要的 values 的格式为
- * {
- *  eth: { value : 'eth' },
- *  cre: { value : 'cre' },
- * }
- */
-export const TokenTypeEnum = new GraphQLEnumType({
-  name: 'TokenTypeEnum',
-  values: Object.entries(TOKEN_TYPES).reduce(
-    (prev, [key, value]) => Object.assign(prev, {
-      [key]: { value },
-    }), {},
-  ),
-})
-
-/**
  * 转账状态的枚举
  */
 export const StatusEnum = new GraphQLEnumType({
@@ -200,8 +184,8 @@ export const balanceFilter = new InputObj({
   description: 'Balance 查询过滤条件',
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
-    orderBy: { type: TokenTypeEnum, description: '排序方式' },
-    tokenType: { type: TokenTypeEnum, description: '查询的代币类型' },
+    orderBy: { type: str, description: '排序方式' },
+    tokenType: { type: str, description: '查询的代币类型' },
   },
 })
 
@@ -212,7 +196,7 @@ export const txFilter = new InputObj({
     to: { type: str, description: '入账钱包地址' },
     amount: { type: int, description: '转账数额' },
     status: { type: StatusEnum, description: '转账状态' },
-    tokenType: { type: TokenTypeEnum, description: '代币类型' },
+    tokenType: { type: str, description: '代币类型' },
   },
 })
 
@@ -227,15 +211,14 @@ export const creContractArgs = new InputObj({
   },
 })
 
-export const assetContractArgs = new InputObj({
-  name: 'assetContractArgs',
-  description: '资产合约参数',
+export const commonContractArgs = new InputObj({
+  name: 'normalContractArgs',
+  description: '通用合约参数',
   fields: {
     tokenSupply: { type: new NotNull(int), description: '代币总量' },
     tokenSymbol: { type: new NotNull(str), description: '代币缩写' },
-    contractDecimals: { type: new NotNull(int), description: '合约精度' },
     contractName: { type: new NotNull(str), description: '合约名称' },
-    kycAddress: { type: new NotNull(str), description: 'kyc 合约地址' },
+    contractDecimals: { type: new NotNull(int), description: '合约精度' },
   },
 })
 
