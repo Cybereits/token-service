@@ -1,12 +1,21 @@
+import { changePwd } from '../services/api';
+
 export default {
   namespace: 'user',
 
   state: {
-    list: [],
-    currentUser: {},
+    changePwd: {},
   },
 
   effects: {
+    *changePwd({ params, callback }, { call }) {
+      const response = yield call(changePwd, params);
+      if (response) {
+        console.log('debug');
+        callback();
+      }
+    },
+
     // *fetch(_, { call, put }) {
     //   const response = yield call(queryUsers);
     //   yield put({
@@ -25,9 +34,10 @@ export default {
 
   reducers: {
     save(state, action) {
+      console.log(action, state);
       return {
         ...state,
-        list: action.payload,
+        ...action.payload,
       };
     },
     saveCurrentUser(state, action) {

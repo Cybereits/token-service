@@ -157,7 +157,7 @@ export default class GlobalHeader extends PureComponent {
                 className={styles.avatar}
                 icon="user"
               />
-              <span className={styles.name}>{currentUser.name}</span>
+              {/* <span className={styles.name}>{currentUser.name}</span> */}
             </span>
           </Dropdown>
         </div>

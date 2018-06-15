@@ -489,3 +489,20 @@ export async function queryTxRecordsViaTaskId({ pageIndex, pageSize, taskID }) {
       console.log(err);
     });
 }
+
+export async function changePwd(params) {
+  console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        changePwd(originPassword:"${params.originPassword}",newPassword:"${params.newPassword}",validPassword:"${params.validPassword}") {
+          username,
+          role,
+        }
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
