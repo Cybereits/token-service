@@ -29,7 +29,7 @@ const client = new ApolloClient({
         const currentAuthority = '';
         setAuthority(currentAuthority);
         reloadAuthorized();
-        window.location.href = `${window.location.origin}/#/user/login`;
+        window.location.href = `${window.location.origin}/#/entry/login`;
       }
     }
   },
@@ -109,7 +109,6 @@ export async function accountLogin({ userName, password }) {
         {
           adminLogin(username: "${userName}", password: "${password}") {
             username
-            message
             role
           }
         }
@@ -206,6 +205,24 @@ export async function addWallet() {
       mutation: gql`
         mutation {
           createAccount
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function createAdmin({ username, password, validPassword }) {
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          createAdmin(username: "${username}", password: "${password}", validPassword: "${validPassword}"){
+            username
+            role
+          }
         }
       `,
     })

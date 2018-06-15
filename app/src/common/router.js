@@ -125,6 +125,12 @@ export const getRouterData = app => {
     '/coin/coin-overview/taskDetail/:taskid': {
       component: dynamicWrapper(app, ['coinTask'], () => import('../routes/Coin/CoinTaskDetail')),
     },
+    '/user/user-createUser': {
+      component: dynamicWrapper(app, ['user'], () => import('../routes/User/CreateUser')),
+    },
+    '/user/user-changePwd': {
+      component: dynamicWrapper(app, ['user'], () => import('../routes/User/ChangePwd')),
+    },
     // '/list/basic-list': {
     //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/BasicList')),
     // },
@@ -171,18 +177,18 @@ export const getRouterData = app => {
         import('../routes/Exception/triggerException')
       ),
     },
-    '/user': {
+    '/entry': {
       component: dynamicWrapper(app, [], () => import('../layouts/UserLayout')),
     },
-    '/user/login': {
+    '/entry/login': {
       component: dynamicWrapper(app, ['login'], () => import('../routes/User/Login')),
     },
-    '/user/register': {
-      component: dynamicWrapper(app, ['register'], () => import('../routes/User/Register')),
-    },
-    '/user/register-result': {
-      component: dynamicWrapper(app, [], () => import('../routes/User/RegisterResult')),
-    },
+    // '/user/register': {
+    //   component: dynamicWrapper(app, ['register'], () => import('../routes/User/Register')),
+    // },
+    // '/user/register-result': {
+    //   component: dynamicWrapper(app, [], () => import('../routes/User/RegisterResult')),
+    // },
     // '/user/:id': {
     //   component: dynamicWrapper(app, [], () => import('../routes/User/SomeComponent')),
     // },
