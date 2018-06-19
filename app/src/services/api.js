@@ -163,6 +163,7 @@ export async function getAccountList() {
 
 export async function queryAllBalance({ pageIndex, pageSize, filter }) {
   const newFilter = { ...filter };
+  // console.log(newFilter)
   for (const key in newFilter) {
     if (filter[key] === undefined) {
       delete newFilter[key];
@@ -412,22 +413,22 @@ export async function sendCoinOverview() {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          pending: queryTx(filter: { status: pending }) {
+          pending: queryTx(filter: { status: "0" }) {
             pagination {
               total
             }
           }
-          sending: queryTx(filter: { status: sending }) {
+          sending: queryTx(filter: { status: "1" }) {
             pagination {
               total
             }
           }
-          success: queryTx(filter: { status: success }) {
+          success: queryTx(filter: { status: "2" }) {
             pagination {
               total
             }
           }
-          failure: queryTx(filter: { status: failure }) {
+          failure: queryTx(filter: { status: "-1" }) {
             pagination {
               total
             }

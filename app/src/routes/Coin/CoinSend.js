@@ -211,20 +211,18 @@ export default class TableList extends PureComponent {
     const { dispatch, form } = this.props;
 
     form.validateFields((err, fieldsValue) => {
+      // console.log(fieldsValue)
       if (err) return;
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
         if (newParam[item] === '') {
           delete newParam[item];
-        } else if (item === 'tokenType' && newParam[item]) {
-          newParam[item] = `Enum(${newParam[item]})`;
-        } else if (item === 'status' && newParam[item]) {
-          newParam[item] = `Enum(${newParam[item]})`;
         } else if (item === 'amount' && newParam[item]) {
           newParam[item] = +newParam[item];
         }
       });
-      const newFieldsValue = { tokenType: 'Enum()', ...newParam };
+      const newFieldsValue = { ...newParam };
+      console.log(newFieldsValue);
       dispatch({
         type: 'coin/queryTx',
         params: {
@@ -317,7 +315,7 @@ export default class TableList extends PureComponent {
                   {statusEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={item.name}>
+                      <Option key={index} value={item.value}>
                         {item.name}
                       </Option>
                     );
@@ -338,7 +336,7 @@ export default class TableList extends PureComponent {
                   {tokenTypeEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={item.name}>
+                      <Option key={index} value={item.value}>
                         {item.name}
                       </Option>
                     );
@@ -505,7 +503,7 @@ export default class TableList extends PureComponent {
                   confirm({
                     okText: '确认',
                     cancelText: '取消',
-                    title: <p>确定要发送此比转账吗？</p>,
+                    title: <p>确定要发送此笔转账吗？</p>,
                     onOk() {
                       return new Promise(resolve => {
                         dispatch({

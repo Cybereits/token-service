@@ -144,7 +144,7 @@ export default class CoinTaskList extends PureComponent {
                   confirm({
                     title: (
                       <p>
-                        确定要发送此任务下的<span style={{ color: 'red' }}> {item.count} </span>比转账吗？
+                        确定要发送此任务下的<span style={{ color: 'red' }}> {item.count} </span>笔转账吗？
                       </p>
                     ),
                     onOk() {

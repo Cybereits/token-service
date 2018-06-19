@@ -102,7 +102,7 @@ export default class TableList extends PureComponent {
   }
 
   handleStandardTableChange = pagination => {
-    console.log(pagination);
+    // console.log(pagination);
     // const { dispatch } = this.props;
     // const { formValues } = this.state;
 
@@ -231,21 +231,22 @@ export default class TableList extends PureComponent {
     const { dispatch, form } = this.props;
 
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
+      // console.log(fieldsValue);
       if (err) return;
       // this.setState({
       //   formValues: fieldsValue,
       // });
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
-        console.log(newParam[item], item);
+        // console.log(newParam[item], item);
         if (newParam[item] === '') {
           delete newParam[item];
         } else if (item === 'tokenType' && newParam[item] === undefined) {
-          newParam[item] = 'Enum(eth)';
+          newParam[item] = 'eth';
         }
       });
       const newFieldsValue = { ...newParam };
+      // console.log(newFieldsValue)
       dispatch({
         type: 'wallet/queryAllBalance',
         params: {
@@ -332,13 +333,13 @@ export default class TableList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="钱包地址">
-              {getFieldDecorator('address')(<Input placeholder="请输入钱包地址" />)}
+              {getFieldDecorator('ethAddresses')(<Input placeholder="请输入钱包地址" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="代币类型">
               {getFieldDecorator('tokenType', {
-                initialValue: tokenTypeEnum[0] && `Enum(${tokenTypeEnum[0].name})`,
+                initialValue: tokenTypeEnum[0] && tokenTypeEnum[0].name,
               })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   {/* <Option value="Enum(eth)">eth</Option>
@@ -346,7 +347,7 @@ export default class TableList extends PureComponent {
                   {tokenTypeEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={`Enum(${item.name})`}>
+                      <Option key={index} value={item.name}>
                         {item.name}
                       </Option>
                     );
@@ -452,7 +453,7 @@ export default class TableList extends PureComponent {
   render() {
     const { wallet: { data, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
-    console.log(this.props);
+    // console.log(this.props);
     const columns = [
       {
         title: '钱包地址',

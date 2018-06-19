@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 // import ApolloClient from 'apollo-boost';
 // import gql from 'graphql-tag';
-import DescriptionList from 'components/DescriptionList'
+import DescriptionList from 'components/DescriptionList';
 import { routerRedux } from 'dva/router';
 // import moment from 'moment';
 import {
@@ -83,7 +83,7 @@ export default class CoinTaskDetail extends PureComponent {
           cancelText: '取消',
           title: (
             <p>
-              确定要发送<span style={{ color: 'red' }}> {selectedRows.length} </span>比转账吗？
+              确定要发送<span style={{ color: 'red' }}> {selectedRows.length} </span>笔转账吗？
             </p>
           ),
           onOk() {
@@ -267,7 +267,7 @@ export default class CoinTaskDetail extends PureComponent {
             onChange={this.handleStandardTableChange}
             showSelect={null}
             expandedRowRender={item => {
-              console.log(item)
+              console.log(item);
               return (
                 <Card bordered={false}>
                   <DescriptionList size="large">
@@ -281,7 +281,7 @@ export default class CoinTaskDetail extends PureComponent {
                     <Description term="确认时间">{item.confirmTime}</Description>
                   </DescriptionList>
                 </Card>
-              )
+              );
             }}
           />
         </div>

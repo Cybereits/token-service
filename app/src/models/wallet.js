@@ -56,7 +56,7 @@ export default {
           pageIndex: 0,
           pageSize: 10,
           filter: {
-            tokenType: 'Enum(eth)',
+            tokenType: 'eth',
           },
         },
         callback,
