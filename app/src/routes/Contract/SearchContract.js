@@ -1,6 +1,6 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import DescriptionList from 'components/DescriptionList';
+// import DescriptionList from 'components/DescriptionList';
 import {
   Row,
   Col,
@@ -15,7 +15,7 @@ import {
   InputNumber,
   DatePicker,
   Modal,
-  message,
+  // message,
   // Badge,
   // Divider,
 } from 'antd';
@@ -23,11 +23,11 @@ import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './contract.less';
 
-const { confirm } = Modal;
+// const { confirm } = Modal;
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
-const { Description } = DescriptionList;
+// const { Description } = DescriptionList;
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, sendCoin, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
@@ -90,12 +90,12 @@ const CreateForm = Form.create()(props => {
   );
 });
 
-@connect(({ coin, loading }) => ({
-  coin,
-  loading: loading.models.coin,
+@connect(({ contract, loading }) => ({
+  contract,
+  loading: loading.models.contract,
 }))
 @Form.create()
-export default class TableList extends PureComponent {
+export default class SearchContract extends PureComponent {
   state = {
     modalVisible: false,
     expandForm: false,
@@ -104,16 +104,16 @@ export default class TableList extends PureComponent {
     confirmLoading: false,
   };
 
-  componentDidMount() {
-    this.handleSearch(0, 10);
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'coin/commonStatusEnum',
-    });
-    dispatch({
-      type: 'coin/tokenTypeEnum',
-    });
-  }
+  // componentDidMount() {
+  //   this.handleSearch(0, 10);
+  //   const { dispatch } = this.props;
+  //   dispatch({
+  //     type: 'coin/commonStatusEnum',
+  //   });
+  //   dispatch({
+  //     type: 'coin/tokenTypeEnum',
+  //   });
+  // }
 
   handleStandardTableChange = pagination => {
     // const { dispatch } = this.props;
@@ -153,9 +153,9 @@ export default class TableList extends PureComponent {
   handleFormReset = () => {
     const { form } = this.props;
     form.resetFields();
-    this.setState({
-      // formValues: {},
-    });
+    // this.setState({
+    // formValues: {},
+    // });
     // dispatch({
     //   type: 'rule/fetch',
     //   payload: {},
@@ -168,41 +168,13 @@ export default class TableList extends PureComponent {
     });
   };
 
-  handleMenuClick = e => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-
-    // if (!selectedRows) return;
-
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'coin/remove',
-          payload: {
-            no: selectedRows.map(row => row.no).join(','),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
-        break;
-      case 'approval':
-        this.handleModalVisible(true);
-        break;
-      default:
-        break;
-    }
-  };
-
   handleSelectRows = rows => {
     this.setState({
       selectedRows: rows,
     });
   };
 
-  handleSearch = (pageIndex, pageSize) => {
+  handleSearch = () => {
     // dispatch({
     //   type: 'rule/queryAllBalance',
     // });
@@ -217,69 +189,22 @@ export default class TableList extends PureComponent {
       Object.keys(newParam).forEach(item => {
         if (newParam[item] === '') {
           delete newParam[item];
-        } else if (item === 'amount' && newParam[item]) {
-          newParam[item] = +newParam[item];
+        } else if (item === 'isERC20') {
+          newParam[item] = !!newParam[item];
         }
       });
       const newFieldsValue = { ...newParam };
       console.log(newFieldsValue);
       dispatch({
-        type: 'coin/queryTx',
+        type: 'contract/queryAllContract',
         params: {
-          pageIndex,
-          pageSize,
           filter: newFieldsValue,
         },
       });
     });
   };
 
-  sendCoin = fields => {
-    this.setState(
-      {
-        confirmLoading: true,
-      },
-      () => {
-        this.props.dispatch({
-          type: 'coin/handlePrizes',
-          params: fields,
-          callback: res => {
-            this.setState({
-              modalVisible: false,
-              confirmLoading: false,
-            });
-            if (res) {
-              message.success(`成功创建 ${fields.amount}个 任务队列!`);
-            }
-          },
-        });
-      }
-    );
-  };
-
-  addWallet = () => {
-    const { dispatch } = this.props;
-    confirm({
-      title: '确定创建一个钱包吗？',
-      onOk() {
-        return new Promise(resolve => {
-          dispatch({
-            type: 'coin/addWallet',
-            params: {},
-            callback: () => {
-              message.success('创建钱包成功!');
-              resolve();
-            },
-          });
-        });
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-  };
-
-  renderSimpleForm(statusEnum, tokenTypeEnum) {
+  renderSimpleForm() {
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
@@ -301,46 +226,35 @@ export default class TableList extends PureComponent {
           this.handleSearch(0, 10);
         }}
         layout="inline"
+        // autoComplete="off"
       >
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24} xs={24}>
-            <FormItem {...formItemLayout} label="入账地址">
-              {getFieldDecorator('to')(<Input placeholder="请输入入账地址" />)}
+            <FormItem {...formItemLayout} label="合约名称">
+              {getFieldDecorator('name')(<Input placeholder="请输入合约名称" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24} xs={24}>
-            <FormItem {...formItemLayout} label="状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  {statusEnum.map((item, index) => {
-                    return (
-                      /* eslint-disable */
-                      <Option key={index} value={item.value}>
-                        {item.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
+            <FormItem {...formItemLayout} label="代币缩写">
+              {getFieldDecorator('symbol')(<Input placeholder="请输入代币缩写" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24} xs={24}>
-            <FormItem {...formItemLayout} label="发送数量">
-              {getFieldDecorator('amount')(<Input placeholder="请输入发送数量" />)}
+            <FormItem {...formItemLayout} label="所属地址">
+              {getFieldDecorator('owner')(<Input placeholder="请输入所属地址" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24} xs={24}>
-            <FormItem {...formItemLayout} label="代币类型">
-              {getFieldDecorator('tokenType')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  {tokenTypeEnum.map((item, index) => {
-                    return (
-                      /* eslint-disable */
-                      <Option key={index} value={item.value}>
-                        {item.name}
-                      </Option>
-                    );
-                  })}
+            <FormItem {...formItemLayout} label="合约地址">
+              {getFieldDecorator('address')(<Input placeholder="请输入合约地址" />)}
+            </FormItem>
+          </Col>
+          <Col md={8} sm={24} xs={24}>
+            <FormItem {...formItemLayout} label="是否是ERC20代币合约">
+              {getFieldDecorator('isERC20')(
+                <Select placeholder="请选择">
+                  <Option value={1}>是</Option>
+                  <Option value={0}>否</Option>
                 </Select>
               )}
             </FormItem>
@@ -442,149 +356,51 @@ export default class TableList extends PureComponent {
   }
 
   render() {
-    const { coin: { data, statusEnum, tokenTypeEnum }, loading } = this.props;
+    const { contract: { data, statusEnum, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
     const columns = [
-      // {
-      //   title: '入账地址',
-      //   dataIndex: 'to',
-      //   fixed: 'left',
-      // },
-      // {
-      //   title: 'id',
-      //   dataIndex: 'id',
-      // },
       {
-        title: '发送代币数量',
-        dataIndex: 'amount',
+        title: '合约名称',
+        dataIndex: 'name',
+        // fixed: 'left',
       },
       {
-        title: '出账地址',
-        dataIndex: 'from',
+        title: '代币缩写',
+        dataIndex: 'symbol',
       },
-      // {
-      //   title: '发送状态',
-      //   dataIndex: 'status',
-      // },
       {
-        title: '代币类型',
-        dataIndex: 'tokenType',
+        title: '代币精度',
+        dataIndex: 'decimal',
       },
-      // {
-      //   title: '备注',
-      //   dataIndex: 'comment',
-      // },
-      // {
-      //   title: 'txid',
-      //   dataIndex: 'txid',
-      // },
-      // {
-      //   title: '任务id',
-      //   dataIndex: 'taskid',
-      // },
-      // {
-      //   title: '发送时间',
-      //   dataIndex: 'sendTime',
-      // },
-      // {
-      //   title: '确认时间',
-      //   dataIndex: 'confirmTime',
-      // },
       {
-        title: '操作',
-        render: item => {
-          const { dispatch } = this.props;
-          const newThis = this;
-          return (
-            <Fragment>
-              <a
-                disabled={item.status === 'pending' || item.status === 'failure' ? false : true}
-                onClick={function() {
-                  confirm({
-                    okText: '确认',
-                    cancelText: '取消',
-                    title: <p>确定要发送此笔转账吗？</p>,
-                    onOk() {
-                      return new Promise(resolve => {
-                        dispatch({
-                          type: 'coinTask/sendTransactionfFromIds',
-                          params: [item.id],
-                          callback: () => {
-                            message.success('发送成功！');
-                            resolve();
-                            newThis.handleSearch(0, 10);
-                          },
-                        });
-                      });
-                    },
-                    onCancel() {},
-                  });
-                }}
-              >
-                发送代币
-              </a>
-            </Fragment>
-          );
-        },
+        title: '合约编码',
+        dataIndex: 'codes',
       },
-      // {
-      //   title: '服务调用次数',
-      //   dataIndex: 'callNo',
-      //   sorter: true,
-      //   align: 'right',
-      //   render: val => `${val} 万`,
-      //   // mark to display a total number
-      //   needTotal: true,
-      // },
-      // {
-      //   title: '状态',
-      //   dataIndex: 'status',
-      //   filters: [
-      //     {
-      //       text: status[0],
-      //       value: 0,
-      //     },
-      //     {
-      //       text: status[1],
-      //       value: 1,
-      //     },
-      //     {
-      //       text: status[2],
-      //       value: 2,
-      //     },
-      //     {
-      //       text: status[3],
-      //       value: 3,
-      //     },
-      //   ],
-      //   onFilter: (value, record) => record.status.toString() === value,
-      //   render(val) {
-      //     return <Badge status={statusMap[val]} text={status[val]} />;
-      //   },
-      // },
-      // {
-      //   title: '更新时间',
-      //   dataIndex: 'updatedAt',
-      //   sorter: true,
-      //   render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-      // },
-      // {
-      //   title: '操作',
-      //   render: () => (
-      //     <Fragment>
-      //       <a href="">配置</a>
-      //       <Divider type="vertical" />
-      //       <a href="">订阅警报</a>
-      //     </Fragment>
-      //   ),
-      // },
+      {
+        title: '合约',
+        dataIndex: 'abis',
+      },
+      {
+        title: '合约拥有者',
+        dataIndex: 'owner',
+      },
+      {
+        title: '合约地址',
+        dataIndex: 'address',
+      },
+      {
+        title: '合约部署参数',
+        dataIndex: 'args',
+      },
+      {
+        title: '是否是ERC20代币合约',
+        dataIndex: 'isERC',
+      },
+      {
+        title: '合约创建时间',
+        dataIndex: 'cteateAt',
+      },
     ];
-    // const menu = (
-    //   <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-    //     {/* <Menu.Item key="remove">删除</Menu.Item> */}
-    //     <Menu.Item key="approval">批量创建</Menu.Item>
-    //   </Menu>
-    // );
 
     const parentMethods = {
       sendCoin: this.sendCoin,
@@ -592,7 +408,7 @@ export default class TableList extends PureComponent {
     };
 
     return (
-      <PageHeaderLayout title="代币发放">
+      <PageHeaderLayout title="合约查询">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm(statusEnum, tokenTypeEnum)}</div>
@@ -622,23 +438,6 @@ export default class TableList extends PureComponent {
               columns={columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              expandedRowRender={item => {
-                console.log(item);
-                return (
-                  <Card bordered={false}>
-                    <DescriptionList size="large">
-                      <Description term="入账地址">{item.to}</Description>
-                      <Description term="id">{item.id}</Description>
-                      <Description term="发送状态">{item.status}</Description>
-                      <Description term="备注">{item.comment}</Description>
-                      <Description term="txid">{item.txid}</Description>
-                      <Description term="任务id">{item.taskid}</Description>
-                      <Description term="发送时间">{item.sendTime}</Description>
-                      <Description term="确认时间">{item.confirTime}</Description>
-                    </DescriptionList>
-                  </Card>
-                );
-              }}
             />
           </div>
         </Card>

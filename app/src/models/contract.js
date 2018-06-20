@@ -13,6 +13,8 @@ import {
   queryBatchTrasactionTasks,
   handlePrizes,
   tokenTypeEnum,
+  queryAllContract,
+  addERC20ContractMeta,
 } from '../services/api';
 
 export default {
@@ -34,6 +36,18 @@ export default {
   },
 
   effects: {
+    *addERC20ContractMeta({ params, callback }, { call }) {
+      console.log(params);
+      const response = yield call(addERC20ContractMeta, params);
+      if (callback) callback(response);
+    },
+    *queryAllContract({ params }, { call, put }) {
+      const response = yield call(queryAllContract, params);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
     *fetch({ payload }, { call, put }) {
       const response = yield call(queryRule, payload);
       yield put({

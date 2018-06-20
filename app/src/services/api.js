@@ -525,3 +525,43 @@ export async function changePwd(params) {
       console.log(err);
     });
 }
+
+export async function queryAllContract(params) {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        query {
+          queryAllContract(filter: ${toGql(params.filter)}) {
+            name,
+            symbol,
+            decimal,
+            codes,
+            abis,
+            owner,
+            address,
+            args,
+            isERC20,
+            createAt,
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function addERC20ContractMeta(params) {
+console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        addERC20ContractMeta(name: "${params.name}", symbol: "${params.symbol}", decimal: ${params.decimal},codes: "${params.codes}",abis: "${params.abis}",address: "${params.address}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
