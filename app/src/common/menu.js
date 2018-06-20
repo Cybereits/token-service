@@ -115,6 +115,25 @@ const menuData = [
       },
     ],
   },
+  {
+    name: '合约管理',
+    icon: 'user',
+    path: 'contract',
+    children: [
+      {
+        name: '合约查询',
+        path: 'contract-search',
+      },
+      {
+        name: '创建合约',
+        path: 'contract-create',
+      },
+      {
+        name: '添加合约',
+        path: 'contract-add',
+      },
+    ],
+  },
   // {
   //   name: '详情页',
   //   icon: 'profile',

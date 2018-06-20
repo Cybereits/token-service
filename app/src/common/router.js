@@ -131,6 +131,21 @@ export const getRouterData = app => {
     '/user/user-changePwd': {
       component: dynamicWrapper(app, ['user'], () => import('../routes/User/ChangePwd')),
     },
+    '/contract/contract-search': {
+      component: dynamicWrapper(app, ['contract'], () =>
+        import('../routes/Contract/SearchContract')
+      ),
+    },
+    '/contract/contract-create': {
+      component: dynamicWrapper(app, ['contract'], () =>
+        import('../routes/Contract/CreateContract')
+      ),
+    },
+    '/contract/contract-add': {
+      component: dynamicWrapper(app, ['contract'], () =>
+        import('../routes/Contract/CreateContract')
+      ),
+    },
     // '/list/basic-list': {
     //   component: dynamicWrapper(app, ['list'], () => import('../routes/List/BasicList')),
     // },
