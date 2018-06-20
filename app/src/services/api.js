@@ -177,8 +177,8 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
       query: gql`
         {
           queryAllBalance(pageIndex: ${pageIndex}, pageSize: ${pageSize}, filter: ${toGql(
-        newFilter
-      )}) {
+          newFilter
+        )}) {
             pagination {
               total
               current
@@ -254,8 +254,8 @@ export async function createBatchTransactions({ transactions, comment, tokenType
       mutation: gql`
         mutation {
           createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: "${toGql(
-        tokenType
-      )}", outAccount: "${outAccount}") {
+          tokenType
+        )}", outAccount: "${outAccount}") {
             id,
             count,
             comment,
@@ -519,6 +519,88 @@ export async function changePwd(params) {
           username,
           role,
         }
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function deployCREContract(params) {
+  console.log(params)
+  const newParams = { ...params };
+  for (const key in newParams) {
+    if (newParams[key] === undefined) {
+      newParams[key] = ''
+    }
+  }
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        deployCREContract(deployer: {
+          address: "${newParams.address}",
+          secret: "${newParams.secret}"
+        }, contractArgs: {
+          tokenSupply: ${newParams.tokenSupply},
+          contractDecimals: ${newParams.contractDecimals},
+          lockPercent: ${newParams.lockPercent},
+          lockAddresses: "${newParams.lockAddresses}"
+        })
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+export async function deployKycContract(params) {
+  console.log(params)
+  const newParams = { ...params };
+  for (const key in newParams) {
+    if (newParams[key] === undefined) {
+      newParams[key] = ''
+    }
+  }
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        deployKycContract(deployer: {
+          address: "${newParams.address}",
+          secret: "${newParams.secret}"
+        }, contractArgs: {
+          tokenSupply: ${newParams.tokenSupply},
+          tokenSymbol: "${newParams.tokenSymbol}",
+          contractName: "${newParams.contractName}",
+          contractDecimals: ${newParams.contractDecimals}
+        })
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+export async function deployAssetContract(params) {
+  console.log(params)
+  const newParams = { ...params };
+  for (const key in newParams) {
+    if (newParams[key] === undefined) {
+      newParams[key] = ''
+    }
+  }
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        deployAssetContract(deployer: {
+          address: "${newParams.address}",
+          secret: "${newParams.secret}"
+        }, contractArgs: {
+          tokenSupply: ${newParams.tokenSupply},
+          tokenSymbol: "${newParams.tokenSymbol}",
+          contractName: "${newParams.contractName}",
+          contractDecimals: ${newParams.contractDecimals}
+        }, kycAddress: "${newParams.kycAddress}")
     }`,
     })
     .catch(err => {

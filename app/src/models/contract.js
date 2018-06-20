@@ -1,222 +1,28 @@
-import moment from 'moment';
-import {
-  queryRule,
-  removeRule,
-  addRule,
-  getAccountList,
-  queryAllBalance,
-  addWallet,
-  createMultiAccount,
-  queryTx,
-  commonStatusEnum,
-  sendCoinOverview,
-  queryBatchTrasactionTasks,
-  handlePrizes,
-  tokenTypeEnum,
-} from '../services/api';
+import { deployCREContract, deployKycContract, deployAssetContract } from '../services/api';
 
 export default {
   namespace: 'contract',
 
-  state: {
-    data: {
-      list: [],
-      pagination: {},
-    },
-    statusEnum: [],
-    tokenTypeEnum: [],
-    sendCoinOverviewData: [],
-    coinTotal: 0,
-    queryBatchTrasactionTasks: {
-      list: [],
-      pagination: {},
-    },
-  },
+  state: {},
 
   effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(queryRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-    *commonStatusEnum({ payload }, { call, put }) {
-      const response = yield call(commonStatusEnum, payload);
+    *deployCREContract({ params, callback }, { call }) {
+      const response = yield call(deployCREContract, params);
       if (response) {
-        yield put({
-          type: 'save',
-          statusEnum: response.data.statusEnum,
-        });
+        if (callback) callback();
       }
     },
-    *tokenTypeEnum({ payload }, { call, put }) {
-      const response = yield call(tokenTypeEnum, payload);
+    *deployKycContract({ params, callback }, { call }) {
+      const response = yield call(deployKycContract, params);
       if (response) {
-        yield put({
-          type: 'save',
-          tokenTypeEnum: response.data.tokenTypeEnum,
-        });
+        if (callback) callback();
       }
     },
-    *sendCoinOverview({ payload }, { call, put }) {
-      const response = yield call(sendCoinOverview, payload);
+    *deployAssetContract({ params, callback }, { call }) {
+      const response = yield call(deployAssetContract, params);
       if (response) {
-        const sendCoinOverviewData = [];
-        let coinTotal;
-        Object.keys(response.data).forEach(key => {
-          if (key === 'total') {
-            coinTotal = response.data[key].pagination.total;
-          } else {
-            sendCoinOverviewData.push({
-              x: key,
-              y: response.data[key].pagination.total,
-            });
-          }
-        });
-        yield put({
-          type: 'save',
-          sendCoinOverviewData,
-          coinTotal,
-        });
+        if (callback) callback();
       }
-    },
-    *queryBatchTrasactionTasks({ payload }, { call, put }) {
-      const response = yield call(queryBatchTrasactionTasks, payload);
-      if (response) {
-        yield put({
-          type: 'save',
-          queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
-        });
-      }
-    },
-    *getAccountList({ payload }, { call, put }) {
-      const response = yield call(getAccountList, payload);
-      const data = {};
-      if (response) {
-        data.list = response.data.getAccountList.map((value, index) => {
-          return { key: index, address: value };
-        });
-      }
-      yield put({
-        type: 'save',
-        payload: data,
-      });
-    },
-    *queryAllBalance(
-      {
-        params = {
-          pageIndex: 0,
-          pageSize: 10,
-          filter: {},
-        },
-        callback,
-      },
-      { call, put }
-    ) {
-      const response = yield call(queryAllBalance, params);
-      const data = {};
-      if (response) {
-        data.list = response.data.queryAllBalance.list.map((value, index) => {
-          return {
-            ethAddress: value.ethAddress,
-            ethAmount: value.balances[0].value,
-            creAmount: value.balances[1].value,
-            key: index,
-          };
-        });
-        data.pagination = response.data.queryAllBalance.pagination;
-        yield put({
-          type: 'save',
-          payload: data,
-        });
-      }
-      if (callback) callback();
-    },
-    *queryTx(
-      {
-        params = {
-          pageIndex: 0,
-          pageSize: 10,
-          filter: {},
-        },
-        callback,
-      },
-      { call, put }
-    ) {
-      const response = yield call(queryTx, params);
-      const data = {};
-      if (response) {
-        data.list = response.data.queryTx.list.map((value, index) => {
-          return {
-            id: value.id,
-            amount: value.amount,
-            from: value.from,
-            to: value.to,
-            status: value.status,
-            tokenType: value.tokenType,
-            comment: value.comment,
-            txid: value.txid,
-            taskid: value.taskid,
-            sendTime: value.sendTime === '' || moment(value.sendTime).format('YYYY-MM-DD hh:mm:ss'),
-            confirmTime:
-              value.confirmTime === '' || moment(value.confirmTime).format('YYYY-MM-DD hh:mm:ss'),
-            key: index,
-          };
-        });
-        data.pagination = response.data.queryTx.pagination;
-        yield put({
-          type: 'save',
-          payload: data,
-        });
-      }
-      if (callback) callback();
-    },
-    *add({ payload, callback }, { call, put }) {
-      const response = yield call(addRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
-    },
-    *addWallet({ params, callback }, { call }) {
-      const response = yield call(addWallet, params);
-      if (response) {
-        // yield put({
-        //   type: 'save',
-        //   payload: response,
-        // });
-      }
-      if (callback) callback();
-    },
-    *createMultiAccount({ params, callback }, { call }) {
-      const response = yield call(createMultiAccount, params);
-      if (response) {
-        // yield put({
-        //   type: 'save',
-        //   payload: response,
-        // });
-      }
-      if (callback) callback(response);
-    },
-    *handlePrizes({ params, callback }, { call }) {
-      const response = yield call(handlePrizes, params);
-      if (response) {
-        // yield put({
-        //   type: 'save',
-        //   payload: response,
-        // });
-        if (callback) callback(response);
-      }
-    },
-    *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
     },
   },
 

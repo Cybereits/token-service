@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import {
   Form,
   Input,
@@ -9,6 +8,7 @@ import {
   Button,
   Card,
   message,
+  Tabs,
   // InputNumber,
   // Radio,
   // Icon,
@@ -17,237 +17,439 @@ import {
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 // import styles from './CoinSend.less';
 
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 7 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 12 },
+    md: { span: 10 },
+  },
+};
+
+const submitFormLayout = {
+  wrapperCol: {
+    xs: { span: 24, offset: 0 },
+    sm: { span: 10, offset: 7 },
+  },
+};
+/* eslint-disable*/
+class FormCoin extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    const { submitting, handleSubmit } = this.props;
+    const { getFieldDecorator, validateFieldsAndScroll } = this.props.form;
+    return (
+      <Form
+        onSubmit={e => {
+          handleSubmit(e, validateFieldsAndScroll);
+        }}
+        style={{ marginTop: 8 }}
+      >
+        <FormItem {...formItemLayout} label="钱包地址">
+          {getFieldDecorator('address', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '钱包地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="秘钥">
+          {getFieldDecorator('secret', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: false,
+              },
+            ],
+          })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="代币总量">
+          {getFieldDecorator('tokenSupply', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '代币总量为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入代币总量" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="合约精度">
+          {getFieldDecorator('contractDecimals', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '合约精度为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入合约精度" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="团队锁仓百分比">
+          {getFieldDecorator('lockPercent', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '团队锁仓百分比为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入团队锁仓百分比" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="锁仓地址">
+          {getFieldDecorator('lockAddresses', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '锁仓地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入锁仓地址" />)}
+        </FormItem>
+        <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            提交
+          </Button>
+        </FormItem>
+      </Form>
+    );
+  }
+}
+/* eslint-disable*/
+class FomrKYC extends React.Component {
+  render() {
+    const { submitting, handleSubmit } = this.props;
+    const { getFieldDecorator, validateFieldsAndScroll } = this.props.form;
+    return (
+      <Form
+        onSubmit={e => {
+          handleSubmit(e, validateFieldsAndScroll);
+        }}
+        style={{ marginTop: 8 }}
+      >
+        <FormItem {...formItemLayout} label="钱包地址">
+          {getFieldDecorator('address', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '钱包地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="秘钥">
+          {getFieldDecorator('secret', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: false,
+              },
+            ],
+          })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="代币总量">
+          {getFieldDecorator('tokenSupply', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '代币总量为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入代币总量" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="代币缩写">
+          {getFieldDecorator('tokenSymbol', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '代币缩写为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入代币缩写" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="合约名称">
+          {getFieldDecorator('contractName', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '合约名称为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入合约名称" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="合约精度">
+          {getFieldDecorator('contractDecimals', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '合约精度为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入合约精度" />)}
+        </FormItem>
+        <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            提交
+          </Button>
+        </FormItem>
+      </Form>
+    );
+  }
+}
+/* eslint-disable*/
+class FomrAsset extends React.Component {
+  render() {
+    const { submitting, handleSubmit } = this.props;
+    const { getFieldDecorator, validateFieldsAndScroll } = this.props.form;
+    return (
+      <Form
+        onSubmit={e => {
+          handleSubmit(e, validateFieldsAndScroll);
+        }}
+        style={{ marginTop: 8 }}
+      >
+        <FormItem {...formItemLayout} label="钱包地址">
+          {getFieldDecorator('address', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '钱包地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="秘钥">
+          {getFieldDecorator('secret', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: false,
+              },
+            ],
+          })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="代币总量">
+          {getFieldDecorator('tokenSupply', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '代币总量为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入代币总量" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="代币缩写">
+          {getFieldDecorator('tokenSymbol', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '代币缩写为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入代币缩写" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="合约名称">
+          {getFieldDecorator('contractName', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '合约名称为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入合约名称" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="合约精度">
+          {getFieldDecorator('contractDecimals', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '合约精度为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入合约精度" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="kyc地址">
+          {getFieldDecorator('kycAddress', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: 'kyc合约地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入kyc合约地址" />)}
+        </FormItem>
+        <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            提交
+          </Button>
+        </FormItem>
+      </Form>
+    );
+  }
+}
+
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
+const { TabPane } = Tabs;
 
-@connect(({ coinTask, loading }) => ({
-  coinTask,
-  submitting: loading.effects['coinTask/createBatchTransactions'],
+const FomrCoin_ = Form.create({})(FormCoin);
+const FomrKYC_ = Form.create({})(FomrKYC);
+const FomrAsset_ = Form.create({})(FomrAsset);
+
+@connect(({ contract, loading }) => ({
+  submittingCoin: loading.effects['contract/deployCREContract'],
+  submittingKyc: loading.effects['contract/deployKycContract'],
+  submittingAsset: loading.effects['contract/deployAssetContract'],
 }))
-@Form.create()
-export default class CreateTask extends PureComponent {
-  componentDidMount = () => {
-    this.props.dispatch({
-      type: 'coinTask/tokenTypeEnum',
+export default class CreateContract extends PureComponent {
+  coinHandleSubmit = (e, validateFieldsAndScroll) => {
+    e.preventDefault();
+    validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        const newParams = { ...values };
+        Object.keys(newParams).forEach(item => {
+          if (item === 'tokenSupply') {
+            newParams[item] = +newParams[item];
+          } else if (item === 'contractDecimals') {
+            newParams[item] = +newParams[item];
+          } else if (item === 'lockPercent') {
+            newParams[item] = +newParams[item];
+          }
+        });
+        this.props.dispatch({
+          type: 'contract/deployCREContract',
+          params: newParams,
+          callback: () => {
+            message.success('部署代币合约成功！');
+          },
+        });
+      }
     });
   };
-
-  handleSubmit = e => {
+  kycHandleSubmit = (e, validateFieldsAndScroll) => {
     e.preventDefault();
-    this.props.form.validateFieldsAndScroll((err, values) => {
+    validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const newValues = { ...values };
-        newValues.transactions = encodeURIComponent(newValues.transactions);
+        const newParams = { ...values };
+        Object.keys(newParams).forEach(item => {
+          if (item === 'tokenSupply') {
+            newParams[item] = +newParams[item];
+          } else if (item === 'contractDecimals') {
+            newParams[item] = +newParams[item];
+          }
+        });
         this.props.dispatch({
-          type: 'coinTask/createBatchTransactions',
-          params: newValues,
+          type: 'contract/deployKycContract',
+          params: newParams,
           callback: () => {
-            console.log('success');
-            message.success('创建转账任务成功！');
-            this.props.dispatch(
-              routerRedux.push({
-                pathname: '/coin/coin-overview/taskList',
-              })
-            );
+            message.success('部署kyc合约成功！');
+          },
+        });
+      }
+    });
+  };
+  assetHandleSubmit = (e, validateFieldsAndScroll) => {
+    e.preventDefault();
+    validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        const newParams = { ...values };
+        Object.keys(newParams).forEach(item => {
+          if (item === 'tokenSupply') {
+            newParams[item] = +newParams[item];
+          } else if (item === 'contractDecimals') {
+            newParams[item] = +newParams[item];
+          }
+        });
+        this.props.dispatch({
+          type: 'contract/deployAssetContract',
+          params: newParams,
+          callback: () => {
+            message.success('部署资产合约成功！');
           },
         });
       }
     });
   };
   render() {
-    const { submitting, coinTask: { tokenTypeEnum } } = this.props;
-    const { getFieldDecorator } = this.props.form;
-
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 7 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 12 },
-        md: { span: 10 },
-      },
-    };
-
-    const submitFormLayout = {
-      wrapperCol: {
-        xs: { span: 24, offset: 0 },
-        sm: { span: 10, offset: 7 },
-      },
-    };
-
+    const { submittingCoin, submittingKyc, submittingAsset } = this.props;
     return (
       <PageHeaderLayout title="创建转账任务">
-        <Card bordered={false}>
-          <Form onSubmit={this.handleSubmit} style={{ marginTop: 8 }}>
-            <FormItem {...formItemLayout} label="transactions">
-              {getFieldDecorator('transactions', {
-                rules: [
-                  {
-                    whitespace: true,
-                    required: true,
-                    message: 'transactions为必填项',
-                  },
-                ],
-              })(
-                <TextArea
-                  autosize={{ minRows: 10, maxRows: 20 }}
-                  placeholder="请输入transactions"
-                />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="代币类型">
-              {getFieldDecorator('tokenType', {
-                validateFirst: true,
-                rules: [
-                  {
-                    required: true,
-                    message: '代币类型为必填项',
-                  },
-                ],
-              })(
-                <Select style={{ width: '100%' }} placeholder="请选择">
-                  {tokenTypeEnum.map((item, index) => {
-                    return (
-                      /* eslint-disable */
-                      <Option key={index} value={item.value}>
-                        {item.name}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="出账地址">
-              {getFieldDecorator('outAccount', {
-                validateFirst: true,
-                rules: [
-                  {
-                    whitespace: true,
-                    required: true,
-                    message: '出账地址为必填项',
-                  },
-                ],
-              })(<Input style={{ width: '100%' }} placeholder="请输入出账钱包地址" />)}
-            </FormItem>
-            <FormItem {...formItemLayout} label="备注">
-              {getFieldDecorator('comment', {
-                validateFirst: true,
-                rules: [
-                  {
-                    whitespace: true,
-                    required: true,
-                    message: '备注为必填项',
-                  },
-                ],
-              })(<Input style={{ width: '100%' }} placeholder="请输入备注" />)}
-            </FormItem>
-            {/* <FormItem {...formItemLayout} label="目标描述">
-              {getFieldDecorator('goal', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入目标描述',
-                  },
-                ],
-              })(
-                <TextArea
-                  style={{ minHeight: 32 }}
-                  placeholder="请输入你的阶段性工作目标"
-                  rows={4}
-                />
-                )}
-            </FormItem>
-            <FormItem {...formItemLayout} label="衡量标准">
-              {getFieldDecorator('standard', {
-                rules: [
-                  {
-                    required: true,
-                    message: '请输入衡量标准',
-                  },
-                ],
-              })(<TextArea style={{ minHeight: 32 }} placeholder="请输入衡量标准" rows={4} />)}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  客户
-                  <em className={styles.optional}>
-                    （选填）
-                    <Tooltip title="目标的服务对象">
-                      <Icon type="info-circle-o" style={{ marginRight: 4 }} />
-                    </Tooltip>
-                  </em>
-                </span>
-              }
-            >
-              {getFieldDecorator('client')(
-                <Input placeholder="请描述你服务的客户，内部客户直接 @姓名／工号" />
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  邀评人<em className={styles.optional}>（选填）</em>
-                </span>
-              }
-            >
-              {getFieldDecorator('invites')(
-                <Input placeholder="请直接 @姓名／工号，最多可邀请 5 人" />
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  权重<em className={styles.optional}>（选填）</em>
-                </span>
-              }
-            >
-              {getFieldDecorator('weight')(<InputNumber placeholder="请输入" min={0} max={100} />)}
-              <span>%</span>
-            </FormItem>
-            <FormItem {...formItemLayout} label="目标公开" help="客户、邀评人默认被分享">
-              <div>
-                {getFieldDecorator('public', {
-                  initialValue: '1',
-                })(
-                  <Radio.Group>
-                    <Radio value="1">公开</Radio>
-                    <Radio value="2">部分公开</Radio>
-                    <Radio value="3">不公开</Radio>
-                  </Radio.Group>
-                  )}
-                <FormItem style={{ marginBottom: 0 }}>
-                  {getFieldDecorator('publicUsers')(
-                    <Select
-                      mode="multiple"
-                      placeholder="公开给"
-                      style={{
-                        margin: '8px 0',
-                        display: getFieldValue('public') === '2' ? 'block' : 'none',
-                      }}
-                    >
-                      <Option value="1">同事甲</Option>
-                      <Option value="2">同事乙</Option>
-                      <Option value="3">同事丙</Option>
-                    </Select>
-                  )}
-                </FormItem>
-              </div>
-            </FormItem> */}
-            <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
-              <Button type="primary" htmlType="submit" loading={submitting}>
-                提交
-              </Button>
-              {/* <Button style={{ marginLeft: 8 }}>保存</Button> */}
-            </FormItem>
-          </Form>
-        </Card>
+        <Tabs
+          defaultActiveKey="1"
+          size="large"
+          tabBarStyle={{ backgroundColor: '#fff', marginBottom: 0 }}
+        >
+          <TabPane tab="代币锁仓合约" key="1">
+            <Card bordered={false}>
+              <FomrCoin_
+                submitting={submittingCoin}
+                handleSubmit={(e, validateFieldsAndScroll) => {
+                  this.coinHandleSubmit(e, validateFieldsAndScroll);
+                }}
+              />
+            </Card>
+          </TabPane>
+          <TabPane tab="KYC合约" key="2">
+            <Card bordered={false}>
+              <FomrKYC_
+                submitting={submittingKyc}
+                handleSubmit={(e, validateFieldsAndScroll) => {
+                  this.kycHandleSubmit(e, validateFieldsAndScroll);
+                }}
+              />
+            </Card>
+          </TabPane>
+          <TabPane tab="资产合约" key="3">
+            <Card bordered={false}>
+              <FomrAsset_
+                submitting={submittingAsset}
+                handleSubmit={(e, validateFieldsAndScroll) => {
+                  this.assetHandleSubmit(e, validateFieldsAndScroll);
+                }}
+              />
+            </Card>
+          </TabPane>
+        </Tabs>
       </PageHeaderLayout>
     );
   }
