@@ -253,9 +253,9 @@ export async function createBatchTransactions({ transactions, comment, tokenType
       fetchPolicy: 'no-cache',
       mutation: gql`
         mutation {
-          createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: ${toGql(
+          createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: "${toGql(
         tokenType
-      )}, outAccount: "${outAccount}") {
+      )}", outAccount: "${outAccount}") {
             id,
             count,
             comment,
