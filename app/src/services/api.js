@@ -538,10 +538,7 @@ export async function deployCREContract(params) {
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        deployCREContract(deployer: {
-          address: "${newParams.address}",
-          secret: "${newParams.secret}"
-        }, contractArgs: {
+        deployCREContract(deployer: "${newParams.address}", contractArgs: {
           tokenSupply: ${newParams.tokenSupply},
           contractDecimals: ${newParams.contractDecimals},
           lockPercent: ${newParams.lockPercent},
@@ -590,10 +587,7 @@ export async function deployKycContract(params) {
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        deployKycContract(deployer: {
-          address: "${newParams.address}",
-          secret: "${newParams.secret}"
-        }, contractArgs: {
+        deployKycContract(deployer: "${newParams.address}", contractArgs: {
           tokenSupply: ${newParams.tokenSupply},
           tokenSymbol: "${newParams.tokenSymbol}",
           contractName: "${newParams.contractName}",
@@ -617,10 +611,7 @@ export async function deployAssetContract(params) {
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        deployAssetContract(deployer: {
-          address: "${newParams.address}",
-          secret: "${newParams.secret}"
-        }, contractArgs: {
+        deployAssetContract(deployer: "${newParams.address}", contractArgs: {
           tokenSupply: ${newParams.tokenSupply},
           tokenSymbol: "${newParams.tokenSymbol}",
           contractName: "${newParams.contractName}",

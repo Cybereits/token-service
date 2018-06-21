@@ -62,7 +62,7 @@ class FormCoin extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
         </FormItem>
-        <FormItem {...formItemLayout} label="秘钥">
+        {/* <FormItem {...formItemLayout} label="秘钥">
           {getFieldDecorator('secret', {
             validateFirst: true,
             rules: [
@@ -72,7 +72,7 @@ class FormCoin extends React.Component {
               },
             ],
           })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem {...formItemLayout} label="代币总量">
           {getFieldDecorator('tokenSupply', {
             validateFirst: true,
@@ -214,7 +214,7 @@ class FomrKYC extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
         </FormItem>
-        <FormItem {...formItemLayout} label="秘钥">
+        {/* <FormItem {...formItemLayout} label="秘钥">
           {getFieldDecorator('secret', {
             validateFirst: true,
             rules: [
@@ -224,7 +224,7 @@ class FomrKYC extends React.Component {
               },
             ],
           })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem {...formItemLayout} label="代币总量">
           {getFieldDecorator('tokenSupply', {
             validateFirst: true,
@@ -306,7 +306,7 @@ class FomrAsset extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
         </FormItem>
-        <FormItem {...formItemLayout} label="秘钥">
+        {/* <FormItem {...formItemLayout} label="秘钥">
           {getFieldDecorator('secret', {
             validateFirst: true,
             rules: [
@@ -316,7 +316,7 @@ class FomrAsset extends React.Component {
               },
             ],
           })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem {...formItemLayout} label="代币总量">
           {getFieldDecorator('tokenSupply', {
             validateFirst: true,
