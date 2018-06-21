@@ -49,7 +49,6 @@ export default class AddContract extends PureComponent {
         }
       });
       const newFieldsValue = { ...newParam };
-      console.log(newFieldsValue);
       dispatch({
         type: 'contract/addERC20ContractMeta',
         params: newFieldsValue,

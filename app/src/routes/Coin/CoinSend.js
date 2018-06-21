@@ -222,7 +222,6 @@ export default class TableList extends PureComponent {
         }
       });
       const newFieldsValue = { ...newParam };
-      console.log(newFieldsValue);
       dispatch({
         type: 'coin/queryTx',
         params: {
@@ -623,7 +622,6 @@ export default class TableList extends PureComponent {
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
               expandedRowRender={item => {
-                console.log(item);
                 return (
                   <Card bordered={false}>
                     <DescriptionList size="large">

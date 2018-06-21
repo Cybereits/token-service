@@ -174,7 +174,6 @@ export default class SearchContract extends PureComponent {
         }
       });
       const newFieldsValue = { ...fieldsValue };
-      console.log(newFieldsValue);
       dispatch({
         type: 'contract/queryAllContract',
         params: newFieldsValue,

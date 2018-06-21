@@ -15,7 +15,6 @@ export default {
     *changePwd({ params, callback }, { call }) {
       const response = yield call(changePwd, params);
       if (response) {
-        console.log('debug');
         callback();
       }
     },

@@ -39,8 +39,6 @@ const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
-      console.log(fieldsValue);
-      console.log(err);
       if (err) {
         // form.resetFields();
         return;
@@ -269,7 +267,6 @@ export default class TableList extends PureComponent {
   };
 
   handleAdd = fields => {
-    console.log(fields);
     this.setState(
       {
         confirmLoading: true,
@@ -281,7 +278,6 @@ export default class TableList extends PureComponent {
             walletAmount: fields.walletAmount,
           },
           callback: res => {
-            console.log(res);
             this.setState({
               modalVisible: false,
               confirmLoading: false,
@@ -297,7 +293,6 @@ export default class TableList extends PureComponent {
 
   addWallet = () => {
     const { dispatch } = this.props;
-    console.log(this);
     confirm({
       okText: '确认',
       cancelText: '取消',
