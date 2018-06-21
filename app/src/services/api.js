@@ -553,13 +553,13 @@ export async function deployCREContract(params) {
       console.log(err);
     });
 }
-export async function queryAllContract(params) {
+export async function queryAllContract(params={}) {
   return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         query {
-          queryAllContract(filter: ${toGql(params.filter)}) {
+          queryAllContract(filter: ${toGql(params)}) {
             name,
             symbol,
             decimal,

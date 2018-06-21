@@ -104,16 +104,11 @@ export default class SearchContract extends PureComponent {
     confirmLoading: false,
   };
 
-  // componentDidMount() {
-  //   this.handleSearch(0, 10);
-  //   const { dispatch } = this.props;
-  //   dispatch({
-  //     type: 'coin/commonStatusEnum',
-  //   });
-  //   dispatch({
-  //     type: 'coin/tokenTypeEnum',
-  //   });
-  // }
+  componentDidMount() {
+    this.props.dispatch({
+      type: 'contract/queryAllContract',
+    });
+  }
 
   handleStandardTableChange = pagination => {
     // const { dispatch } = this.props;
@@ -153,13 +148,6 @@ export default class SearchContract extends PureComponent {
   handleFormReset = () => {
     const { form } = this.props;
     form.resetFields();
-    // this.setState({
-    // formValues: {},
-    // });
-    // dispatch({
-    //   type: 'rule/fetch',
-    //   payload: {},
-    // });
   };
 
   toggleForm = () => {
@@ -175,13 +163,7 @@ export default class SearchContract extends PureComponent {
   };
 
   handleSearch = () => {
-    // dispatch({
-    //   type: 'rule/queryAllBalance',
-    // });
-    // e.preventDefault();
-
     const { dispatch, form } = this.props;
-
     form.validateFields((err, fieldsValue) => {
       // console.log(fieldsValue)
       if (err) return;
@@ -189,17 +171,13 @@ export default class SearchContract extends PureComponent {
       Object.keys(newParam).forEach(item => {
         if (newParam[item] === '') {
           delete newParam[item];
-        } else if (item === 'isERC20') {
-          newParam[item] = !!newParam[item];
         }
       });
-      const newFieldsValue = { ...newParam };
+      const newFieldsValue = { ...fieldsValue };
       console.log(newFieldsValue);
       dispatch({
         type: 'contract/queryAllContract',
-        params: {
-          filter: newFieldsValue,
-        },
+        params: newFieldsValue,
       });
     });
   };
@@ -226,7 +204,6 @@ export default class SearchContract extends PureComponent {
           this.handleSearch(0, 10);
         }}
         layout="inline"
-        // autoComplete="off"
       >
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24} xs={24}>
@@ -253,8 +230,9 @@ export default class SearchContract extends PureComponent {
             <FormItem {...formItemLayout} label="是否是ERC20代币合约">
               {getFieldDecorator('isERC20')(
                 <Select placeholder="请选择">
-                  <Option value={1}>是</Option>
-                  <Option value={0}>否</Option>
+                  {/*eslint-disable*/}
+                  <Option value={true}>是</Option>
+                  <Option value={false}>否</Option>
                 </Select>
               )}
             </FormItem>
@@ -372,14 +350,14 @@ export default class SearchContract extends PureComponent {
         title: '代币精度',
         dataIndex: 'decimal',
       },
-      {
-        title: '合约编码',
-        dataIndex: 'codes',
-      },
-      {
-        title: '合约',
-        dataIndex: 'abis',
-      },
+      // {
+      //   title: '合约编码',
+      //   dataIndex: 'codes',
+      // },
+      // {
+      //   title: '合约',
+      //   dataIndex: 'abis',
+      // },
       {
         title: '合约拥有者',
         dataIndex: 'owner',
@@ -388,17 +366,17 @@ export default class SearchContract extends PureComponent {
         title: '合约地址',
         dataIndex: 'address',
       },
-      {
-        title: '合约部署参数',
-        dataIndex: 'args',
-      },
+      // {
+      //   title: '合约部署参数',
+      //   dataIndex: 'args',
+      // },
       {
         title: '是否是ERC20代币合约',
-        dataIndex: 'isERC',
+        dataIndex: 'isERC20',
       },
       {
         title: '合约创建时间',
-        dataIndex: 'cteateAt',
+        dataIndex: 'createAt',
       },
     ];
 
