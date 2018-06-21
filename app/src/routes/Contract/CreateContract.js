@@ -109,8 +109,68 @@ class FormCoin extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入团队锁仓百分比" />)}
         </FormItem>
-        <FormItem {...formItemLayout} label="锁仓地址">
-          {getFieldDecorator('lockAddresses', {
+        <FormItem {...formItemLayout} label="锁仓地址一">
+          {getFieldDecorator('lockAddresses1', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '锁仓地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入锁仓地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="锁仓地址二">
+          {getFieldDecorator('lockAddresses2', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '锁仓地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入锁仓地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="锁仓地址三">
+          {getFieldDecorator('lockAddresses3', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '锁仓地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入锁仓地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="锁仓地址四">
+          {getFieldDecorator('lockAddresses4', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '锁仓地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入锁仓地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="锁仓地址五">
+          {getFieldDecorator('lockAddresses5', {
+            validateFirst: true,
+            rules: [
+              {
+                whitespace: true,
+                required: true,
+                message: '锁仓地址为必填项',
+              },
+            ],
+          })(<Input style={{ width: '100%' }} placeholder="请输入锁仓地址" />)}
+        </FormItem>
+        <FormItem {...formItemLayout} label="锁仓地址六">
+          {getFieldDecorator('lockAddresses6', {
             validateFirst: true,
             rules: [
               {
@@ -346,7 +406,17 @@ export default class CreateContract extends PureComponent {
     e.preventDefault();
     validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const newParams = { ...values };
+        const newParams = {
+          ...values,
+          lockAddresses: [
+            values.lockAddresses1,
+            values.lockAddresses2,
+            values.lockAddresses3,
+            values.lockAddresses4,
+            values.lockAddresses5,
+            values.lockAddresses6,
+          ],
+        };
         Object.keys(newParams).forEach(item => {
           if (item === 'tokenSupply') {
             newParams[item] = +newParams[item];

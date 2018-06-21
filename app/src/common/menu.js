@@ -117,7 +117,7 @@ const menuData = [
   },
   {
     name: '合约管理',
-    icon: 'user',
+    icon: 'book',
     path: 'contract',
     children: [
       {

@@ -1,11 +1,34 @@
-import { deployCREContract, deployKycContract, deployAssetContract } from '../services/api';
+import {
+  queryAllContract,
+  addERC20ContractMeta,
+  deployCREContract,
+  deployKycContract,
+  deployAssetContract,
+} from '../services/api';
 
 export default {
   namespace: 'contract',
 
-  state: {},
+  state: {
+    data: {
+      list: [],
+      pagination: {},
+    },
+  },
 
   effects: {
+    *addERC20ContractMeta({ params, callback }, { call }) {
+      console.log(params);
+      const response = yield call(addERC20ContractMeta, params);
+      if (callback) callback(response);
+    },
+    *queryAllContract({ params }, { call, put }) {
+      const response = yield call(queryAllContract, params);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+    },
     *deployCREContract({ params, callback }, { call }) {
       const response = yield call(deployCREContract, params);
       if (response) {
@@ -29,14 +52,7 @@ export default {
   reducers: {
     save(state, action) {
       return {
-        ...state,
         data: { ...state.data, ...action.payload },
-        statusEnum: action.statusEnum || state.statusEnum,
-        tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
-        sendCoinOverviewData: action.sendCoinOverviewData || state.sendCoinOverviewData,
-        coinTotal: action.coinTotal || state.coinTotal,
-        queryBatchTrasactionTasks:
-          action.queryBatchTrasactionTasks || state.queryBatchTrasactionTasks,
       };
     },
   },
