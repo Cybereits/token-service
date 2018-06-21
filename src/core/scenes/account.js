@@ -1,6 +1,8 @@
 import { EthAccountModel } from '../schemas'
 import { getEthBalance, getTokenBalance } from './token'
 import { getTokenContractMeta } from './contract'
+import getConnection, { creClientConnection, ethClientConnection } from '../../framework/web3'
+import { TOKEN_TYPES } from '../enums'
 
 export function unlockAccount(connect, unlockAccount, passWord) {
   return connect.eth.personal.unlockAccount(unlockAccount, passWord, 20)
@@ -34,6 +36,32 @@ export async function getAccountInfoByAddress(address) {
   } else {
     throw new Error(`没有找到指定的钱包信息 [${address}]`)
   }
+}
+
+/**
+ * 根据账户地址获得其所属钱包客户端链接,并解锁账户
+ * @param {object} address 钱包地址
+ * @returns {object} 钱包客户端链接
+ */
+export async function getConnByAddressThenUnlock(address) {
+
+  // 获取出账钱包信息
+  let conn = null
+
+  let { account, group, secret } = await getAccountInfoByAddress(address)
+
+  // 根据转出钱包地址的 group 类型判断出其所属的钱包客户端
+  if (group === TOKEN_TYPES.cre) {
+    conn = creClientConnection
+  } else if (group === TOKEN_TYPES.eth) {
+    conn = ethClientConnection
+  } else {
+    conn = getConnection()
+  }
+
+  await unlockAccount(conn, account, secret).catch((err) => { throw err })
+
+  return conn
 }
 
 /**

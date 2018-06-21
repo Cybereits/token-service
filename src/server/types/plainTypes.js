@@ -270,12 +270,4 @@ export const commonContractArgs = new InputObj({
   },
 })
 
-export const ethAccount = new InputObj({
-  name: 'ethAccount',
-  description: 'eth 账户信息',
-  fields: {
-    address: { type: new NotNull(str), description: '钱包地址' },
-    secret: { type: str, description: '钱包创建时的密钥 (非私钥)', defaultValue: '' },
-  },
-})
   // #endregion

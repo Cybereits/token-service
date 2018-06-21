@@ -30,7 +30,7 @@ export const createAccount = {
       .personal
       .newAccount(password)
       // 将生成的钱包信息记录入库再返回
-      .then(account => EthAccountModel.create({ account, secret: password }).then(() => account))
+      .then(account => EthAccountModel.create({ account, secret: password, comment }).then(() => account))
   },
 }
 

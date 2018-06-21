@@ -9,13 +9,11 @@ import {
   GraphQLInt as int,
 } from 'graphql'
 
-import { creClientConnection } from '../../framework/web3'
 import { ContractMetaModel } from '../../core/schemas'
-import { createAndDeployContract } from '../../core/scenes/contract'
-import { unlockAccount } from '../../core/scenes/account'
-import { getContractInstance } from '../../core/scenes/token'
+import { createAndDeployContract, getContractInstance } from '../../core/scenes/contract'
+import { getConnByAddressThenUnlock } from '../../core/scenes/account'
 import { CONTRACT_NAMES } from '../../core/enums'
-import { creContractArgs, commonContractArgs, ethAccount, contractMetaResult, contractFilter } from '../types/plainTypes'
+import { creContractArgs, commonContractArgs, contractMetaResult, contractFilter } from '../types/plainTypes'
 
 function readSoliditySource(filename) {
   return fs.readFileSync(path.resolve(__dirname, `../../contracts/${filename}.sol`)).toString()
@@ -51,6 +49,22 @@ function compileContract(sources) {
   return output.contracts
 }
 
+/**
+ * 获取合约实例并解锁地址
+ * @param {string} contractName 合约名称
+ * @param {string} address 解锁账户地址
+ */
+async function getContractAndUnlockAccount(contractName, address) {
+  let contractPromise = getContractInstance(contractName)
+  let unlockPromise = getConnByAddressThenUnlock(address)
+
+  // 解锁账户
+  await unlockPromise
+  // 获取合约实例
+  let contract = await contractPromise
+  return contract
+}
+
 // #region 合约查询及创建
 
 export const queryAllContract = {
@@ -70,7 +84,7 @@ export const queryAllContract = {
 export const queryCREContractAbi = {
   type: str,
   description: '查询 cre 代币合约 abi',
-  async resolve(root, { name }) {
+  async resolve() {
     let contract = await ContractMetaModel.findOne({ name: CONTRACT_NAMES.cre })
     if (contract) {
       const { decimal, args } = contract
@@ -105,7 +119,7 @@ export const deployCREContract = {
   description: '部署代币、锁仓合约',
   args: {
     deployer: {
-      type: ethAccount,
+      type: new NotNull(str),
       description: '部署账户',
     },
     contractArgs: {
@@ -117,7 +131,6 @@ export const deployCREContract = {
     deployer,
     contractArgs,
   }) {
-    const { address, secret } = deployer
     const {
       tokenSupply,
       contractDecimals,
@@ -141,8 +154,8 @@ export const deployCREContract = {
     let [compiledContract, contractInstance] = await createAndDeployContract(
       `0x${creContractCode}`,
       JSON.parse(creContractAbi),
-      address,
-      secret, [
+      deployer,
+      [
         tokenSupply,
         contractDecimals,
         lockPercent,
@@ -162,7 +175,7 @@ export const deployCREContract = {
         decimal: contractDecimals,
         codes: creContractCode,
         abis: creContractAbi,
-        owner: address,
+        owner: deployer,
         address: contractInstance.options.address,
         args: JSON.stringify(contractArgs),
         isERC20: true,
@@ -172,7 +185,7 @@ export const deployCREContract = {
         name: CONTRACT_NAMES.lock,
         codes: lockContractCode,
         abis: lockContractAbi,
-        owner: address,
+        owner: deployer,
         address: lockContractAddr,
         args: JSON.stringify(lockAddresses),
       },
@@ -189,7 +202,7 @@ export const deployKycContract = {
   description: '部署 KYC 合约',
   args: {
     deployer: {
-      type: ethAccount,
+      type: new NotNull(str),
       description: '部署账户',
     },
     contractArgs: {
@@ -198,7 +211,6 @@ export const deployKycContract = {
     },
   },
   async resolve(root, { deployer, contractArgs }) {
-    const { address, secret } = deployer
     const {
       tokenSupply,
       tokenSymbol,
@@ -218,8 +230,8 @@ export const deployKycContract = {
     let [contractInstance] = await createAndDeployContract(
       `0x${contractCode}`,
       JSON.parse(contractAbi),
-      address,
-      secret, [
+      deployer,
+      [
         tokenSupply,
         contractDecimals,
         contractName,
@@ -237,7 +249,7 @@ export const deployKycContract = {
         decimal: contractDecimals,
         codes: contractCode,
         abis: contractAbi,
-        owner: address,
+        owner: deployer,
         address: contractInstance.options.address,
         args: JSON.stringify(contractArgs),
       })
@@ -253,7 +265,7 @@ export const deployAssetContract = {
   description: '部署资产合约',
   args: {
     deployer: {
-      type: ethAccount,
+      type: new NotNull(str),
       description: '部署账户',
     },
     contractArgs: {
@@ -261,12 +273,11 @@ export const deployAssetContract = {
       description: '资产合约初始化参数',
     },
     kycAddress: {
-      type: str,
+      type: new NotNull(str),
       description: 'kyc 合约地址',
     },
   },
   async resolve(root, { deployer, contractArgs, kycAddress }) {
-    const { address, secret } = deployer
     const {
       tokenSupply,
       tokenSymbol,
@@ -289,8 +300,8 @@ export const deployAssetContract = {
     let [contractInstance] = await createAndDeployContract(
       `0x${assetContractCode}`,
       JSON.parse(assetContractAbi),
-      address,
-      secret, [
+      deployer,
+      [
         tokenSupply,
         contractDecimals,
         contractName,
@@ -309,7 +320,7 @@ export const deployAssetContract = {
         decimal: contractDecimals,
         codes: assetContractCode,
         abis: assetContractAbi,
-        owner: address,
+        owner: deployer,
         address: contractInstance.options.address,
         args: JSON.stringify(contractArgs),
         isERC20: true,
@@ -367,37 +378,37 @@ export const addERC20ContractMeta = {
 
 // #region 合约特殊方法
 
-export const unlockTeamAllocation = {
+export const callContractMethod = {
   type: str,
   description: '解锁团队锁仓份额',
   args: {
-    unlockAccount: {
-      type: str,
-      description: '解锁地址',
+    caller: {
+      type: new NotNull(str),
+      description: '调用此方法的钱包地址',
     },
-    ethAccount: {
-      type: ethAccount,
-      description: '调用解锁方法的钱包信息',
+    contractName: {
+      type: new NotNull(str),
+      description: '合约名称',
+    },
+    methodName: {
+      type: new NotNull(str),
+      description: '方法名称',
+    },
+    paramArrInJson: {
+      type: new NotNull(str),
+      description: '参数数组序列化后的 json 字符串',
     },
   },
   async resolve(root, {
-    unlockAddr,
-    ethAccount: {
-      address,
-      secret,
-    },
+    caller,
+    contractName,
+    methodName,
+    paramArrInJson,
   }) {
-    // 解锁账户
-    await unlockAccount(creClientConnection, address, secret)
-
-    // 获取合约实例
-    let subContract = await getContractInstance(CONTRACT_NAMES.lock)
-
+    let contract = await getContractAndUnlockAccount(contractName, caller)
+    let paramArr = JSON.parse(paramArrInJson)
     // 解锁锁定的代币
-    return subContract
-      .methods
-      .unlock(unlockAddr)
-      .send({ from: address })
+    return contract.methods[methodName](...paramArr).send({ from: caller })
   },
 }
 

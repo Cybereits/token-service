@@ -1,7 +1,7 @@
 import BN from 'bignumber.js'
-import getConnection, { ethClientConnection, creClientConnection } from '../../framework/web3'
 
-import { unlockAccount, getAccountInfoByAddress } from './account'
+import getConnection from '../../framework/web3'
+import { getConnByAddressThenUnlock, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
 import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
 import { ContractMetaModel } from '../schemas'
@@ -9,37 +9,16 @@ import { ContractMetaModel } from '../schemas'
 BN.config({ DECIMAL_PLACES: 5 })
 
 /**
- * 根据转出的账户地址获得其所属钱包客户端链接
- * @param {object} entity 钱包信息
- * @returns {object} 钱包客户端链接
- */
-export async function getConnByAccount(entity) {
-
-  // 获取出账钱包信息
-  let conn = null
-
-  let { account, group, secret } = entity
-  // 根据转出钱包地址的 group 类型判断出其所属的钱包客户端
-  if (group === TOKEN_TYPES.cre) {
-    conn = creClientConnection
-  } else if (group === TOKEN_TYPES.eth) {
-    conn = ethClientConnection
-  } else {
-    conn = getConnection()
-  }
-
-  await unlockAccount(conn, account, secret).catch((err) => { throw err })
-
-  return conn
-}
-
-/**
  * 获取代币总量（调用totalSupply方法）
  * @param {*} connect web3链接
  */
 export async function getTotal(connect) {
-  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
-  let amount = await tokenContract.methods.totalSupply().call(null)
+  let contractPromise = getContractInstance(CONTRACT_NAMES.cre)
+  let amountPromise = tokenContract.methods.totalSupply().call(null)
+
+  let tokenContract = await contractPromise
+  let amount = await amountPromise
+
   return amount / (10 ** tokenContract.decimal)
 }
 
@@ -60,8 +39,12 @@ export async function getEthBalance(address) {
  * @param {string} contractMetaName 合约名称枚举（默认 cre）
  */
 export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_NAMES.cre) {
-  let tokenContract = await getContractInstance(contractMetaName)
-  let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
+  let contractPromise = getContractInstance(contractMetaName)
+  let amountPromise = tokenContract.methods.balanceOf(userAddress).call(null)
+
+  let tokenContract = await contractPromise
+  let amount = await amountPromise
+
   return amount / (10 ** tokenContract.decimal)
 }
 
@@ -70,8 +53,12 @@ export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_N
  * @param {*} userAddress 要查询的钱包地址
  */
 export async function getTokenBalanceFullInfo(userAddress) {
-  const tokenTotalAmount = await getTotal(getConnection())
-  const userBalance = await getTokenBalance(userAddress)
+  let totalPromise = getTotal(getConnection())
+  let balancePromise = getTokenBalance(userAddress)
+
+  const tokenTotalAmount = await totalPromise
+  const userBalance = await balancePromise
+
   return {
     total: tokenTotalAmount,
     userAddress,
@@ -98,9 +85,12 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
       gas,
       priceRate = 1.1,  // 油费溢价率
     } = options
-    let { name } = await ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
-    let account = await getAccountInfoByAddress(fromAddress)
-    let conn = await getConnByAccount(account)
+
+    let contractMetaPromise = ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
+    let getConnPromise = getConnByAddressThenUnlock(fromAddress)
+
+    let { name } = await contractMetaPromise
+    let conn = await getConnPromise
 
     if (!gasPrice) {
       gasPrice = await conn
@@ -141,8 +131,12 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-    let account = await getAccountInfoByAddress(fromAddress)
-    let conn = await getConnByAccount(account)
+    let getAccountPromise = getAccountInfoByAddress(fromAddress)
+    let getConnPromise = getConnByAddressThenUnlock(fromAddress)
+
+    let account = await getAccountPromise
+    let conn = await getConnPromise
+
     return conn
       .eth
       .personal
@@ -175,9 +169,13 @@ export async function transferAllEth(fromAddress, toAddress) {
 
   let connect = getConnection()
 
-  let total = await connect.eth.getBalance(fromAddress)
-  let gasPrice = await connect.eth.getGasPrice()
-  let gasFee = await connect.eth.estimateGas({ from: fromAddress })
+  let balancePromise = connect.eth.getBalance(fromAddress)
+  let gasPricePromise = connect.eth.getGasPrice()
+  let gasFeePromise = connect.eth.estimateGas({ from: fromAddress })
+
+  let total = await balancePromise
+  let gasPrice = await gasPricePromise
+  let gasFee = await gasFeePromise
 
   // if (+gasPrice === 0) {
   //   gasPrice = 30000
