@@ -349,7 +349,7 @@ export const addERC20ContractMeta = {
       description: '代币精度',
     },
     codes: {
-      type: new NotNull(str),
+      type: str,
       description: '合约 codes（JSON 字符串）',
     },
     abis: {
