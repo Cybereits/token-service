@@ -158,9 +158,9 @@ export default {
             comment: value.comment,
             txid: value.txid,
             taskid: value.taskid,
-            sendTime: value.sendTime === '' || moment(value.sendTime).format('YYYY-MM-DD hh:mm:ss'),
+            sendTime: value.sendTime === '' || moment(value.sendTime).format('YYYY-MM-DD HH:mm:ss'),
             confirmTime:
-              value.confirmTime === '' || moment(value.confirmTime).format('YYYY-MM-DD hh:mm:ss'),
+              value.confirmTime === '' || moment(value.confirmTime).format('YYYY-MM-DD HH:mm:ss'),
             key: index,
           };
         });
