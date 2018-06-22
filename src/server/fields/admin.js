@@ -1,12 +1,15 @@
 import {
   GraphQLString as str,
   GraphQLNonNull as NotNull,
+  GraphQLInt as int,
 } from 'graphql'
 
 import {
   adminInfo,
   adminLogoutType,
 } from '../types/plainTypes'
+
+import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 import { AdminModel } from '../../core/schemas'
 
@@ -172,5 +175,25 @@ export const changePwd = {
     } else {
       return resetPwd(session.admin.username, originPassword, newPassword, validPassword, ctx)
     }
+  },
+}
+
+export const queryAdminList = {
+  type: PaginationWrapper(adminInfo),
+  description: '管理员列表',
+  args: {
+    pageIndex: {
+      type: int,
+      description: '页码',
+    },
+    pageSize: {
+      type: int,
+      description: '页容',
+    },
+  },
+  async resolve(root, { pageIndex = 0, pageSize = 10 }) {
+    let total = await AdminModel.count()
+    let list = await AdminModel.find().skip(pageSize * pageIndex).limit(pageSize)
+    return PaginationResult(list, pageIndex, pageSize, total)
   },
 }

@@ -3,12 +3,12 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAdmin, adminLogin, adminLogout, changePwd } from './fields/admin'
+import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList } from './fields/admin'
 import { queryAllBalance, gatherAllEth } from './fields/balance'
 import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, callContractMethod } from './fields/contract'
 import { statusEnum, tokenTypeEnum } from './fields/enum'
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
-import { queryBatchTrasactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
+import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
 
 const queries = new Obj({
   name: 'Queries',
@@ -16,10 +16,11 @@ const queries = new Obj({
   fields: {
     adminLogin,
     adminLogout,
+    queryAdminList,
     queryAccountList,
     queryAllBalance,
     queryCREContractAbi,
-    queryBatchTrasactionTasks,
+    queryBatchTransactionTasks,
     queryAllContract,
     queryTx,
     queryTxRecordsViaTaskId,

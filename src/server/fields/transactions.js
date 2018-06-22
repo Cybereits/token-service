@@ -85,7 +85,7 @@ async function sendBatchTxs(recordIds) {
   }
 }
 
-export const queryBatchTrasactionTasks = {
+export const queryBatchTransactionTasks = {
   type: PaginationWrapper(batchTransactionTask),
   description: '查询交易任务',
   args: {
