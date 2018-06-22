@@ -48,7 +48,7 @@ export default class CoinTaskList extends PureComponent {
   handleSearch = (pageIndex, pageSize) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'coinTask/queryBatchTrasactionTasks',
+      type: 'coinTask/queryBatchTransactionTasks',
       params: {
         pageIndex,
         pageSize,
@@ -61,7 +61,7 @@ export default class CoinTaskList extends PureComponent {
   };
 
   render() {
-    const { coinTask: { queryBatchTrasactionTasks }, loading } = this.props;
+    const { coinTask: { queryBatchTransactionTasks }, loading } = this.props;
     const { selectedRows } = this.state;
     const columns = [
       {
@@ -184,7 +184,7 @@ export default class CoinTaskList extends PureComponent {
           <StandardTable
             selectedRows={selectedRows}
             loading={loading}
-            data={queryBatchTrasactionTasks}
+            data={queryBatchTransactionTasks}
             columns={columns}
             onSelectRow={this.handleSelectRows}
             onChange={this.handleStandardTableChange}

@@ -10,7 +10,7 @@ import {
   queryTx,
   commonStatusEnum,
   sendCoinOverview,
-  queryBatchTrasactionTasks,
+  queryBatchTransactionTasks,
   handlePrizes,
   tokenTypeEnum,
 } from '../services/api';
@@ -27,7 +27,7 @@ export default {
     tokenTypeEnum: [],
     sendCoinOverviewData: [],
     coinTotal: 0,
-    queryBatchTrasactionTasks: {
+    queryBatchTransactionTasks: {
       list: [],
       pagination: {},
     },
@@ -81,12 +81,12 @@ export default {
         });
       }
     },
-    *queryBatchTrasactionTasks({ payload }, { call, put }) {
-      const response = yield call(queryBatchTrasactionTasks, payload);
+    *queryBatchTransactionTasks({ payload }, { call, put }) {
+      const response = yield call(queryBatchTransactionTasks, payload);
       if (response) {
         yield put({
           type: 'save',
-          queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+          queryBatchTransactionTasks: response.data.queryBatchTransactionTasks,
         });
       }
     },
@@ -229,8 +229,8 @@ export default {
         tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
         sendCoinOverviewData: action.sendCoinOverviewData || state.sendCoinOverviewData,
         coinTotal: action.coinTotal || state.coinTotal,
-        queryBatchTrasactionTasks:
-          action.queryBatchTrasactionTasks || state.queryBatchTrasactionTasks,
+        queryBatchTransactionTasks:
+          action.queryBatchTransactionTasks || state.queryBatchTransactionTasks,
       };
     },
   },
