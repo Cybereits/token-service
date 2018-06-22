@@ -85,7 +85,7 @@ export default {
           (item, index) => {
             return {
               ...item,
-              createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD hh:mm:ss'),
+              createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD HH:mm:ss'),
               key: index,
             };
           }
@@ -115,8 +115,8 @@ export default {
             return {
               ...item,
               confirmTime:
-                item.confirmTime === '' || moment(item.confirmTime).format('YYYY-MM-DD hh:mm:ss'),
-              sendTime: item.sendTime === '' || moment(item.sendTime).format('YYYY-MM-DD hh:mm:ss'),
+                item.confirmTime === '' || moment(item.confirmTime).format('YYYY-MM-DD HH:mm:ss'),
+              sendTime: item.sendTime === '' || moment(item.sendTime).format('YYYY-MM-DD HH:mm:ss'),
               key: index,
             };
           }

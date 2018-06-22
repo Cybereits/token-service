@@ -38,7 +38,7 @@ export default {
           return {
             ...newItem,
             key: index,
-            createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD hh:mm:ss'),
+            createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD HH:mm:ss'),
           };
         });
         data.pagination = {
