@@ -296,7 +296,8 @@ export default class TableList extends PureComponent {
     };
     return (
       <Form
-        onSubmit={() => {
+        onSubmit={(e) => {
+          e.preventDefault();
           this.handleSearch(0, 10);
         }}
         layout="inline"
@@ -632,7 +633,7 @@ export default class TableList extends PureComponent {
                       <Description term="txid">{item.txid}</Description>
                       <Description term="任务id">{item.taskid}</Description>
                       <Description term="发送时间">{item.sendTime}</Description>
-                      <Description term="确认时间">{item.confirTime}</Description>
+                      <Description term="确认时间">{item.confirmTime}</Description>
                     </DescriptionList>
                   </Card>
                 );
