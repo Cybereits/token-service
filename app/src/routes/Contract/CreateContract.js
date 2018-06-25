@@ -225,7 +225,7 @@ class FomrKYC extends React.Component {
             ],
           })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
         </FormItem> */}
-        <FormItem {...formItemLayout} label="代币总量">
+        {/* <FormItem {...formItemLayout} label="代币总量">
           {getFieldDecorator('tokenSupply', {
             validateFirst: true,
             rules: [
@@ -248,7 +248,7 @@ class FomrKYC extends React.Component {
               },
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入代币缩写" />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem {...formItemLayout} label="合约名称">
           {getFieldDecorator('contractName', {
             validateFirst: true,
@@ -261,7 +261,7 @@ class FomrKYC extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入合约名称" />)}
         </FormItem>
-        <FormItem {...formItemLayout} label="合约精度">
+        {/* <FormItem {...formItemLayout} label="合约精度">
           {getFieldDecorator('contractDecimals', {
             validateFirst: true,
             rules: [
@@ -272,7 +272,7 @@ class FomrKYC extends React.Component {
               },
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入合约精度" />)}
-        </FormItem>
+        </FormItem> */}
         <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
           <Button type="primary" htmlType="submit" loading={submitting}>
             提交

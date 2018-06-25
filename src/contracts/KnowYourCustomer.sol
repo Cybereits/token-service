@@ -18,7 +18,7 @@ contract KnowYourCustomer is Ownable {
 
     function requestKyc(address _to, uint256 _value) public returns (bool){
         // 排除冻结账户
-        require(kycs[addr] != -1);
+        require(kycs[_to] > 0);
         if(balances[_to] == 0){
             balances[_to] = _value;
             return true;

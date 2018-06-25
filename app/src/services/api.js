@@ -575,6 +575,30 @@ export async function queryAllContract(params={}) {
       console.log(err);
     });
 }
+// export async function deployKycContract(params) {
+//   console.log(params)
+//   const newParams = { ...params };
+//   for (const key in newParams) {
+//     if (newParams[key] === undefined) {
+//       newParams[key] = ''
+//     }
+//   }
+//   return client
+//     .mutate({
+//       // fetchPolicy: 'no-cache',
+//       mutation: gql`mutation {
+//         deployKycContract(deployer: "${newParams.address}", contractArgs: {
+//           tokenSupply: ${newParams.tokenSupply},
+//           tokenSymbol: "${newParams.tokenSymbol}",
+//           contractName: "${newParams.contractName}",
+//           contractDecimals: ${newParams.contractDecimals}
+//         })
+//     }`,
+//     })
+//     .catch(err => {
+//       console.log(err);
+//     });
+// }
 export async function deployKycContract(params) {
   console.log(params)
   const newParams = { ...params };
@@ -587,12 +611,7 @@ export async function deployKycContract(params) {
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        deployKycContract(deployer: "${newParams.address}", contractArgs: {
-          tokenSupply: ${newParams.tokenSupply},
-          tokenSymbol: "${newParams.tokenSymbol}",
-          contractName: "${newParams.contractName}",
-          contractDecimals: ${newParams.contractDecimals}
-        })
+        deployKycContract(deployer: "${newParams.address}", contractName: "${newParams.contractName}")
     }`,
     })
     .catch(err => {
