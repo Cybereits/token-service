@@ -113,6 +113,10 @@ const menuData = [
         name: '修改密码',
         path: 'user-changePwd',
       },
+      {
+        name: '用户列表',
+        path: 'user-list',
+      },
     ],
   },
   {

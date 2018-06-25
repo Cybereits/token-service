@@ -657,3 +657,30 @@ export async function addERC20ContractMeta(params) {
       console.log(err);
     });
 }
+
+export async function queryAdminList(params={pageIndex:0,pageSize:10}) {
+console.log(params)
+  return client
+  .query({
+    // fetchPolicy: 'network-only',
+    query: gql`
+      query {
+        queryAdminList(pageIndex:${params.pageIndex},pageSize:${params.pageSize}) {
+          list {
+            username,
+            role,
+          },
+          pagination{
+            total,
+            current,
+            pageSize,
+            pageCount,
+          }
+        }
+      }
+    `,
+  })
+  .catch(err => {
+    console.log(err);
+  });
+}

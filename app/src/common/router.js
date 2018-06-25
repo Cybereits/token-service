@@ -131,6 +131,9 @@ export const getRouterData = app => {
     '/user/user-changePwd': {
       component: dynamicWrapper(app, ['user'], () => import('../routes/User/ChangePwd')),
     },
+    '/user/user-list': {
+      component: dynamicWrapper(app, ['user'], () => import('../routes/User/UserList')),
+    },
     '/contract/contract-search': {
       component: dynamicWrapper(app, ['contract'], () =>
         import('../routes/Contract/SearchContract')
