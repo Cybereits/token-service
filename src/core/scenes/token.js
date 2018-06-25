@@ -8,19 +8,98 @@ import { ContractMetaModel } from '../schemas'
 
 BN.config({ DECIMAL_PLACES: 5 })
 
-/**
- * 获取代币总量（调用totalSupply方法）
- * @param {*} connect web3链接
- */
-export async function getTotal(connect) {
-  let contractPromise = getContractInstance(CONTRACT_NAMES.cre)
-  let amountPromise = tokenContract.methods.totalSupply().call(null)
+// /**
+//  * 获取代币总量（调用totalSupply方法）
+//  * @param {*} connect web3链接
+//  */
+// export async function getTotal(connect) {
+//   let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
+//   let amount = await tokenContract.methods.totalSupply().call(null)
 
-  let tokenContract = await contractPromise
-  let amount = await amountPromise
+//   return amount / (10 ** tokenContract.decimal)
+// }
 
-  return amount / (10 ** tokenContract.decimal)
-}
+// /**
+//  * 查询钱包地址下的代币数额及代币总量，占比等信息
+//  * @param {*} userAddress 要查询的钱包地址
+//  */
+// export async function getTokenBalanceFullInfo(userAddress) {
+//   let totalPromise = getTotal(getConnection())
+//   let balancePromise = getTokenBalance(userAddress)
+
+//   const tokenTotalAmount = await totalPromise
+//   const userBalance = await balancePromise
+
+//   return {
+//     total: tokenTotalAmount,
+//     userAddress,
+//     balance: userBalance,
+//     proportion: +(+((userBalance / tokenTotalAmount) * 100).toFixed(2)),
+//   }
+// }
+
+// /**
+//  * 估算发送代币所需油费
+//  * @param {string} toAddress 转入地址
+//  * @param {number} amount 发送代币数额
+//  */
+// export async function estimateGasOfSendToken(toAddress, amount) {
+//   let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
+//   return tokenContract.methods.Transfer(toAddress, amount).estimateGas()
+// }
+
+// /**
+//  * 通过输入的数值计算得出对应的代币数额
+//  * @param {string|number} inputBigNumber 输入的大数值
+//  * @param {number} decimal 合约规定的代币精度
+//  * @returns {number} 计算所得代币数额
+//  */
+// export function getTokenAmountByBigNumber(inputBigNumber, decimal) {
+//   let _bigNumber = +inputBigNumber
+//   let _multiplier = 10 ** decimal
+//   if (isNaN(_bigNumber)) {
+//     if (typeof inputBigNumber === 'string') {
+//       if (inputBigNumber.indexOf('0x') !== 0) {
+//         // 默认加上16进制的前缀
+//         _bigNumber = +`0x${inputBigNumber}`
+//         if (isNaN(_bigNumber)) {
+//           // 如果非有效数值则返回 0
+//           return 0
+//         }
+//       }
+//     } else {
+//       // 不知道传入的是个什么类型,返回 0
+//       return 0
+//     }
+//   }
+//   return _bigNumber / _multiplier
+// }
+
+// /**
+//  * 解析交易记录中的 input 参数
+//  * warning: unsafe
+//  * @param {string} inputStr input 参数字符串
+//  * @param {number} decimal 合约规定的代币精度
+//  * @returns {Array} 解析后的参数数组
+//  */
+// export function decodeTransferInput(inputStr, decimal) {
+//   // Transfer转账的数据格式
+//   // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
+//   let str = inputStr.toString()
+//   let seperator = '00000000000000000000000'  // 23个0
+//   if (str.length >= 10) {
+//     let arr = str.split(seperator)
+//     // 参数解析后
+//     // 第一个参数是函数的id 16进制格式，不需要改变
+//     // 第二个参数是转入地址，加 0x 前缀转换成有效地址
+//     arr[1] = `0x${arr[1]}`
+//     // 第三个参数是交易的代币数额 需要转换成有效数值
+//     arr[2] = getTokenAmountByBigNumber(arr[2], decimal)
+//     return arr
+//   } else {
+//     return [str]
+//   }
+// }
 
 /**
  * 获取指定地址的以太代币余额
@@ -39,32 +118,9 @@ export async function getEthBalance(address) {
  * @param {string} contractMetaName 合约名称枚举（默认 cre）
  */
 export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_NAMES.cre) {
-  let contractPromise = getContractInstance(contractMetaName)
-  let amountPromise = tokenContract.methods.balanceOf(userAddress).call(null)
-
-  let tokenContract = await contractPromise
-  let amount = await amountPromise
-
+  let tokenContract = await getContractInstance(contractMetaName)
+  let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
   return amount / (10 ** tokenContract.decimal)
-}
-
-/**
- * 查询钱包地址下的代币数额及代币总量，占比等信息
- * @param {*} userAddress 要查询的钱包地址
- */
-export async function getTokenBalanceFullInfo(userAddress) {
-  let totalPromise = getTotal(getConnection())
-  let balancePromise = getTokenBalance(userAddress)
-
-  const tokenTotalAmount = await totalPromise
-  const userBalance = await balancePromise
-
-  return {
-    total: tokenTotalAmount,
-    userAddress,
-    balance: userBalance,
-    proportion: +(+((userBalance / tokenTotalAmount) * 100).toFixed(2)),
-  }
 }
 
 /**
@@ -109,7 +165,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
         .transfer(toAddress, _sendAmount)
         .send({ from: fromAddress, gasPrice, gas })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer [${_amount.toString(10)}] tokens to [${toAddress}] [txid ${hash}]`)
+          console.info(`Transfer [${_amount.toString(10)}] ${name} tokens to [${toAddress}] : [txid ${hash}]`)
           resolve(hash)
         })
         .on('error', reject)
@@ -148,7 +204,7 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
         gas,
       }, account.secret)
       .then((hash) => {
-        console.info(`Transfer [${amount}] tokens to [${toAddress}] [txid ${hash}]`)
+        console.info(`Transfer [${amount}] eth to [${toAddress}] [txid ${hash}]`)
         return hash
       })
   }
@@ -203,68 +259,3 @@ export async function transferAllEth(fromAddress, toAddress) {
   sendETH(fromAddress, toAddress, transAmount, { gasPrice, gasFee })
 }
 
-/**
- * 估算发送代币所需油费
- * @param {string} toAddress 转入地址
- * @param {number} amount 发送代币数额
- */
-export async function estimateGasOfSendToken(toAddress, amount) {
-  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
-  return tokenContract
-    .methods
-    .Transfer(toAddress, amount)
-    .estimateGas()
-}
-
-/**
- * 通过输入的数值计算得出对应的代币数额
- * @param {string|number} inputBigNumber 输入的大数值
- * @param {number} decimal 合约规定的代币精度
- * @returns {number} 计算所得代币数额
- */
-export function getTokenAmountByBigNumber(inputBigNumber, decimal) {
-  let _bigNumber = +inputBigNumber
-  let _multiplier = 10 ** decimal
-  if (isNaN(_bigNumber)) {
-    if (typeof inputBigNumber === 'string') {
-      if (inputBigNumber.indexOf('0x') !== 0) {
-        // 默认加上16进制的前缀
-        _bigNumber = +`0x${inputBigNumber}`
-        if (isNaN(_bigNumber)) {
-          // 如果非有效数值则返回 0
-          return 0
-        }
-      }
-    } else {
-      // 不知道传入的是个什么类型,返回 0
-      return 0
-    }
-  }
-  return _bigNumber / _multiplier
-}
-
-/**
- * 解析交易记录中的 input 参数
- * warning: unsafe
- * @param {string} inputStr input 参数字符串
- * @param {number} decimal 合约规定的代币精度
- * @returns {Array} 解析后的参数数组
- */
-export function decodeTransferInput(inputStr, decimal) {
-  // Transfer转账的数据格式
-  // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
-  let str = inputStr.toString()
-  let seperator = '00000000000000000000000'  // 23个0
-  if (str.length >= 10) {
-    let arr = str.split(seperator)
-    // 参数解析后
-    // 第一个参数是函数的id 16进制格式，不需要改变
-    // 第二个参数是转入地址，加 0x 前缀转换成有效地址
-    arr[1] = `0x${arr[1]}`
-    // 第三个参数是交易的代币数额 需要转换成有效数值
-    arr[2] = getTokenAmountByBigNumber(arr[2], decimal)
-    return arr
-  } else {
-    return [str]
-  }
-}

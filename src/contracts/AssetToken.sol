@@ -16,8 +16,6 @@ contract AssetToken is Token, Ownable {
     address public migrationMaster = msg.sender;
     address public chargeAddress = msg.sender;
 
-    event Transfer(address indexed from, address indexed to, uint value, uint fee);
-
     constructor(uint256 total, uint _decimals, string _name, string _symbol, address _kycContractAddress) public {
         decimals = _decimals;
         uint256 multiplier = 10 ** decimals;
@@ -42,8 +40,7 @@ contract AssetToken is Token, Ownable {
     }
 
     function transfer(address _to, uint _value) public returns (bool ok) {
-        assert(!kyc.isFrozen(_to));
-        assert(kyc.isVerified(_to));
+        require(kyc.isVerified(_to));
         require(_value <= balances[msg.sender]);
         require(balances[_to] < add(balances[_to], _value));
 
@@ -52,18 +49,17 @@ contract AssetToken is Token, Ownable {
             balances[_to] = add(balanceOf(_to), sub(_value, feeShouldTake));
             balances[chargeAddress] = add(balanceOf(chargeAddress), feeShouldTake);
             balances[msg.sender] = sub(balanceOf(msg.sender), _value);
-            emit Transfer(msg.sender, _to, _value, feeShouldTake);
+            emit Transfer(msg.sender, _to, _value);
         } else {
             balances[_to] = add(balanceOf(_to), _value);
             balances[msg.sender] = sub(balanceOf(msg.sender), _value);
-            emit Transfer(msg.sender, _to, _value, 0);
+            emit Transfer(msg.sender, _to, _value);
         }
 
         return true;
     }
 
     function transferFrom(address _from, address _to, uint _value) public returns (bool) {
-        assert(!kyc.isFrozen(_from) && !kyc.isFrozen(_to));
         assert(kyc.isVerified(_from) && kyc.isVerified(_to));
         assert(balanceOf(_from) >= _value);
         assert(approvals[_from][msg.sender] >= _value);
@@ -74,12 +70,12 @@ contract AssetToken is Token, Ownable {
             balances[chargeAddress] = add(balanceOf(chargeAddress), feeShouldTake);
             balances[_from] = sub(balanceOf(_from), _value);
             approvals[_from][msg.sender] = sub(approvals[_from][msg.sender], _value);
-            emit Transfer(msg.sender, _to, _value, feeShouldTake);
+            emit Transfer(msg.sender, _to, _value);
         } else {
             balances[_to] = add(balanceOf(_to), _value);
             balances[_from] = sub(balanceOf(_from), _value);
             approvals[_from][msg.sender] = sub(approvals[_from][msg.sender], _value);
-            emit Transfer(_from, _to, _value, 0);
+            emit Transfer(_from, _to, _value);
         }
 
         return true;

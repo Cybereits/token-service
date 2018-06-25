@@ -95,6 +95,8 @@ export async function updateBalanceOfAccount(address, contractName) {
 
   let account = await EthAccountModel.findOne({ account: address })
 
+  console.log(`[${address}] has [${amount}] [${symbol}]`)
+
   if (!account.balances) {
     account.balances = {}
   }
@@ -107,13 +109,13 @@ export async function updateBalanceOfAccount(address, contractName) {
 /**
  * 检查是否为系统地址，如果是则更新账户余额
  * @param {string} address 钱包地址
- * @param {string} tokenType 代币类型
+ * @param {string} contractName 代币类型
  * @returns {Promise}
  */
-export async function checkIsSysThenUpdate(address, tokenType) {
+export async function checkIsSysThenUpdate(address, contractName) {
   let result = await isSysAccount(address)
   if (result) {
-    return updateBalanceOfAccount(address, tokenType)
+    return updateBalanceOfAccount(address, contractName)
   } else {
     return false
   }

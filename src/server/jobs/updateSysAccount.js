@@ -5,7 +5,7 @@ import { getAllTokenContracts } from '../../core/scenes/contract'
 
 let executable = true
 
-export default function (job, done) {
+export default async function (job, done) {
   if (!executable) {
     console.info('尚有未完成交易状态同步任务...')
     done()
@@ -13,10 +13,12 @@ export default function (job, done) {
 
   executable = false
 
+  const tokenContractNames = await getAllTokenContracts().then(res => res.map(({ name }) => name))
+  const taskQueue = new ParallelQueue({ limit: 20 })
+
   getAllAccounts()
     .then(async (accounts) => {
-      const taskQueue = new ParallelQueue({ limit: 20 })
-      const tokenContractNames = await getAllTokenContracts().then(res => res.map(({ name }) => name))
+
       accounts.forEach((address) => {
         taskQueue.add(new TaskCapsule(() => updateBalanceOfAccount(address)))
         tokenContractNames.forEach((contractName) => {

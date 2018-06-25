@@ -205,21 +205,13 @@ export const deployKycContract = {
       type: new NotNull(str),
       description: '部署账户',
     },
-    contractArgs: {
-      type: commonContractArgs,
-      description: 'kyc 合约初始化参数',
+    contractName: {
+      type: new NotNull(str),
+      description: 'kyc 合约名称',
     },
   },
-  async resolve(root, { deployer, contractArgs }) {
-    const {
-      tokenSupply,
-      tokenSymbol,
-      contractName,
-      contractDecimals,
-    } = contractArgs
-
+  async resolve(root, { deployer, contractName }) {
     let compiledContractSource = compileContract({
-      'SafeMath.sol': readSoliditySource(CONTRACT_NAMES.math),
       'Ownable.sol': readSoliditySource(CONTRACT_NAMES.ownable),
       [MAIN_SOURCE_NAME]: readSoliditySource(CONTRACT_NAMES.kyc),
     })
@@ -232,10 +224,7 @@ export const deployKycContract = {
       JSON.parse(contractAbi),
       deployer,
       [
-        tokenSupply,
-        contractDecimals,
         contractName,
-        tokenSymbol,
       ]
     ).catch((err) => {
       throw new Error(`合约部署失败 ${err.message} `)
@@ -245,13 +234,10 @@ export const deployKycContract = {
     return ContractMetaModel
       .create({
         name: contractName,
-        symbol: tokenSymbol,
-        decimal: contractDecimals,
         codes: contractCode,
         abis: contractAbi,
         owner: deployer,
         address: contractInstance.options.address,
-        args: JSON.stringify(contractArgs),
       })
       .then(() => '合约部署成功!')
       .catch((err) => {

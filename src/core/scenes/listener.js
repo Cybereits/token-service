@@ -16,8 +16,11 @@ export function createContractEventListener(contractMetaName) {
     .then((tokenContract) => {
       subscribeContractAllEvents(tokenContract, (error, result) => {
         if (error) {
+          console.log(`contract error : ${error}`)
+          console.log(result)
           throw error
         } else if (result) {
+          console.log(result)
           eventBus.emit(result.event, result)
         }
       })

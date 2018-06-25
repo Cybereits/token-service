@@ -11,6 +11,7 @@ getAllTokenContracts()
       createContractEventListener(contractName)
         .on('Transfer', async ({ returnValues }) => {
           let { from, to } = returnValues
+          console.info(`update [${contractName}] balance of account [${from}],[${to}]`)
           checkIsSysThenUpdate(from, contractName)
           checkIsSysThenUpdate(to, contractName)
         })
@@ -23,6 +24,7 @@ getAllTokenContracts()
 // eth 转账事件监听
 createEthEventListener()
   .on('Transaction', ({ from, to }) => {
+    console.info(`update eth balance of account [${from}],[${to}]`)
     checkIsSysThenUpdate(from)
     checkIsSysThenUpdate(to)
   })
