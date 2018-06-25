@@ -27,7 +27,7 @@ const ethAccount = mongoose.Schema({
   },
   createAt: {
     type: Date,
-    default: new Date(),
+    default: () => new Date(),
   },
 })
 

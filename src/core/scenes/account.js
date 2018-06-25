@@ -95,7 +95,7 @@ export async function updateBalanceOfAccount(address, contractName) {
 
   let account = await EthAccountModel.findOne({ account: address })
 
-  console.log(`[${address}] has [${amount}] [${symbol}]`)
+  console.log(`[update account balance]: ${address} [${amount}] [${symbol}]`)
 
   if (!account.balances) {
     account.balances = {}

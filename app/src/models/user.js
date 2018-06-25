@@ -32,7 +32,7 @@ export default {
           const newItem = { ...item };
           for (const key in newItem) {
             if (key === 'role') {
-              newItem[key] = newItem[key] === 2 ? '超级管理员' : '普通管理员';
+              newItem[key] = newItem[key] === 1 ? '超级管理员' : '普通管理员';
             }
           }
           return {

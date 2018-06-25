@@ -2,10 +2,6 @@ import agendaClient from '../../framework/jobsManager'
 import syncTransactionState from './syncTxState'
 import updateSysAccount from './updateSysAccount'
 
-// 开启转账监听
-import './transactionListener'
-// 启动时更新一下所有账户余额
-
 const TASKS = {
   syncTxState: 'sync transaction state',
   updateAccount: 'update system account',

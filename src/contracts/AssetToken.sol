@@ -23,11 +23,7 @@ contract AssetToken is Token, Ownable {
         balances[msg.sender] = supply;
         name = _name;
         symbol = _symbol;
-        initKyc(_kycContractAddress);
-    }
-
-    function initKyc(address _addr) onlyOwner public {
-        kyc = KnowYourCustomer(_addr);
+        kyc = KnowYourCustomer(_kycContractAddress);
     }
 
     function changeChargeAddress(address _addr) onlyOwner public {

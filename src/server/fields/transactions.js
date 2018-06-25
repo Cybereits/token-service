@@ -3,6 +3,7 @@ import {
   GraphQLString as str,
   GraphQLNonNull as NotNull,
   GraphQLList as List,
+  GraphQLFloat as float,
 } from 'graphql'
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
@@ -163,7 +164,7 @@ export const createTransaction = {
       description: '入账钱包地址',
     },
     amount: {
-      type: new NotNull(int),
+      type: new NotNull(float),
       description: '转账代币数额',
       defaultValue: 0,
     },
