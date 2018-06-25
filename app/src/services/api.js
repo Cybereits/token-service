@@ -289,7 +289,7 @@ export async function createMultiAccount(parmas) {
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-      createMultiAccount(amount: ${parmas.walletAmount})
+      createMultiAccount(count: ${parmas.walletAmount})
     }`,
     })
     .catch(err => {

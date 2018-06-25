@@ -320,7 +320,8 @@ export default class TableList extends PureComponent {
     const { getFieldDecorator } = this.props.form;
     return (
       <Form
-        onSubmit={() => {
+        onSubmit={e => {
+          e.preventDefault();
           this.handleSearch(0, 10);
         }}
         ayout="inline"
