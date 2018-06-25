@@ -446,13 +446,13 @@ export async function sendCoinOverview() {
     });
 }
 
-export async function queryBatchTrasactionTasks({ pageIndex, pageSize }) {
+export async function queryBatchTransactionTasks({ pageIndex, pageSize }) {
   return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         {
-          queryBatchTrasactionTasks(pageSize: ${pageSize}, pageIndex: ${pageIndex}) {
+          queryBatchTransactionTasks(pageSize: ${pageSize}, pageIndex: ${pageIndex}) {
             pagination {
               total,
               current,
