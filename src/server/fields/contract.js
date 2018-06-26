@@ -43,7 +43,7 @@ function compileContract(sources) {
 
   if (output.errors && output.errors.length > 0) {
     output.errors.forEach((err) => {
-      console.log(err)
+      console.error(err)
     })
     throw new Error('合约编译失败')
   }

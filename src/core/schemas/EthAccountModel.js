@@ -14,9 +14,10 @@ const ethAccount = mongoose.Schema({
     type: String,
     default: '',
   },
+  // 钱包的分组,即钱包客户端 ws 链接
   group: {
     type: String,
-    default: 'normal',
+    required: true,
   },
   balances: {
     type: Object,
