@@ -9,7 +9,7 @@ import request from '../utils/request';
 import { toGql } from '../utils/utils';
 import config from '../../config/env.json';
 
-const { host, port, baseUrl } = config;
+const { host, port, baseUrl, publicUrl } = config;
 console.log(`${host}${port ? `:${port}` : ''}${baseUrl}`);
 
 const client = new ApolloClient({
@@ -34,6 +34,30 @@ const client = new ApolloClient({
     }
   },
 });
+
+const loginClient = new ApolloClient({
+  request: async operation => {
+    operation.setContext({
+      fetchOptions: {
+        credentials: 'include',
+      },
+    });
+  },
+  uri: `${host}${port ? `:${port}` : ''}${publicUrl}`,
+  onError: ({ graphQLErrors }) => {
+    console.log('graphQLErrors', graphQLErrors);
+    if (graphQLErrors && graphQLErrors.length > 0 && graphQLErrors[0].message !== 'Not logged in') {
+      message.error(graphQLErrors[0].message);
+      if (graphQLErrors[0].message === 'Unauthorized!') {
+        const currentAuthority = '';
+        setAuthority(currentAuthority);
+        reloadAuthorized();
+        window.location.href = `${window.location.origin}/#/entry/login`;
+      }
+    }
+  },
+});
+
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -102,7 +126,7 @@ export async function fakeAccountLogin(params) {
 }
 
 export async function accountLogin({ userName, password }) {
-  return client
+  return loginClient
     .query({
       fetchPolicy: 'network-only',
       query: gql`
