@@ -16,7 +16,7 @@ export function createContractEventListener(contractMetaName) {
     .then((tokenContract) => {
       subscribeContractAllEvents(tokenContract, (error, result) => {
         if (error) {
-          console.log(`contract error : ${error}`)
+          console.log(`contract error : \n${JSON.stringify(error, null, 2)}`)
           console.log(result)
           throw error
         } else if (result) {

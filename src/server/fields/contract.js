@@ -364,6 +364,11 @@ export const addERC20ContractMeta = {
       address,
       isERC20: true,
     })
+      .then(() => {
+        establishContractListener(name)
+        updateAllAccounts([name])
+        return 'success'
+      })
   },
 }
 
