@@ -198,8 +198,8 @@ export const adminInfo = new OutputObj({
   name: 'adminInfo',
   description: '管理员账户信息',
   fields: {
-    username: { type: str },
-    role: { type: int },
+    username: { type: str, description: '用户名' },
+    role: { type: int, description: '用户角色' },
   },
 })
 

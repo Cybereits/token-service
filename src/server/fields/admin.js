@@ -10,7 +10,7 @@ import {
 } from '../types/plainTypes'
 
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
-
+import { validSecret, saveUserSecret, getOptAuthUrl } from '../../core/scenes/authentication'
 import { AdminModel } from '../../core/schemas'
 
 async function register(username, password, validPassword, role) {
@@ -63,7 +63,7 @@ async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
   }
 }
 
-async function login(username, password, ctx) {
+async function login(username, password, token, ctx) {
   if (ctx.session && ctx.session.admin) {
     let { username, role } = ctx.session.admin
     return {
@@ -81,16 +81,19 @@ async function login(username, password, ctx) {
       .comparePassword(password, admin.password)
       .then((isMath) => {
         if (!isMath) {
-          throw new Error('用户名或者密码不匹配')
+          throw new Error('密码错误')
         } else {
-          ctx.session.admin = {
-            username: admin.username,
-            role: admin.role,
+          if (!admin.authSecret || validSecret(admin.authSecret, token)) {
+            ctx.session.admin = {
+              username: admin.username,
+              role: admin.role,
+            }
+            res.username = admin.username
+            res.role = admin.role
+            return res
+          } else {
+            throw new Error('请输入正确的双向验证码')
           }
-
-          res.username = admin.username
-          res.role = admin.role
-          return res
         }
       })
   }
@@ -137,9 +140,13 @@ export const adminLogin = {
       type: new NotNull(str),
       description: '用户登录密码',
     },
+    token: {
+      type: str,
+      description: '用户双向验证的校验码',
+    },
   },
-  resolve(root, { username, password }, ctx) {
-    return login(username, password, ctx)
+  resolve(root, { username, password, token }, ctx) {
+    return login(username, password, token, ctx)
   },
 }
 
@@ -195,5 +202,46 @@ export const queryAdminList = {
     let total = await AdminModel.count()
     let list = await AdminModel.find().skip(pageSize * pageIndex).limit(pageSize)
     return PaginationResult(list, pageIndex, pageSize, total)
+  },
+}
+
+export const getTwoFactorAuthUrl = {
+  type: str,
+  description: '获取双向验证的 AuthUrl',
+  async resolve(root, _, ctx) {
+    let { session } = ctx
+    if (!session || !session.admin) {
+      return new Error('您还没有登录')
+    } else {
+      let { base32, otpauth_url } = getOptAuthUrl()
+      session.admin.auth_secret = base32
+      return otpauth_url
+    }
+  },
+}
+
+export const bindTwoFactorAuth = {
+  type: str,
+  description: '绑定谷歌双向认证',
+  args: {
+    token: {
+      type: str,
+      description: '用户双向验证的校验码',
+    },
+  },
+  async resolve(root, { token }, ctx) {
+    let { session } = ctx
+    if (!session || !session.admin) {
+      return new Error('您还没有登录')
+    } else if (!session.admin.auth_secret) {
+      return new Error('无效的双向验证密钥')
+    } else {
+      let { username, auth_secret } = session.admin
+      if (validSecret(auth_secret, token)) {
+        return saveUserSecret(username, auth_secret).then(() => 'success')
+      } else {
+        throw new Error('无效的校验码')
+      }
+    }
   },
 }
