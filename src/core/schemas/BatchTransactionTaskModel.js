@@ -17,7 +17,7 @@ const batchTask = mongoose.Schema({
   // 任务创建时间
   createAt: {
     type: Date,
-    default: new Date(),
+    default: () => new Date(),
   },
 })
 

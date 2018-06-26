@@ -13,6 +13,8 @@ import { ContractMetaModel } from '../../core/schemas'
 import { createAndDeployContract, getContractInstance } from '../../core/scenes/contract'
 import { getConnByAddressThenUnlock } from '../../core/scenes/account'
 import { CONTRACT_NAMES } from '../../core/enums'
+import { establishContractListener } from '../../core/listeners/utils'
+import { updateAllAccounts } from '../../core/jobs/updateSysAccount'
 import { creContractArgs, commonContractArgs, contractMetaResult, contractFilter } from '../types/plainTypes'
 
 function readSoliditySource(filename) {
@@ -41,7 +43,7 @@ function compileContract(sources) {
 
   if (output.errors && output.errors.length > 0) {
     output.errors.forEach((err) => {
-      console.log(err)
+      console.error(err)
     })
     throw new Error('合约编译失败')
   }
@@ -234,6 +236,7 @@ export const deployKycContract = {
     return ContractMetaModel
       .create({
         name: contractName,
+        symbol: contractName,
         codes: contractCode,
         abis: contractAbi,
         owner: deployer,
@@ -311,7 +314,11 @@ export const deployAssetContract = {
         args: JSON.stringify(contractArgs),
         isERC20: true,
       })
-      .then(() => '合约部署成功!')
+      .then(() => {
+        establishContractListener(contractName)
+        updateAllAccounts([contractName])
+        return '合约部署成功!'
+      })
       .catch((err) => {
         throw new Error(`合约保存失败 ${err.message} `)
       })
@@ -357,6 +364,11 @@ export const addERC20ContractMeta = {
       address,
       isERC20: true,
     })
+      .then(() => {
+        establishContractListener(name)
+        updateAllAccounts([name])
+        return 'success'
+      })
   },
 }
 

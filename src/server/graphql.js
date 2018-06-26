@@ -3,18 +3,17 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList } from './fields/admin'
+import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth } from './fields/admin'
 import { queryAllBalance, gatherAllEth } from './fields/balance'
 import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, callContractMethod } from './fields/contract'
 import { statusEnum, tokenTypeEnum } from './fields/enum'
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
 
-const queries = new Obj({
-  name: 'Queries',
-  description: '查询接口',
+const authRequiredQueries = new Obj({
+  name: 'AuthRequiredQueries',
+  description: '需要权限的查询接口',
   fields: {
-    adminLogin,
     adminLogout,
     queryAdminList,
     queryAccountList,
@@ -25,14 +24,15 @@ const queries = new Obj({
     queryTx,
     queryTxRecordsViaTaskId,
     queryIsSysAccount,
+    getTwoFactorAuthUrl,
     statusEnum,
     tokenTypeEnum,
   },
 })
 
-const mutations = new Obj({
-  name: 'Mutations',
-  description: '修改接口',
+const authRequiredMutations = new Obj({
+  name: 'AuthRequiredMutations',
+  description: '需要权限的修改接口',
   fields: {
     createAdmin,
     changePwd,
@@ -47,10 +47,23 @@ const mutations = new Obj({
     sendTransaction,
     callContractMethod,
     gatherAllEth,
+    bindTwoFactorAuth,
   },
 })
 
-export default new GSchema({
-  query: queries,
-  mutation: mutations,
+const publicQueries = new Obj({
+  name: 'PublicQueries',
+  description: '公开查询接口',
+  fields: {
+    adminLogin,
+  },
+})
+
+export const authSchema = new GSchema({
+  query: authRequiredQueries,
+  mutation: authRequiredMutations,
+})
+
+export const publicSchema = new GSchema({
+  query: publicQueries,
 })

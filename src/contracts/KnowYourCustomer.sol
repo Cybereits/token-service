@@ -6,22 +6,24 @@ contract KnowYourCustomer is Ownable {
 
     string public name;
 
-    mapping(address => uint256) internal kycs;
+    mapping(address => int8) internal kycs;
     mapping(address => uint256) internal balances;
 
+    event RequestKyc(address addr, uint256 value);
     event Freeze(address addr);
 
     constructor(string _name) public {
         name = _name;
-        kycs[msg.sender] = now;
+        kycs[msg.sender] = 1;
     }
 
-    function requestKyc(address _to, uint256 _value) public returns (bool){
-        // 排除冻结账户
-        require(kycs[_to] > 0);
+    function requestKyc(address _to, uint256 _value) public {
+        require(kycs[_to] >= 0);
         if(balances[_to] == 0){
             balances[_to] = _value;
-            return true;
+            emit RequestKyc(_to, _value);
+        } else {
+            emit RequestKyc(_to, balances[_to]);
         }
     }
 
@@ -35,21 +37,17 @@ contract KnowYourCustomer is Ownable {
     }
 
     function verify(address addr) public onlyOwner {
-        kycs[addr] = now;
+        kycs[addr] = 1;
         balances[addr] = 0;
     }
 
     function freeze(address addr) public onlyOwner {
-        kycs[addr] = 0;
+        kycs[addr] = -1;
         emit Freeze(addr);
     }
 
     function isVerified(address addr) public view returns(bool) {
         return kycs[addr] > 0;
-    }
-
-    function getVerifyAt(address addr) public view returns(uint256 verifyAt) {
-        return kycs[addr];
     }
 
     function kill() public onlyOwner {

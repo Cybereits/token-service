@@ -132,7 +132,7 @@ export const txRecord = new OutputObj({
       resolve: t => t._id,
     },
     amount: {
-      type: int,
+      type: float,
       description: '转账数额',
     },
     from: {
@@ -198,8 +198,8 @@ export const adminInfo = new OutputObj({
   name: 'adminInfo',
   description: '管理员账户信息',
   fields: {
-    username: { type: str },
-    role: { type: int },
+    username: { type: str, description: '用户名' },
+    role: { type: int, description: '用户角色' },
   },
 })
 
@@ -242,7 +242,7 @@ export const txFilter = new InputObj({
   description: 'transactionRecord 查询过滤条件',
   fields: {
     to: { type: str, description: '入账钱包地址' },
-    amount: { type: int, description: '转账数额' },
+    amount: { type: float, description: '转账数额' },
     status: { type: str, description: '转账状态' },
     tokenType: { type: str, description: '代币类型' },
   },
