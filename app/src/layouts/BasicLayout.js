@@ -161,6 +161,11 @@ class BasicLayout extends React.PureComponent {
         type: 'login/logout',
       });
     }
+    if (key === 'security') {
+      this.props.dispatch({
+        type: 'login/logout',
+      });
+    }
   };
   handleNoticeVisibleChange = visible => {
     if (visible) {

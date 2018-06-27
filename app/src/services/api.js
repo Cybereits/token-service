@@ -125,7 +125,8 @@ export async function fakeAccountLogin(params) {
   });
 }
 
-export async function accountLogin({ userName, password }) {
+export async function accountLogin({ userName, password, token }) {
+  console.log(token)
   return loginClient
     .query({
       fetchPolicy: 'network-only',

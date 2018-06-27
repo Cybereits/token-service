@@ -29,9 +29,9 @@ export default class LoginPage extends Component {
   };
 
   componentDidMount = () => {
-    this.props.dispatch({
-      type: 'login/logout',
-    });
+    // this.props.dispatch({
+    //   type: 'login/logout',
+    // });
     // console.log(window.location.href.split('login'))
     // if (window.location.href.split('login').length >= 2) {
     //   window.location.href = `${window.location.origin}/#/user/login`
@@ -79,6 +79,7 @@ export default class LoginPage extends Component {
             this.renderMessage('账户或密码错误（admin/888888）')}
           <UserName name="userName" placeholder="请输入用户名" />
           <Password name="password" placeholder="请输入密码" />
+          {/* <UserName name="token" rules={[{whitespace: true, required: false}]} placeholder="请输入谷歌验证码 (若没有绑定可不填写此选项)" /> */}
           {/* </Tab> */}
           {/* <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
