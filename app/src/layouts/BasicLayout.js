@@ -162,9 +162,7 @@ class BasicLayout extends React.PureComponent {
       });
     }
     if (key === 'security') {
-      this.props.dispatch({
-        type: 'login/logout',
-      });
+      this.props.dispatch(routerRedux.push('/security/security-list'));
     }
   };
   handleNoticeVisibleChange = visible => {
