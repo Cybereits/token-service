@@ -203,14 +203,6 @@ export const adminInfo = new OutputObj({
   },
 })
 
-export const adminLogoutType = new OutputObj({
-  name: 'loginout',
-  description: '管理员登出',
-  fields: {
-    result: { type: boolean },
-  },
-})
-
 // #endregion
 
 // #region Input Objects

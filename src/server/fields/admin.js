@@ -2,11 +2,11 @@ import {
   GraphQLString as str,
   GraphQLNonNull as NotNull,
   GraphQLInt as int,
+  GraphQLBoolean as bool,
 } from 'graphql'
 
 import {
   adminInfo,
-  adminLogoutType,
 } from '../types/plainTypes'
 
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
@@ -151,7 +151,7 @@ export const adminLogin = {
 }
 
 export const adminLogout = {
-  type: adminLogoutType,
+  type: bool,
   description: '管理员注销',
   resolve(root, _, ctx) {
     return logout(ctx)

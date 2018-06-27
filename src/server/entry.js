@@ -1,5 +1,14 @@
 require('babel-register')({
-  presets: ['es2015', 'stage-0'],
+  presets: [
+    [
+      'env',
+      {
+        'targets': {
+          'node': 'current',
+        },
+      },
+    ],
+  ],
 })
 
 require('./app')
