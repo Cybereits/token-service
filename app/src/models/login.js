@@ -29,10 +29,10 @@ export default {
           // get location pathname
           const urlParams = new URL(window.location.href);
           const pathname = yield select(state => state.routing.location.pathname);
+          console.log(urlParams, pathname);
           // add the parameters in the url
           // urlParams.searchParams.set('redirect', pathname);
           // window.history.replaceState(null, 'login', urlParams.href);
-          console.log(urlParams, pathname);
         } finally {
           yield put({
             type: 'changeLoginStatus',

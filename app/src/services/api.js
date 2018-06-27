@@ -132,7 +132,7 @@ export async function accountLogin({ userName, password, token }) {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          adminLogin(username: "${userName}", password: "${password}") {
+          adminLogin(username: "${userName}", password: "${password}", token: "${token}") {
             username
             role
           }
@@ -681,6 +681,20 @@ export async function addERC20ContractMeta(params) {
     });
 }
 
+export async function bindTwoFactorAuth(params) {
+  console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        bindTwoFactorAuth(token: "${params.token}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 export async function queryAdminList(params={pageIndex:0,pageSize:10}) {
 console.log(params)
   return client
@@ -706,4 +720,39 @@ console.log(params)
   .catch(err => {
     console.log(err);
   });
+}
+
+export async function getAdminInfo() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          getAdminInfo {
+            username
+            role
+            bindTwoFactorAuth
+            bindMobile
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message.replace(/GraphQL error: (\w+)/gi, '$1'));
+    });
+}
+
+export async function getTwoFactorAuthUrl() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          getTwoFactorAuthUrl
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message.replace(/GraphQL error: (\w+)/gi, '$1'));
+    });
 }

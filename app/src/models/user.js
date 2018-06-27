@@ -25,7 +25,6 @@ export default {
     },
     *queryAdminList({ callback, params }, { call, put }) {
       const response = yield call(queryAdminList, params);
-      console.log(response);
       const data = {};
       if (response) {
         data.list = response.data.queryAdminList.list.map((item, index) => {
@@ -43,7 +42,6 @@ export default {
         data.pagination = response.data.queryAdminList.pagination;
       }
       if (callback) callback();
-      console.log(data);
       yield put({
         type: 'save',
         payload: data,

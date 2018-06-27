@@ -1,7 +1,10 @@
 import moment from 'moment';
+import QRCode from 'qrcode';
 import {
+  getAdminInfo,
+  getTwoFactorAuthUrl,
+  bindTwoFactorAuth,
   queryAllContract,
-  addERC20ContractMeta,
   deployCREContract,
   deployKycContract,
   deployAssetContract,
@@ -11,21 +14,44 @@ export default {
   namespace: 'security',
 
   state: {
-    data: {
-      list: [],
-      pagination: {},
-    },
+    bindMobile: false,
+    bindTwoFactorAuth: false,
+    getTwoFactorAuthUrl: null,
   },
 
   effects: {
-    *addERC20ContractMeta({ params, callback }, { call }) {
-      console.log(params);
-      const response = yield call(addERC20ContractMeta, params);
-      if (callback) callback(response);
+    *getAdminInfo({ callback }, { call, put }) {
+      const response = yield call(getAdminInfo);
+      if (response) {
+        callback(response.data.getAdminInfo);
+        yield put({
+          type: 'save',
+          payload: {
+            bindMobile: response.data.getAdminInfo.bindMobile,
+            bindTwoFactorAuth: response.data.getAdminInfo.bindTwoFactorAuth,
+          },
+        });
+      }
+    },
+    *getTwoFactorAuthUrl({ callback }, { call, put }) {
+      const response = yield call(getTwoFactorAuthUrl);
+      console.log(callback);
+      if (response) {
+        const url = yield QRCode.toDataURL(response.data.getTwoFactorAuthUrl);
+        if (url) {
+          yield put({
+            type: 'save',
+            payload: { getTwoFactorAuthUrl: url },
+          });
+        }
+      }
+    },
+    *bindTwoFactorAuth({ params, callback }, { call }) {
+      const response = yield call(bindTwoFactorAuth, params);
+      callback(response);
     },
     *queryAllContract({ params }, { call, put }) {
       const response = yield call(queryAllContract, params);
-      // console.log(response)
       const data = {};
       if (response) {
         data.list = response.data.queryAllContract.map((item, index) => {
@@ -47,7 +73,6 @@ export default {
           pageSize: data.list.length,
           pageCount: 1,
         };
-        // console.log(data)
         yield put({
           type: 'save',
           payload: data,
@@ -76,9 +101,7 @@ export default {
 
   reducers: {
     save(state, action) {
-      return {
-        data: { ...state.data, ...action.payload },
-      };
+      return { ...state, ...action.payload };
     },
   },
 };
