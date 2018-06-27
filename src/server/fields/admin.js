@@ -2,11 +2,12 @@ import {
   GraphQLString as str,
   GraphQLNonNull as NotNull,
   GraphQLInt as int,
+  GraphQLBoolean as bool,
 } from 'graphql'
 
 import {
   adminInfo,
-  adminLogoutType,
+  adminDetailInfo,
 } from '../types/plainTypes'
 
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
@@ -151,7 +152,7 @@ export const adminLogin = {
 }
 
 export const adminLogout = {
-  type: adminLogoutType,
+  type: bool,
   description: '管理员注销',
   resolve(root, _, ctx) {
     return logout(ctx)
@@ -242,6 +243,24 @@ export const bindTwoFactorAuth = {
       } else {
         throw new Error('无效的校验码')
       }
+    }
+  },
+}
+
+export const getAdminInfo = {
+  type: adminDetailInfo,
+  description: '获取管理员信息',
+  async resolve(root, _, ctx) {
+    if (ctx.session && ctx.session.admin) {
+      let { username } = ctx.session.admin
+      let admin = await AdminModel.findOne({ username })
+      if (admin) {
+        return admin
+      } else {
+        throw new Error('没有找到对应的管理员信息')
+      }
+    } else {
+      throw new Error('您还没有登录')
     }
   },
 }

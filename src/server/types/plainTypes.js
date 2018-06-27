@@ -203,11 +203,14 @@ export const adminInfo = new OutputObj({
   },
 })
 
-export const adminLogoutType = new OutputObj({
-  name: 'loginout',
-  description: '管理员登出',
+export const adminDetailInfo = new OutputObj({
+  name: 'adminDetailInfo',
+  description: '管理员账户详细信息',
   fields: {
-    result: { type: boolean },
+    username: { type: str, description: '用户名' },
+    role: { type: int, description: '用户角色' },
+    bindTwoFactorAuth: { type: boolean, description: '是否绑定双向验证', resolve: t => !!t.authSecret },
+    bindMobile: { type: boolean, description: '是否绑定手机', resolve: t => !!t.mobile },
   },
 })
 

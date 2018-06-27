@@ -150,9 +150,7 @@ export async function accountLogout() {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          adminLogout {
-            result
-          }
+          adminLogout
         }
       `,
     })
