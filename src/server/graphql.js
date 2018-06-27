@@ -3,7 +3,7 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth } from './fields/admin'
+import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
 import { queryAllBalance, gatherAllEth } from './fields/balance'
 import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, callContractMethod } from './fields/contract'
 import { statusEnum, tokenTypeEnum } from './fields/enum'
@@ -24,6 +24,7 @@ const authRequiredQueries = new Obj({
     queryTx,
     queryTxRecordsViaTaskId,
     queryIsSysAccount,
+    getAdminInfo,
     getTwoFactorAuthUrl,
     statusEnum,
     tokenTypeEnum,

@@ -7,6 +7,7 @@ import {
 
 import {
   adminInfo,
+  adminDetailInfo,
 } from '../types/plainTypes'
 
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
@@ -242,6 +243,24 @@ export const bindTwoFactorAuth = {
       } else {
         throw new Error('无效的校验码')
       }
+    }
+  },
+}
+
+export const getAdminInfo = {
+  type: adminDetailInfo,
+  description: '获取管理员信息',
+  async resolve(root, _, ctx) {
+    if (ctx.session && ctx.session.admin) {
+      let { username } = ctx.session.admin
+      let admin = await AdminModel.findOne({ username })
+      if (admin) {
+        return admin
+      } else {
+        throw new Error('没有找到对应的管理员信息')
+      }
+    } else {
+      throw new Error('您还没有登录')
     }
   },
 }

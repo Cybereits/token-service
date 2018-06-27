@@ -203,6 +203,17 @@ export const adminInfo = new OutputObj({
   },
 })
 
+export const adminDetailInfo = new OutputObj({
+  name: 'adminDetailInfo',
+  description: '管理员账户详细信息',
+  fields: {
+    username: { type: str, description: '用户名' },
+    role: { type: int, description: '用户角色' },
+    bindTwoFactorAuth: { type: boolean, description: '是否绑定双向验证', resolve: t => !!t.authSecret },
+    bindMobile: { type: boolean, description: '是否绑定手机', resolve: t => !!t.mobile },
+  },
+})
+
 // #endregion
 
 // #region Input Objects
