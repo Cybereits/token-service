@@ -28,16 +28,15 @@ export const queryAllBalance = {
       type: balanceFilter,
       description: '过滤条件',
       defaultValue: {
-        tokenType: TOKEN_TYPES.cre,
-        orderBy: TOKEN_TYPES.eth,
+        tokenType: TOKEN_TYPES.eth,
       },
     },
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
     let listAccounts
-    let { ethAddresses, orderBy, tokenType } = filter
+    let { ethAddresses, tokenType } = filter
     let queryCondition = null
-    let sortCondition = { [`balances.${orderBy}`]: -1 }
+    let sortCondition = { [`balances.${tokenType}`]: -1 }
 
     if (ethAddresses && ethAddresses.length > 0) {
       queryCondition = { account: { $in: ethAddresses } }

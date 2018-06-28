@@ -223,7 +223,6 @@ export const balanceFilter = new InputObj({
   description: 'Balance 查询过滤条件',
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
-    orderBy: { type: str, description: '排序方式' },
     tokenType: { type: str, description: '查询的代币类型' },
   },
 })
