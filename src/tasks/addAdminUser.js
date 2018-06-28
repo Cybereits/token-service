@@ -11,8 +11,9 @@ export default async (username, password, validPassword, role = 1) => {
     console.log('用户已存在')
     process.exit()
   }
-  admin = new AdminModel({ username, password, role })
-  admin.save()
+
+  new AdminModel({ username, password, role })
+    .save()
     .then((newAdmin) => {
       console.log(`add user succ ${newAdmin.username}`)
       process.exit()

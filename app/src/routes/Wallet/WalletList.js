@@ -90,9 +90,17 @@ export default class TableList extends PureComponent {
 
   componentDidMount() {
     this.handleSearch(0, 10);
+    const { dispatch } = this.props;
+    // dispatch({
+    //   type: 'coin/commonStatusEnum',
+    // });
+    dispatch({
+      type: 'wallet/tokenTypeEnum',
+    });
   }
 
   handleStandardTableChange = pagination => {
+    // console.log(pagination);
     // const { dispatch } = this.props;
     // const { formValues } = this.state;
 
@@ -221,17 +229,22 @@ export default class TableList extends PureComponent {
     const { dispatch, form } = this.props;
 
     form.validateFields((err, fieldsValue) => {
+      // console.log(fieldsValue);
       if (err) return;
       // this.setState({
       //   formValues: fieldsValue,
       // });
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
+        // console.log(newParam[item], item);
         if (newParam[item] === '') {
           delete newParam[item];
+        } else if (item === 'tokenType' && newParam[item] === undefined) {
+          newParam[item] = 'eth';
         }
       });
-      const newFieldsValue = { orderBy: 'Enum(eth)', ...newParam };
+      const newFieldsValue = { ...newParam };
+      // console.log(newFieldsValue)
       dispatch({
         type: 'wallet/queryAllBalance',
         params: {
@@ -292,6 +305,7 @@ export default class TableList extends PureComponent {
             callback: () => {
               message.success('创建钱包成功!');
               resolve();
+              console.log(this);
             },
           });
         });
@@ -302,11 +316,12 @@ export default class TableList extends PureComponent {
     });
   };
 
-  renderSimpleForm() {
+  renderSimpleForm(tokenTypeEnum) {
     const { getFieldDecorator } = this.props.form;
     return (
       <Form
-        onSubmit={() => {
+        onSubmit={e => {
+          e.preventDefault();
           this.handleSearch(0, 10);
         }}
         ayout="inline"
@@ -317,16 +332,26 @@ export default class TableList extends PureComponent {
               {getFieldDecorator('ethAddresses')(<Input placeholder="请输入钱包地址" />)}
             </FormItem>
           </Col>
-          {/* <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
+          <Col md={8} sm={24}>
+            <FormItem label="代币类型">
+              {getFieldDecorator('tokenType', {
+                initialValue: tokenTypeEnum[0] && tokenTypeEnum[0].name,
+              })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+                  {/* <Option value="Enum(eth)">eth</Option>
+                  <Option value="Enum(cre)">cre</Option> */}
+                  {tokenTypeEnum.map((item, index) => {
+                    return (
+                      /* eslint-disable */
+                      <Option key={index} value={item.name}>
+                        {item.name}
+                      </Option>
+                    );
+                  })}
                 </Select>
               )}
             </FormItem>
-          </Col> */}
+          </Col>
           <Col md={8} sm={24}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
@@ -417,25 +442,26 @@ export default class TableList extends PureComponent {
     );
   }
 
-  renderForm() {
-    return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
+  renderForm(tokenTypeEnum) {
+    return this.state.expandForm ? this.renderAdvancedForm() : this.renderSimpleForm(tokenTypeEnum);
   }
 
   render() {
-    const { wallet: { data }, loading } = this.props;
+    const { wallet: { data, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
+    // console.log(this.props);
     const columns = [
       {
         title: '钱包地址',
-        dataIndex: 'ethAddress',
+        dataIndex: 'address',
       },
       {
         title: 'eth余额',
-        dataIndex: 'ethAmount',
+        dataIndex: 'eth',
       },
       {
-        title: 'cre余额',
-        dataIndex: 'creAmount',
+        title: '所选代笔余额',
+        dataIndex: 'token',
       },
       // {
       //   title: '服务调用次数',
@@ -505,7 +531,7 @@ export default class TableList extends PureComponent {
       <PageHeaderLayout title="钱包列表">
         <Card bordered={false}>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
+            <div className={styles.tableListForm}>{this.renderForm(tokenTypeEnum)}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={this.addWallet.bind(this)}>
                 创建钱包

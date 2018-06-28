@@ -15,6 +15,8 @@ const adminUser = new mongoose.Schema({
     type: String,
     required: true,
   },
+  authSecret: String, // google 双向验证 secret
+  mobile: String,  // 手机号
   role: { // 1:超级管理员，2:普通管理员
     type: Number,
     default: 2,

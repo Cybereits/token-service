@@ -112,7 +112,7 @@ export default class CreateTask extends PureComponent {
                   {tokenTypeEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={`Enum(${item.value})`}>
+                      <Option key={index} value={item.value}>
                         {item.name}
                       </Option>
                     );

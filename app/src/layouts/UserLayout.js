@@ -38,6 +38,7 @@ class UserLayout extends React.PureComponent {
     let title = 'Ant Design Pro';
     if (routerData[pathname] && routerData[pathname].name) {
       title = `${routerData[pathname].name} - Ant Design Pro`;
+      title = `${routerData[pathname].name}`;
     }
     return title;
   }
@@ -65,7 +66,7 @@ class UserLayout extends React.PureComponent {
                   exact={item.exact}
                 />
               ))}
-              <Redirect exact from="/user" to="/user/login" />
+              <Redirect exact from="/entry" to="/entry/login" />
             </Switch>
           </div>
           <GlobalFooter copyright={copyright} />

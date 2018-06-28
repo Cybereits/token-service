@@ -1,8 +1,6 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-// import ApolloClient from 'apollo-boost';
-// import gql from 'graphql-tag';
-// import moment from 'moment';
+import DescriptionList from 'components/DescriptionList';
 import {
   Row,
   Col,
@@ -29,7 +27,7 @@ const { confirm } = Modal;
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
-
+const { Description } = DescriptionList;
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, sendCoin, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
@@ -213,20 +211,17 @@ export default class TableList extends PureComponent {
     const { dispatch, form } = this.props;
 
     form.validateFields((err, fieldsValue) => {
+      // console.log(fieldsValue)
       if (err) return;
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
         if (newParam[item] === '') {
           delete newParam[item];
-        } else if (item === 'tokenType' && newParam[item]) {
-          newParam[item] = `Enum(${newParam[item]})`;
-        } else if (item === 'status' && newParam[item]) {
-          newParam[item] = `Enum(${newParam[item]})`;
         } else if (item === 'amount' && newParam[item]) {
           newParam[item] = +newParam[item];
         }
       });
-      const newFieldsValue = { tokenType: 'Enum()', ...newParam };
+      const newFieldsValue = { ...newParam };
       dispatch({
         type: 'coin/queryTx',
         params: {
@@ -301,7 +296,8 @@ export default class TableList extends PureComponent {
     };
     return (
       <Form
-        onSubmit={() => {
+        onSubmit={(e) => {
+          e.preventDefault();
           this.handleSearch(0, 10);
         }}
         layout="inline"
@@ -319,7 +315,7 @@ export default class TableList extends PureComponent {
                   {statusEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={item.name}>
+                      <Option key={index} value={item.value}>
                         {item.name}
                       </Option>
                     );
@@ -340,7 +336,7 @@ export default class TableList extends PureComponent {
                   {tokenTypeEnum.map((item, index) => {
                     return (
                       /* eslint-disable */
-                      <Option key={index} value={item.name}>
+                      <Option key={index} value={item.value}>
                         {item.name}
                       </Option>
                     );
@@ -449,15 +445,15 @@ export default class TableList extends PureComponent {
     const { coin: { data, statusEnum, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
     const columns = [
-      {
-        title: '入账地址',
-        dataIndex: 'to',
-        fixed: 'left',
-      },
-      {
-        title: 'id',
-        dataIndex: 'id',
-      },
+      // {
+      //   title: '入账地址',
+      //   dataIndex: 'to',
+      //   fixed: 'left',
+      // },
+      // {
+      //   title: 'id',
+      //   dataIndex: 'id',
+      // },
       {
         title: '发送代币数量',
         dataIndex: 'amount',
@@ -466,38 +462,36 @@ export default class TableList extends PureComponent {
         title: '出账地址',
         dataIndex: 'from',
       },
-      {
-        title: '发送状态',
-        dataIndex: 'status',
-      },
+      // {
+      //   title: '发送状态',
+      //   dataIndex: 'status',
+      // },
       {
         title: '代币类型',
         dataIndex: 'tokenType',
       },
+      // {
+      //   title: '备注',
+      //   dataIndex: 'comment',
+      // },
+      // {
+      //   title: 'txid',
+      //   dataIndex: 'txid',
+      // },
+      // {
+      //   title: '任务id',
+      //   dataIndex: 'taskid',
+      // },
+      // {
+      //   title: '发送时间',
+      //   dataIndex: 'sendTime',
+      // },
+      // {
+      //   title: '确认时间',
+      //   dataIndex: 'confirmTime',
+      // },
       {
-        title: '备注',
-        dataIndex: 'comment',
-      },
-      {
-        title: 'txid',
-        dataIndex: 'txid',
-      },
-      {
-        title: '任务id',
-        dataIndex: 'taskid',
-      },
-      {
-        title: '发送时间',
-        dataIndex: 'sendTime',
-      },
-      {
-        title: '确认时间',
-        dataIndex: 'confirmTime',
-      },
-      {
-        width: 100,
         title: '操作',
-        fixed: 'right',
         render: item => {
           const { dispatch } = this.props;
           const newThis = this;
@@ -509,7 +503,7 @@ export default class TableList extends PureComponent {
                   confirm({
                     okText: '确认',
                     cancelText: '取消',
-                    title: <p>确定要发送此比转账吗？</p>,
+                    title: <p>确定要发送此笔转账吗？</p>,
                     onOk() {
                       return new Promise(resolve => {
                         dispatch({
@@ -628,7 +622,22 @@ export default class TableList extends PureComponent {
               columns={columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
-              scroll={{ x: 3000 }}
+              expandedRowRender={item => {
+                return (
+                  <Card bordered={false}>
+                    <DescriptionList size="large">
+                      <Description term="入账地址">{item.to}</Description>
+                      <Description term="id">{item.id}</Description>
+                      <Description term="发送状态">{item.status}</Description>
+                      <Description term="备注">{item.comment}</Description>
+                      <Description term="txid">{item.txid}</Description>
+                      <Description term="任务id">{item.taskid}</Description>
+                      <Description term="发送时间">{item.sendTime}</Description>
+                      <Description term="确认时间">{item.confirmTime}</Description>
+                    </DescriptionList>
+                  </Card>
+                );
+              }}
             />
           </div>
         </Card>

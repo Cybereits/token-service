@@ -5,14 +5,62 @@ import {
   GraphQLList as List,
   GraphQLInt as int,
   GraphQLInputObjectType as InputObj,
-  GraphQLEnumType,
   GraphQLNonNull as NotNull,
   GraphQLBoolean as boolean,
 } from 'graphql'
 
-import { getStatus, TOKEN_TYPES, STATUS } from '../../core/enums'
+import { getStatus } from '../../core/enums'
 
 // #region Output Objects
+
+export const contractMetaResult = new OutputObj({
+  name: 'contractMetaResult',
+  description: '合约元信息',
+  fields: {
+    name: {
+      type: str,
+      description: '合约名称',
+    },
+    symbol: {
+      type: str,
+      description: '代币缩写',
+    },
+    decimal: {
+      type: int,
+      description: '代币精度',
+    },
+    codes: {
+      type: str,
+      description: '合约编码',
+    },
+    abis: {
+      type: str,
+      description: '合约 abi',
+    },
+    owner: {
+      type: str,
+      description: '合约拥有者',
+    },
+    address: {
+      type: str,
+      description: '合约地址',
+    },
+    args: {
+      type: str,
+      description: '合约部署参数',
+    },
+    isERC20: {
+      type: boolean,
+      description: '是否是 ERC20 代币合约',
+    },
+    createAt: {
+      type: str,
+      description: '合约创建时间',
+      resolve: c => (c.createAt).toJSON(),
+    },
+  },
+})
+
 export const hashResult = new OutputObj({
   name: 'hashResult',
   description: '键值对结果',
@@ -84,7 +132,7 @@ export const txRecord = new OutputObj({
       resolve: t => t._id,
     },
     amount: {
-      type: int,
+      type: float,
       description: '转账数额',
     },
     from: {
@@ -146,31 +194,23 @@ export const txRecord = new OutputObj({
   },
 })
 
-export const amdinLoginType = new OutputObj({
-  name: 'adminLogin',
-  description: '管理员登录',
+export const adminInfo = new OutputObj({
+  name: 'adminInfo',
+  description: '管理员账户信息',
   fields: {
-    username: { type: str },
-    message: { type: str },
-    role: { type: int },
+    username: { type: str, description: '用户名' },
+    role: { type: int, description: '用户角色' },
   },
 })
 
-export const adminRegisterType = new OutputObj({
-  name: 'adminRegister',
-  description: '管理员注册',
+export const adminDetailInfo = new OutputObj({
+  name: 'adminDetailInfo',
+  description: '管理员账户详细信息',
   fields: {
-    username: { type: str },
-    role: { type: int },
-    message: { type: str },
-  },
-})
-
-export const adminLogoutType = new OutputObj({
-  name: 'loginout',
-  description: '管理员登出',
-  fields: {
-    result: { type: boolean },
+    username: { type: str, description: '用户名' },
+    role: { type: int, description: '用户角色' },
+    bindTwoFactorAuth: { type: boolean, description: '是否绑定双向验证', resolve: t => !!t.authSecret },
+    bindMobile: { type: boolean, description: '是否绑定手机', resolve: t => !!t.mobile },
   },
 })
 
@@ -178,40 +218,24 @@ export const adminLogoutType = new OutputObj({
 
 // #region Input Objects
 
-/**
- * 这里需要的 values 的格式为
- * {
- *  eth: { value : 'eth' },
- *  cre: { value : 'cre' },
- *  eos: { value : 'eos' },
- * }
- */
-export const TokenTypeEnum = new GraphQLEnumType({
-  name: 'TokenTypeEnum',
-  values: Object.entries(TOKEN_TYPES).reduce(
-    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
-    {},
-  ),
-})
-
-/**
- * 转账状态的枚举
- */
-export const StatusEnum = new GraphQLEnumType({
-  name: 'StatusEnum',
-  values: Object.entries(STATUS).reduce(
-    (prev, [key, value]) => Object.assign(prev, { [key]: { value } }),
-    {},
-  ),
-})
-
 export const balanceFilter = new InputObj({
   name: 'balanceFilter',
   description: 'Balance 查询过滤条件',
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
-    orderBy: { type: TokenTypeEnum, description: '排序方式' },
-    tokenType: { type: TokenTypeEnum, description: '查询的代币类型' },
+    tokenType: { type: str, description: '查询的代币类型' },
+  },
+})
+
+export const contractFilter = new InputObj({
+  name: 'contractFilter',
+  description: '合约查询过滤条件',
+  fields: {
+    name: { type: str, description: '合约名称' },
+    symbol: { type: str, description: '代币缩写' },
+    owner: { type: str, description: '所属地址' },
+    address: { type: str, description: '合约地址' },
+    isERC20: { type: boolean, description: '是否是 ERC20 代币合约' },
   },
 })
 
@@ -220,9 +244,9 @@ export const txFilter = new InputObj({
   description: 'transactionRecord 查询过滤条件',
   fields: {
     to: { type: str, description: '入账钱包地址' },
-    amount: { type: int, description: '转账数额' },
-    status: { type: StatusEnum, description: '转账状态' },
-    tokenType: { type: TokenTypeEnum, description: '代币类型' },
+    amount: { type: float, description: '转账数额' },
+    status: { type: str, description: '转账状态' },
+    tokenType: { type: str, description: '代币类型' },
   },
 })
 
@@ -237,12 +261,15 @@ export const creContractArgs = new InputObj({
   },
 })
 
-export const ethAccount = new InputObj({
-  name: 'ethAccount',
-  description: 'eth 账户信息',
+export const commonContractArgs = new InputObj({
+  name: 'commonContractArgs',
+  description: '通用合约参数',
   fields: {
-    address: { type: new NotNull(str), description: '钱包地址' },
-    secret: { type: str, description: '钱包创建时的密钥 (非私钥)', defaultValue: '' },
+    tokenSupply: { type: new NotNull(int), description: '代币总量' },
+    tokenSymbol: { type: new NotNull(str), description: '代币缩写' },
+    contractName: { type: new NotNull(str), description: '合约名称' },
+    contractDecimals: { type: new NotNull(int), description: '合约精度' },
   },
 })
-// #endregion
+
+  // #endregion

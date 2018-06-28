@@ -6,6 +6,7 @@ import {
   queryAllBalance,
   addWallet,
   createMultiAccount,
+  tokenTypeEnum,
 } from '../services/api';
 
 export default {
@@ -16,6 +17,7 @@ export default {
       list: [],
       pagination: {},
     },
+    tokenTypeEnum: [],
   },
 
   effects: {
@@ -39,13 +41,22 @@ export default {
         payload: data,
       });
     },
+    *tokenTypeEnum({ payload }, { call, put }) {
+      const response = yield call(tokenTypeEnum, payload);
+      if (response) {
+        yield put({
+          type: 'save',
+          tokenTypeEnum: response.data.tokenTypeEnum,
+        });
+      }
+    },
     *queryAllBalance(
       {
         params = {
           pageIndex: 0,
           pageSize: 10,
           filter: {
-            orderBy: 'Enum(eth)',
+            tokenType: 'eth',
           },
         },
         callback,
@@ -55,13 +66,8 @@ export default {
       const response = yield call(queryAllBalance, params);
       const data = {};
       if (response) {
-        data.list = response.data.queryAllBalance.list.map((value, index) => {
-          return {
-            ethAddress: value.ethAddress,
-            ethAmount: value.balances[0].value,
-            creAmount: value.balances[1].value,
-            key: index,
-          };
+        data.list = response.data.queryAllBalance.list.map((item, index) => {
+          return { ...item, key: index };
         });
         data.pagination = response.data.queryAllBalance.pagination;
         yield put({
@@ -113,7 +119,9 @@ export default {
     save(state, action) {
       return {
         ...state,
-        data: action.payload,
+
+        data: { ...state.data, ...action.payload },
+        tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
       };
     },
   },

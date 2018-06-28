@@ -1,6 +1,6 @@
 import moment from 'moment';
 import {
-  queryBatchTrasactionTasks,
+  queryBatchTransactionTasks,
   queryTxRecordsViaTaskId,
   sendTransactionfFromIds,
   sendTransactionfFromTaskid,
@@ -13,7 +13,7 @@ export default {
 
   state: {
     tokenTypeEnum: [],
-    queryBatchTrasactionTasks: {
+    queryBatchTransactionTasks: {
       list: [],
       pagination: {},
     },
@@ -41,7 +41,7 @@ export default {
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
-      //     queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+      //     queryBatchTransactionTasks: response.data.queryBatchTransactionTasks,
       //   });
       // }
     },
@@ -53,7 +53,7 @@ export default {
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
-      //     queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+      //     queryBatchTransactionTasks: response.data.queryBatchTransactionTasks,
       //   });
       // }
     },
@@ -65,11 +65,11 @@ export default {
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
-      //     queryBatchTrasactionTasks: response.data.queryBatchTrasactionTasks,
+      //     queryBatchTransactionTasks: response.data.queryBatchTransactionTasks,
       //   });
       // }
     },
-    *queryBatchTrasactionTasks(
+    *queryBatchTransactionTasks(
       {
         params = {
           pageIndex: 1,
@@ -78,23 +78,23 @@ export default {
       },
       { call, put }
     ) {
-      const response = yield call(queryBatchTrasactionTasks, params);
+      const response = yield call(queryBatchTransactionTasks, params);
       if (response) {
-        const newQueryBatchTrasactionTasks = {};
-        newQueryBatchTrasactionTasks.list = response.data.queryBatchTrasactionTasks.list.map(
+        const newqueryBatchTransactionTasks = {};
+        newqueryBatchTransactionTasks.list = response.data.queryBatchTransactionTasks.list.map(
           (item, index) => {
             return {
               ...item,
-              createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD hh:mm:ss'),
+              createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD HH:mm:ss'),
               key: index,
             };
           }
         );
-        newQueryBatchTrasactionTasks.pagination =
-          response.data.queryBatchTrasactionTasks.pagination;
+        newqueryBatchTransactionTasks.pagination =
+          response.data.queryBatchTransactionTasks.pagination;
         yield put({
           type: 'getTaskData',
-          queryBatchTrasactionTasks: newQueryBatchTrasactionTasks,
+          queryBatchTransactionTasks: newqueryBatchTransactionTasks,
         });
       }
     },
@@ -115,8 +115,8 @@ export default {
             return {
               ...item,
               confirmTime:
-                item.confirmTime === '' || moment(item.confirmTime).format('YYYY-MM-DD hh:mm:ss'),
-              sendTime: item.sendTime === '' || moment(item.sendTime).format('YYYY-MM-DD hh:mm:ss'),
+                item.confirmTime === '' || moment(item.confirmTime).format('YYYY-MM-DD HH:mm:ss'),
+              sendTime: item.sendTime === '' || moment(item.sendTime).format('YYYY-MM-DD HH:mm:ss'),
               key: index,
             };
           }
@@ -135,8 +135,8 @@ export default {
       return {
         ...state,
         tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
-        queryBatchTrasactionTasks:
-          action.queryBatchTrasactionTasks || state.queryBatchTrasactionTasks,
+        queryBatchTransactionTasks:
+          action.queryBatchTransactionTasks || state.queryBatchTransactionTasks,
         queryTxOperationRecords: action.queryTxOperationRecords || state.queryTxOperationRecords,
       };
     },

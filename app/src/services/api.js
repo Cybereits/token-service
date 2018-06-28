@@ -9,7 +9,7 @@ import request from '../utils/request';
 import { toGql } from '../utils/utils';
 import config from '../../config/env.json';
 
-const { host, port, baseUrl } = config;
+const { host, port, baseUrl, publicUrl } = config;
 console.log(`${host}${port ? `:${port}` : ''}${baseUrl}`);
 
 const client = new ApolloClient({
@@ -29,11 +29,35 @@ const client = new ApolloClient({
         const currentAuthority = '';
         setAuthority(currentAuthority);
         reloadAuthorized();
-        window.location.href = `${window.location.origin}/#/user/login`;
+        window.location.href = `${window.location.origin}/#/entry/login`;
       }
     }
   },
 });
+
+const loginClient = new ApolloClient({
+  request: async operation => {
+    operation.setContext({
+      fetchOptions: {
+        credentials: 'include',
+      },
+    });
+  },
+  uri: `${host}${port ? `:${port}` : ''}${publicUrl}`,
+  onError: ({ graphQLErrors }) => {
+    console.log('graphQLErrors', graphQLErrors);
+    if (graphQLErrors && graphQLErrors.length > 0 && graphQLErrors[0].message !== 'Not logged in') {
+      message.error(graphQLErrors[0].message);
+      if (graphQLErrors[0].message === 'Unauthorized!') {
+        const currentAuthority = '';
+        setAuthority(currentAuthority);
+        reloadAuthorized();
+        window.location.href = `${window.location.origin}/#/entry/login`;
+      }
+    }
+  },
+});
+
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -101,15 +125,15 @@ export async function fakeAccountLogin(params) {
   });
 }
 
-export async function accountLogin({ userName, password }) {
-  return client
+export async function accountLogin({ userName, password, token }) {
+  console.log(token)
+  return loginClient
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         {
-          adminLogin(username: "${userName}", password: "${password}") {
+          adminLogin(username: "${userName}", password: "${password}", token: "${token}") {
             username
-            message
             role
           }
         }
@@ -126,9 +150,7 @@ export async function accountLogout() {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          adminLogout {
-            result
-          }
+          adminLogout
         }
       `,
     })
@@ -164,6 +186,7 @@ export async function getAccountList() {
 
 export async function queryAllBalance({ pageIndex, pageSize, filter }) {
   const newFilter = { ...filter };
+  // console.log(newFilter)
   for (const key in newFilter) {
     if (filter[key] === undefined) {
       delete newFilter[key];
@@ -177,8 +200,8 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
       query: gql`
         {
           queryAllBalance(pageIndex: ${pageIndex}, pageSize: ${pageSize}, filter: ${toGql(
-        newFilter
-      )}) {
+          newFilter
+        )}) {
             pagination {
               total
               current
@@ -186,11 +209,9 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
               pageCount
             }
             list {
-              ethAddress
-              balances {
-                name
-                value
-              }
+              address
+              eth
+              token
             }
           }
         }
@@ -208,6 +229,24 @@ export async function addWallet() {
       mutation: gql`
         mutation {
           createAccount
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function createAdmin({ username, password, validPassword }) {
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          createAdmin(username: "${username}", password: "${password}", validPassword: "${validPassword}"){
+            username
+            role
+          }
         }
       `,
     })
@@ -237,9 +276,9 @@ export async function createBatchTransactions({ transactions, comment, tokenType
       fetchPolicy: 'no-cache',
       mutation: gql`
         mutation {
-          createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: ${toGql(
-        tokenType
-      )}, outAccount: "${outAccount}") {
+          createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: "${toGql(
+          tokenType
+        )}", outAccount: "${outAccount}") {
             id,
             count,
             comment,
@@ -273,7 +312,7 @@ export async function createMultiAccount(parmas) {
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-      createMultiAccount(amount: ${parmas.walletAmount})
+      createMultiAccount(count: ${parmas.walletAmount})
     }`,
     })
     .catch(err => {
@@ -397,22 +436,22 @@ export async function sendCoinOverview() {
       fetchPolicy: 'network-only',
       query: gql`
         {
-          pending: queryTx(filter: { status: pending }) {
+          pending: queryTx(filter: { status: "0" }) {
             pagination {
               total
             }
           }
-          sending: queryTx(filter: { status: sending }) {
+          sending: queryTx(filter: { status: "1" }) {
             pagination {
               total
             }
           }
-          success: queryTx(filter: { status: success }) {
+          success: queryTx(filter: { status: "2" }) {
             pagination {
               total
             }
           }
-          failure: queryTx(filter: { status: failure }) {
+          failure: queryTx(filter: { status: "-1" }) {
             pagination {
               total
             }
@@ -430,13 +469,13 @@ export async function sendCoinOverview() {
     });
 }
 
-export async function queryBatchTrasactionTasks({ pageIndex, pageSize }) {
+export async function queryBatchTransactionTasks({ pageIndex, pageSize }) {
   return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
         {
-          queryBatchTrasactionTasks(pageSize: ${pageSize}, pageIndex: ${pageIndex}) {
+          queryBatchTransactionTasks(pageSize: ${pageSize}, pageIndex: ${pageIndex}) {
             pagination {
               total,
               current,
@@ -490,5 +529,230 @@ export async function queryTxRecordsViaTaskId({ pageIndex, pageSize, taskID }) {
     })
     .catch(err => {
       console.log(err);
+    });
+}
+
+export async function changePwd(params) {
+  console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        changePwd(originPassword:"${params.originPassword}",newPassword:"${params.newPassword}",validPassword:"${params.validPassword}") {
+          username,
+          role,
+        }
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function deployCREContract(params) {
+  console.log(params.lockAddresses)
+  const newParams = { ...params };
+  for (const key in newParams) {
+    if (newParams[key] === undefined) {
+      newParams[key] = ''
+    }
+  }
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        deployCREContract(deployer: "${newParams.address}", contractArgs: {
+          tokenSupply: ${newParams.tokenSupply},
+          contractDecimals: ${newParams.contractDecimals},
+          lockPercent: ${newParams.lockPercent},
+          lockAddresses: ${JSON.stringify(newParams.lockAddresses)}
+        })
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+export async function queryAllContract(params={}) {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        query {
+          queryAllContract(filter: ${toGql(params)}) {
+            name,
+            symbol,
+            decimal,
+            codes,
+            abis,
+            owner,
+            address,
+            args,
+            isERC20,
+            createAt,
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+// export async function deployKycContract(params) {
+//   console.log(params)
+//   const newParams = { ...params };
+//   for (const key in newParams) {
+//     if (newParams[key] === undefined) {
+//       newParams[key] = ''
+//     }
+//   }
+//   return client
+//     .mutate({
+//       // fetchPolicy: 'no-cache',
+//       mutation: gql`mutation {
+//         deployKycContract(deployer: "${newParams.address}", contractArgs: {
+//           tokenSupply: ${newParams.tokenSupply},
+//           tokenSymbol: "${newParams.tokenSymbol}",
+//           contractName: "${newParams.contractName}",
+//           contractDecimals: ${newParams.contractDecimals}
+//         })
+//     }`,
+//     })
+//     .catch(err => {
+//       console.log(err);
+//     });
+// }
+export async function deployKycContract(params) {
+  console.log(params)
+  const newParams = { ...params };
+  for (const key in newParams) {
+    if (newParams[key] === undefined) {
+      newParams[key] = ''
+    }
+  }
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        deployKycContract(deployer: "${newParams.address}", contractName: "${newParams.contractName}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+export async function deployAssetContract(params) {
+  console.log(params)
+  const newParams = { ...params };
+  for (const key in newParams) {
+    if (newParams[key] === undefined) {
+      newParams[key] = ''
+    }
+  }
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        deployAssetContract(deployer: "${newParams.address}", contractArgs: {
+          tokenSupply: ${newParams.tokenSupply},
+          tokenSymbol: "${newParams.tokenSymbol}",
+          contractName: "${newParams.contractName}",
+          contractDecimals: ${newParams.contractDecimals}
+        }, kycAddress: "${newParams.kycAddress}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+
+export async function addERC20ContractMeta(params) {
+  console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        addERC20ContractMeta(name: "${params.name}", symbol: "${params.symbol}", decimal: ${params.decimal},codes: "${params.codes}",abis: "${params.abis}",address: "${params.address}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function bindTwoFactorAuth(params) {
+  console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        bindTwoFactorAuth(token: "${params.token}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function queryAdminList(params={pageIndex:0,pageSize:10}) {
+console.log(params)
+  return client
+  .query({
+    // fetchPolicy: 'network-only',
+    query: gql`
+      query {
+        queryAdminList(pageIndex:${params.pageIndex},pageSize:${params.pageSize}) {
+          list {
+            username,
+            role,
+          },
+          pagination{
+            total,
+            current,
+            pageSize,
+            pageCount,
+          }
+        }
+      }
+    `,
+  })
+  .catch(err => {
+    console.log(err);
+  });
+}
+
+export async function getAdminInfo() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          getAdminInfo {
+            username
+            role
+            bindTwoFactorAuth
+            bindMobile
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message.replace(/GraphQL error: (\w+)/gi, '$1'));
+    });
+}
+
+export async function getTwoFactorAuthUrl() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          getTwoFactorAuthUrl
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err.message.replace(/GraphQL error: (\w+)/gi, '$1'));
     });
 }

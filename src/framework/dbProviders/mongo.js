@@ -11,7 +11,6 @@ let port = reader.get('db_port')
 
 const db = mongoose
   .createConnection(ip, name, port)
-  // .createConnection()
   // 成功链接数据库
   .once('open', () => console.log('mongodb has open!'))
   // 链接数据库失败

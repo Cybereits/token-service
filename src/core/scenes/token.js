@@ -1,46 +1,105 @@
 import BN from 'bignumber.js'
-import getConnection, { ethClientConnection, creClientConnection } from '../../framework/web3'
 
-import { unlockAccount, getAccountInfoByAddress } from './account'
+import getConnection from '../../framework/web3'
+import { getConnByAddressThenUnlock, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
 import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
+import { ContractMetaModel } from '../schemas'
 
 BN.config({ DECIMAL_PLACES: 5 })
 
-/**
- * 根据转出的账户地址获得其所属钱包客户端链接
- * @param {object} entity 钱包信息
- * @returns {object} 钱包客户端链接
- */
-export async function getConnByAccount(entity) {
+// /**
+//  * 获取代币总量（调用totalSupply方法）
+//  * @param {*} connect web3链接
+//  */
+// export async function getTotal(connect) {
+//   let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
+//   let amount = await tokenContract.methods.totalSupply().call(null)
 
-  // 获取出账钱包信息
-  let conn = null
+//   return amount / (10 ** tokenContract.decimal)
+// }
 
-  let { account, group, secret } = entity
-  // 根据转出钱包地址的 group 类型判断出其所属的钱包客户端
-  if (group === TOKEN_TYPES.cre) {
-    conn = creClientConnection
-  } else if (group === TOKEN_TYPES.eth) {
-    conn = ethClientConnection
-  } else {
-    conn = getConnection()
-  }
+// /**
+//  * 查询钱包地址下的代币数额及代币总量，占比等信息
+//  * @param {*} userAddress 要查询的钱包地址
+//  */
+// export async function getTokenBalanceFullInfo(userAddress) {
+//   let totalPromise = getTotal(getConnection())
+//   let balancePromise = getTokenBalance(userAddress)
 
-  await unlockAccount(conn, account, secret).catch((err) => { throw err })
+//   const tokenTotalAmount = await totalPromise
+//   const userBalance = await balancePromise
 
-  return conn
-}
+//   return {
+//     total: tokenTotalAmount,
+//     userAddress,
+//     balance: userBalance,
+//     proportion: +(+((userBalance / tokenTotalAmount) * 100).toFixed(2)),
+//   }
+// }
 
-/**
- * 获取代币总量（调用totalSupply方法）
- * @param {*} connect web3链接
- */
-export async function getTotal(connect) {
-  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
-  let amount = await tokenContract.methods.totalSupply().call(null)
-  return connect.eth.extend.utils.fromWei(amount, 'ether')
-}
+// /**
+//  * 估算发送代币所需油费
+//  * @param {string} toAddress 转入地址
+//  * @param {number} amount 发送代币数额
+//  */
+// export async function estimateGasOfSendToken(toAddress, amount) {
+//   let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
+//   return tokenContract.methods.Transfer(toAddress, amount).estimateGas()
+// }
+
+// /**
+//  * 通过输入的数值计算得出对应的代币数额
+//  * @param {string|number} inputBigNumber 输入的大数值
+//  * @param {number} decimal 合约规定的代币精度
+//  * @returns {number} 计算所得代币数额
+//  */
+// export function getTokenAmountByBigNumber(inputBigNumber, decimal) {
+//   let _bigNumber = +inputBigNumber
+//   let _multiplier = 10 ** decimal
+//   if (isNaN(_bigNumber)) {
+//     if (typeof inputBigNumber === 'string') {
+//       if (inputBigNumber.indexOf('0x') !== 0) {
+//         // 默认加上16进制的前缀
+//         _bigNumber = +`0x${inputBigNumber}`
+//         if (isNaN(_bigNumber)) {
+//           // 如果非有效数值则返回 0
+//           return 0
+//         }
+//       }
+//     } else {
+//       // 不知道传入的是个什么类型,返回 0
+//       return 0
+//     }
+//   }
+//   return _bigNumber / _multiplier
+// }
+
+// /**
+//  * 解析交易记录中的 input 参数
+//  * warning: unsafe
+//  * @param {string} inputStr input 参数字符串
+//  * @param {number} decimal 合约规定的代币精度
+//  * @returns {Array} 解析后的参数数组
+//  */
+// export function decodeTransferInput(inputStr, decimal) {
+//   // Transfer转账的数据格式
+//   // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
+//   let str = inputStr.toString()
+//   let seperator = '00000000000000000000000'  // 23个0
+//   if (str.length >= 10) {
+//     let arr = str.split(seperator)
+//     // 参数解析后
+//     // 第一个参数是函数的id 16进制格式，不需要改变
+//     // 第二个参数是转入地址，加 0x 前缀转换成有效地址
+//     arr[1] = `0x${arr[1]}`
+//     // 第三个参数是交易的代币数额 需要转换成有效数值
+//     arr[2] = getTokenAmountByBigNumber(arr[2], decimal)
+//     return arr
+//   } else {
+//     return [str]
+//   }
+// }
 
 /**
  * 获取指定地址的以太代币余额
@@ -50,7 +109,7 @@ export async function getTotal(connect) {
 export async function getEthBalance(address) {
   let conn = getConnection()
   let amount = await conn.eth.getBalance(address)
-  return ethClientConnection.eth.extend.utils.fromWei(amount, 'ether')
+  return conn.eth.extend.utils.fromWei(amount, 'ether')
 }
 
 /**
@@ -61,22 +120,7 @@ export async function getEthBalance(address) {
 export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_NAMES.cre) {
   let tokenContract = await getContractInstance(contractMetaName)
   let amount = await tokenContract.methods.balanceOf(userAddress).call(null)
-  return getConnection().eth.extend.utils.fromWei(amount, 'ether')
-}
-
-/**
- * 查询钱包地址下的代币数额及代币总量，占比等信息
- * @param {*} userAddress 要查询的钱包地址
- */
-export async function getTokenBalanceFullInfo(userAddress) {
-  const tokenTotalAmount = await getTotal(getConnection())
-  const userBalance = await getTokenBalance(userAddress)
-  return {
-    total: tokenTotalAmount,
-    userAddress,
-    balance: userBalance,
-    proportion: +(+((userBalance / tokenTotalAmount) * 100).toFixed(2)),
-  }
+  return amount / (10 ** tokenContract.decimal)
 }
 
 /**
@@ -92,13 +136,17 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
     let {
-      contractMetaName = CONTRACT_NAMES.cre,
+      tokenType = TOKEN_TYPES.cre,
       gasPrice,
       gas,
       priceRate = 1.1,  // 油费溢价率
     } = options
-    let account = await getAccountInfoByAddress(fromAddress)
-    let conn = await getConnByAccount(account)
+
+    let contractMetaPromise = ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
+    let getConnPromise = getConnByAddressThenUnlock(fromAddress)
+
+    let { name } = await contractMetaPromise
+    let conn = await getConnPromise
 
     if (!gasPrice) {
       gasPrice = await conn
@@ -108,7 +156,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     }
 
     return new Promise(async (resolve, reject) => {
-      let tokenContract = await getContractInstance(contractMetaName, conn)
+      let tokenContract = await getContractInstance(name, conn)
       let _multiplier = 10 ** tokenContract.decimal
       let _sendAmount = _amount.mul(_multiplier)
 
@@ -117,7 +165,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
         .transfer(toAddress, _sendAmount)
         .send({ from: fromAddress, gasPrice, gas })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer [${_amount.toString(10)}] tokens to [${toAddress}] [txid ${hash}]`)
+          console.info(`Transfer [${_amount.toString(10)}] ${name} tokens to [${toAddress}] : [txid ${hash}]`)
           resolve(hash)
         })
         .on('error', reject)
@@ -139,8 +187,12 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-    let account = await getAccountInfoByAddress(fromAddress)
-    let conn = await getConnByAccount(account)
+    let getAccountPromise = getAccountInfoByAddress(fromAddress)
+    let getConnPromise = getConnByAddressThenUnlock(fromAddress)
+
+    let account = await getAccountPromise
+    let conn = await getConnPromise
+
     return conn
       .eth
       .personal
@@ -152,7 +204,7 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
         gas,
       }, account.secret)
       .then((hash) => {
-        console.info(`Transfer [${amount}] tokens to [${toAddress}] [txid ${hash}]`)
+        console.info(`Transfer [${amount}] eth to [${toAddress}] [txid ${hash}]`)
         return hash
       })
   }
@@ -173,9 +225,13 @@ export async function transferAllEth(fromAddress, toAddress) {
 
   let connect = getConnection()
 
-  let total = await connect.eth.getBalance(fromAddress)
-  let gasPrice = await connect.eth.getGasPrice()
-  let gasFee = await connect.eth.estimateGas({ from: fromAddress })
+  let balancePromise = connect.eth.getBalance(fromAddress)
+  let gasPricePromise = connect.eth.getGasPrice()
+  let gasFeePromise = connect.eth.estimateGas({ from: fromAddress })
+
+  let total = await balancePromise
+  let gasPrice = await gasPricePromise
+  let gasFee = await gasFeePromise
 
   // if (+gasPrice === 0) {
   //   gasPrice = 30000
@@ -203,68 +259,3 @@ export async function transferAllEth(fromAddress, toAddress) {
   sendETH(fromAddress, toAddress, transAmount, { gasPrice, gasFee })
 }
 
-/**
- * 估算发送代币所需油费
- * @param {string} toAddress 转入地址
- * @param {number} amount 发送代币数额
- */
-export async function estimateGasOfSendToken(toAddress, amount) {
-  let tokenContract = await getContractInstance(CONTRACT_NAMES.cre)
-  return tokenContract
-    .methods
-    .Transfer(toAddress, amount)
-    .estimateGas()
-}
-
-/**
- * 通过输入的数值计算得出对应的代币数额
- * @param {string|number} inputBigNumber 输入的大数值
- * @param {number} decimal 合约规定的代币精度
- * @returns {number} 计算所得代币数额
- */
-export function getTokenAmountByBigNumber(inputBigNumber, decimal) {
-  let _bigNumber = +inputBigNumber
-  let _multiplier = 10 ** decimal
-  if (isNaN(_bigNumber)) {
-    if (typeof inputBigNumber === 'string') {
-      if (inputBigNumber.indexOf('0x') !== 0) {
-        // 默认加上16进制的前缀
-        _bigNumber = +`0x${inputBigNumber}`
-        if (isNaN(_bigNumber)) {
-          // 如果非有效数值则返回 0
-          return 0
-        }
-      }
-    } else {
-      // 不知道传入的是个什么类型,返回 0
-      return 0
-    }
-  }
-  return _bigNumber / _multiplier
-}
-
-/**
- * 解析交易记录中的 input 参数
- * warning: unsafe
- * @param {string} inputStr input 参数字符串
- * @param {number} decimal 合约规定的代币精度
- * @returns {Array} 解析后的参数数组
- */
-export function decodeTransferInput(inputStr, decimal) {
-  // Transfer转账的数据格式
-  // 0xa9059cbb0000000000000000000000002abe40823174787749628be669d9d9ae4da8443400000000000000000000000000000000000000000000025a5419af66253c0000
-  let str = inputStr.toString()
-  let seperator = '00000000000000000000000'  // 23个0
-  if (str.length >= 10) {
-    let arr = str.split(seperator)
-    // 参数解析后
-    // 第一个参数是函数的id 16进制格式，不需要改变
-    // 第二个参数是转入地址，加 0x 前缀转换成有效地址
-    arr[1] = `0x${arr[1]}`
-    // 第三个参数是交易的代币数额 需要转换成有效数值
-    arr[2] = getTokenAmountByBigNumber(arr[2], decimal)
-    return arr
-  } else {
-    return [str]
-  }
-}

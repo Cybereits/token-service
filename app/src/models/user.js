@@ -1,48 +1,58 @@
+import { changePwd, createAdmin, queryAdminList } from '../services/api';
+
 export default {
   namespace: 'user',
 
   state: {
-    list: [],
-    currentUser: {},
+    data: {
+      list: [],
+      pagination: {},
+    },
   },
 
   effects: {
-    // *fetch(_, { call, put }) {
-    //   const response = yield call(queryUsers);
-    //   yield put({
-    //     type: 'save',
-    //     payload: response,
-    //   });
-    // },
-    // *fetchCurrent(_, { call, put }) {
-    //   const response = yield call(queryCurrent);
-    //   yield put({
-    //     type: 'saveCurrentUser',
-    //     payload: response,
-    //   });
-    // },
+    *createAdmin({ params, callback }, { call }) {
+      const response = yield call(createAdmin, params);
+      if (response) {
+        callback();
+      }
+    },
+    *changePwd({ params, callback }, { call }) {
+      const response = yield call(changePwd, params);
+      if (response) {
+        callback();
+      }
+    },
+    *queryAdminList({ callback, params }, { call, put }) {
+      const response = yield call(queryAdminList, params);
+      const data = {};
+      if (response) {
+        data.list = response.data.queryAdminList.list.map((item, index) => {
+          const newItem = { ...item };
+          for (const key in newItem) {
+            if (key === 'role') {
+              newItem[key] = newItem[key] === 1 ? '超级管理员' : '普通管理员';
+            }
+          }
+          return {
+            ...newItem,
+            key: index,
+          };
+        });
+        data.pagination = response.data.queryAdminList.pagination;
+      }
+      if (callback) callback();
+      yield put({
+        type: 'save',
+        payload: data,
+      });
+    },
   },
 
   reducers: {
     save(state, action) {
       return {
-        ...state,
-        list: action.payload,
-      };
-    },
-    saveCurrentUser(state, action) {
-      return {
-        ...state,
-        currentUser: action.payload,
-      };
-    },
-    changeNotifyCount(state, action) {
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          notifyCount: action.payload,
-        },
+        data: { ...state.data, ...action.payload },
       };
     },
   },

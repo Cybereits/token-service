@@ -79,7 +79,7 @@ contract CybereitsTeamLock {
         require(now >= frozen[unlockAddr]);
 
         uint256 amount = allocations[unlockAddr];
-        assert(cre.transfer(unlockAddr, amount));
+        require(cre.transfer(unlockAddr, amount));
         allocations[unlockAddr] = 0;
         emit Unlock(unlockAddr, amount);
         return true;

@@ -1,6 +1,7 @@
 import { EthAccountModel } from '../schemas'
 import { getEthBalance, getTokenBalance } from './token'
 import { getTokenContractMeta } from './contract'
+import getConnection from '../../framework/web3'
 
 export function unlockAccount(connect, unlockAccount, passWord) {
   return connect.eth.personal.unlockAccount(unlockAccount, passWord, 20)
@@ -37,6 +38,22 @@ export async function getAccountInfoByAddress(address) {
 }
 
 /**
+ * 根据账户地址获得其所属钱包客户端链接,并解锁账户
+ * @param {object} address 钱包地址
+ * @returns {object} 钱包客户端链接
+ */
+export async function getConnByAddressThenUnlock(address) {
+
+  // 获取出账钱包信息
+  let { account, group, secret } = await getAccountInfoByAddress(address)
+  let conn = getConnection(group)
+
+  await unlockAccount(conn, account, secret).catch((err) => { throw err })
+
+  return conn
+}
+
+/**
  * 判断是否是系统地址
  * @param {string} address 钱包地址
  * @returns {Promise<bool>}
@@ -67,6 +84,8 @@ export async function updateBalanceOfAccount(address, contractName) {
 
   let account = await EthAccountModel.findOne({ account: address })
 
+  console.log(`[update account balance]: ${address} [${amount}] [${symbol}]`)
+
   if (!account.balances) {
     account.balances = {}
   }
@@ -79,13 +98,13 @@ export async function updateBalanceOfAccount(address, contractName) {
 /**
  * 检查是否为系统地址，如果是则更新账户余额
  * @param {string} address 钱包地址
- * @param {string} tokenType 代币类型
+ * @param {string} contractName 代币类型
  * @returns {Promise}
  */
-export async function checkIsSysThenUpdate(address, tokenType) {
+export async function checkIsSysThenUpdate(address, contractName) {
   let result = await isSysAccount(address)
   if (result) {
-    return updateBalanceOfAccount(address, tokenType)
+    return updateBalanceOfAccount(address, contractName)
   } else {
     return false
   }

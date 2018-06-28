@@ -99,6 +99,45 @@ const menuData = [
       },
     ],
   },
+  {
+    name: '用户管理',
+    icon: 'user',
+    path: 'user',
+    children: [
+      {
+        name: '创建用户',
+        path: 'user-createUser',
+        authority: 'superAdmin',
+      },
+      {
+        name: '修改密码',
+        path: 'user-changePwd',
+      },
+      {
+        name: '用户列表',
+        path: 'user-list',
+      },
+    ],
+  },
+  {
+    name: '合约管理',
+    icon: 'book',
+    path: 'contract',
+    children: [
+      {
+        name: '合约查询',
+        path: 'contract-search',
+      },
+      {
+        name: '创建合约',
+        path: 'contract-create',
+      },
+      {
+        name: '添加合约',
+        path: 'contract-add',
+      },
+    ],
+  },
   // {
   //   name: '详情页',
   //   icon: 'profile',

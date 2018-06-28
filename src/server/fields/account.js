@@ -6,7 +6,7 @@ import {
   GraphQLNonNull as NotNull,
 } from 'graphql'
 
-import { ethClientConnection } from '../../framework/web3'
+import getConnection from '../../framework/web3'
 import { EthAccountModel } from '../../core/schemas'
 import { isSysAccount, getAllAccounts } from '../../core/scenes/account'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
@@ -25,12 +25,20 @@ export const createAccount = {
     },
   },
   resolve(root, { password = '', comment }) {
-    return ethClientConnection
+    let conn = getConnection()
+    return conn
       .eth
       .personal
       .newAccount(password)
       // 将生成的钱包信息记录入库再返回
-      .then(account => EthAccountModel.create({ account, secret: password }).then(() => account))
+      .then(
+        account => EthAccountModel.create({
+          account,
+          secret: password,
+          comment,
+          group: conn.__uri,
+        }).then(() => account)
+      )
   },
 }
 
@@ -54,9 +62,10 @@ export const createMultiAccount = {
   resolve(root, { count = 1, password = '', comment }) {
     let promises = []
     let addresses = []
+    let conn = getConnection()
 
     for (let index = 0; index < count; index += 1) {
-      promises.push(ethClientConnection.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
+      promises.push(conn.eth.personal.newAccount(password).then((addr) => { addresses.push(addr) }))
     }
 
     return Promise
@@ -66,6 +75,7 @@ export const createMultiAccount = {
           account,
           secret: password,
           comment,
+          group: conn.__uri,
         })))
         .then(() => addresses)
       )

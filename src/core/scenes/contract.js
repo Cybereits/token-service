@@ -1,5 +1,5 @@
-import { unlockAccount } from './account'
-import getConnection, { creClientConnection } from '../../framework/web3'
+import getConnection from '../../framework/web3'
+import { getConnByAddressThenUnlock } from './account'
 import { ContractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
@@ -95,20 +95,6 @@ export function subscribeContractEvent(contract, handlerFunc, eventName, filters
 }
 
 /**
- * 部署合约到链上
- * @param {*} connect web3链接
- * @param {*} contract 合约对象
- * @param {*} code 合约code
- * @param {*} deployAccount 部署合约的钱包地址
- * @param {*} accountPwd 部署合约的钱包秘钥
- * @param {*} contractArguments 部署合约的参数数组
- */
-async function deploy(connect, contract, code, deployAccount, accountPwd, contractArguments) {
-  await unlockAccount(connect, deployAccount, accountPwd)
-  return contract.deploy({ data: code, arguments: contractArguments })
-}
-
-/**
  * 创建并部署合约
  * @param {*} contractCode 合约code
  * @param {*} contractAbi 合约abi
@@ -116,20 +102,20 @@ async function deploy(connect, contract, code, deployAccount, accountPwd, contra
  * @param {*} accountPwd 部署合约的钱包秘钥
  * @param {*} contractArguments 部署合约的参数数组
  */
-export async function createAndDeployContract(contractCode, contractAbi, deployAccount, accountPwd, contractArguments) {
+export async function createAndDeployContract(contractCode, contractAbi, deployAccount, contractArguments) {
+  let conn = await getConnByAddressThenUnlock(deployAccount)
   // 创建合约对象
-  let compiledContract = new creClientConnection.eth.Contract(contractAbi)
-  let result = await deploy(creClientConnection, compiledContract, contractCode, deployAccount, accountPwd, contractArguments)
+  let compiledContract = new conn.eth.Contract(contractAbi)
+  let result = await compiledContract.deploy({ data: contractCode, arguments: contractArguments })
   // 合约部署后的实例对象
-  // gas 低了就失败呀
   let newContractInstance = await result.send({
     from: deployAccount,
     gas: 1500000,
-    gasPrice: '30000000000000',
   })
 
   // 锁定部署合约的钱包地址
-  creClientConnection.eth.personal.lockAccount(deployAccount)
+  conn.eth.personal.lockAccount(deployAccount)
+
   // 记录合约地址
   compiledContract.options.address = newContractInstance.options.address
 

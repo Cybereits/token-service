@@ -47,7 +47,7 @@ const transactionRecord = mongoose.Schema({
   // 创建时间
   createAt: {
     type: Date,
-    default: new Date(),
+    default: () => new Date(),
   },
   // 交易发送时间
   sendTime: Date,

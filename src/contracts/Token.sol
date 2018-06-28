@@ -8,8 +8,6 @@ contract Token is ERC20, SafeMath {
     mapping(address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public approvals;
 
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
     function balanceOf(address owner) public view returns (uint256 balance) {
         return balances[owner];
     }
@@ -19,20 +17,20 @@ contract Token is ERC20, SafeMath {
     }
 
     function transfer(address _to, uint256 _value) public returns (bool) {
-        require(_to != address(0));
         require(_value <= balances[msg.sender]);
         require(balances[_to] < add(balances[_to], _value));
 
         balances[msg.sender] = sub(balances[msg.sender], _value);
         balances[_to] = add(balances[_to], _value);
+
         emit Transfer(msg.sender, _to, _value);
         return true;
     }
 
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
 
-        assert(balances[from] >= value);
-        assert(approvals[from][msg.sender] >= value);
+        require(balances[from] >= value);
+        require(approvals[from][msg.sender] >= value);
 
         approvals[from][msg.sender] = sub(approvals[from][msg.sender], value);
         balances[from] = sub(balances[from], value);
