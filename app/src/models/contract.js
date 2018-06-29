@@ -5,21 +5,18 @@ import {
   deployCREContract,
   deployKycContract,
   deployAssetContract,
+  writeContractMethod,
 } from '../services/api';
 
 export default {
   namespace: 'contract',
 
   state: {
-    data: {
-      list: [],
-      pagination: {},
-    },
+    data: {},
   },
 
   effects: {
     *addERC20ContractMeta({ params, callback }, { call }) {
-      console.log(params);
       const response = yield call(addERC20ContractMeta, params);
       if (callback) callback(response);
     },
@@ -70,6 +67,12 @@ export default {
       const response = yield call(deployAssetContract, params);
       if (response) {
         if (callback) callback();
+      }
+    },
+    *writeContractMethod({ params, callback }, { call }) {
+      const response = yield call(writeContractMethod, params);
+      if (response) {
+        if (callback) callback(response.data.writeContractMethod);
       }
     },
   },

@@ -142,6 +142,9 @@ export const getRouterData = app => {
         import('../routes/Contract/SearchContract')
       ),
     },
+    '/contract/contract-abis/:params': {
+      component: dynamicWrapper(app, ['contract'], () => import('../routes/Contract/ContractAbis')),
+    },
     '/contract/contract-create': {
       component: dynamicWrapper(app, ['contract'], () =>
         import('../routes/Contract/CreateContract')

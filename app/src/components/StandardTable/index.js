@@ -71,6 +71,7 @@ class StandardTable extends PureComponent {
       rowKey,
       isSelect = false,
       getCheckboxProps,
+      showPaginationProps = paginationProps,
     } = this.props;
 
     const paginationProps = {
@@ -131,7 +132,7 @@ class StandardTable extends PureComponent {
           getCheckboxProps={getCheckboxProps}
           dataSource={list}
           columns={columns}
-          pagination={paginationProps}
+          pagination={showPaginationProps ? paginationProps : false}
           // 分页、排序、筛选变化时触发
           onChange={this.handleTableChange}
           {...this.props}

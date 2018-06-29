@@ -1,5 +1,6 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 // import DescriptionList from 'components/DescriptionList';
 import {
   Row,
@@ -199,7 +200,8 @@ export default class SearchContract extends PureComponent {
     };
     return (
       <Form
-        onSubmit={() => {
+        onSubmit={e => {
+          e.preventDefault();
           this.handleSearch(0, 10);
         }}
         layout="inline"
@@ -377,6 +379,29 @@ export default class SearchContract extends PureComponent {
         title: '合约创建时间',
         dataIndex: 'createAt',
       },
+      {
+        title: '操作',
+        render: item => {
+          return (
+            <Fragment>
+              <a
+                onClick={() => {
+                  this.props.dispatch(
+                    routerRedux.push({
+                      pathname: `/contract/contract-abis/${JSON.stringify({
+                        contractName: item.name,
+                        abis: item.abis,
+                      })}`,
+                    })
+                  );
+                }}
+              >
+                调用合约方法
+              </a>
+            </Fragment>
+          );
+        },
+      },
     ];
 
     const parentMethods = {
@@ -415,6 +440,7 @@ export default class SearchContract extends PureComponent {
               columns={columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
+              showPaginationProps={false}
             />
           </div>
         </Card>

@@ -267,7 +267,6 @@ export default class CoinTaskDetail extends PureComponent {
             onChange={this.handleStandardTableChange}
             showSelect={null}
             expandedRowRender={item => {
-              console.log(item);
               return (
                 <Card bordered={false}>
                   <DescriptionList size="large">

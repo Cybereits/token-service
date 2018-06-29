@@ -80,7 +80,7 @@ const menuData = [
     ],
   },
   {
-    name: '代币管理',
+    name: '交易管理',
     icon: 'pay-circle-o',
     path: 'coin',
     children: [
@@ -89,7 +89,7 @@ const menuData = [
         path: 'coin-createTask',
       },
       {
-        name: '代币发放',
+        name: '交易列表',
         path: 'coin-send',
         authority: 'superAdmin',
       },

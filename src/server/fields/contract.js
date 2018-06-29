@@ -398,7 +398,7 @@ export const readContractMethod = {
     paramArrInJson,
   }) {
     let contract = await getContractInstance(contractName)
-    let paramArr = JSON.parse(paramArrInJson) || []
+    let paramArr = JSON.parse(decodeURIComponent(paramArrInJson)) || []
     return contract.methods[methodName](...paramArr).call(null)
   },
 }
@@ -431,7 +431,7 @@ export const writeContractMethod = {
     paramArrInJson,
   }) {
     let contract = await getContractAndUnlockAccount(contractName, caller)
-    let paramArr = JSON.parse(paramArrInJson)
+    let paramArr = JSON.parse(decodeURIComponent(paramArrInJson))
     // 解锁锁定的代币
     return new Promise((resolve, reject) => {
       contract

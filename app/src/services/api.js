@@ -320,6 +320,20 @@ export async function createMultiAccount(parmas) {
     });
 }
 
+export async function writeContractMethod({caller, contractName, methodName, paramArrInJson}) {
+  console.log(caller, contractName, methodName, paramArrInJson)
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        writeContractMethod(caller: "${caller}", contractName: "${contractName}", methodName: "${methodName}", paramArrInJson: "${encodeURIComponent(paramArrInJson)}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 export async function queryTx({ pageIndex, pageSize, filter }) {
   const newFilter = { ...filter };
   for (const key in newFilter) {

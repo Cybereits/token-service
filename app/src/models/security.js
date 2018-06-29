@@ -35,9 +35,9 @@ export default {
     },
     *getTwoFactorAuthUrl({ callback }, { call, put }) {
       const response = yield call(getTwoFactorAuthUrl);
-      console.log(callback);
       if (response) {
         const url = yield QRCode.toDataURL(response.data.getTwoFactorAuthUrl);
+        console.log(callback);
         if (url) {
           yield put({
             type: 'save',
