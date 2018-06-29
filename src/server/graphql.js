@@ -4,10 +4,15 @@ import {
 } from 'graphql'
 
 import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
+
 import { queryAllBalance, gatherAllEth } from './fields/balance'
-import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, callContractMethod } from './fields/contract'
+
+import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, readContractMethod, writeContractMethod } from './fields/contract'
+
 import { statusEnum, tokenTypeEnum } from './fields/enum'
+
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
+
 import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
 
 const authRequiredQueries = new Obj({
@@ -46,7 +51,8 @@ const authRequiredMutations = new Obj({
     deployKycContract,
     deployAssetContract,
     sendTransaction,
-    callContractMethod,
+    readContractMethod,
+    writeContractMethod,
     gatherAllEth,
     bindTwoFactorAuth,
   },

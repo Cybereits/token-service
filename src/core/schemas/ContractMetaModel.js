@@ -12,10 +12,7 @@ const contractMeta = mongoose.Schema({
     required: true,
   },
   // 代币缩写
-  symbol: {
-    type: String,
-    unique: true,
-  },
+  symbol: String,
   // ERC20 代币精度 (可选)
   decimal: {
     type: Number,
@@ -43,4 +40,20 @@ const contractMeta = mongoose.Schema({
   },
 })
 
-export default connection.model('contractMeta', contractMeta)
+const ContractMetaModel = connection.model('contractMeta', contractMeta)
+
+contractMeta.pre('save', async function (next) {
+  let meta = this
+  if (!meta.isModified('symbol')) return next()
+  if (!meta.symbol) {
+    let exist = await ContractMetaModel.findOne({ symbol: meta.symbol })
+    console.log(exist)
+    if (!exist || exist.name === meta.name) {
+      next()
+    } else {
+      next(new Error('合约元信息的 symbol 不为空时，必须是唯一值'))
+    }
+  }
+})
+
+export default ContractMetaModel

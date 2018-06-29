@@ -9,10 +9,10 @@ import {
   GraphQLInt as int,
 } from 'graphql'
 
-import { ContractMetaModel } from '../../core/schemas'
+import { ContractMetaModel, TxRecordModel } from '../../core/schemas'
 import { createAndDeployContract, getContractInstance } from '../../core/scenes/contract'
 import { getConnByAddressThenUnlock } from '../../core/scenes/account'
-import { CONTRACT_NAMES } from '../../core/enums'
+import { CONTRACT_NAMES, STATUS } from '../../core/enums'
 import { establishContractListener } from '../../core/listeners/utils'
 import { updateAllAccounts } from '../../core/jobs/updateSysAccount'
 import { creContractArgs, commonContractArgs, contractMetaResult, contractFilter } from '../types/plainTypes'
@@ -236,7 +236,6 @@ export const deployKycContract = {
     return ContractMetaModel
       .create({
         name: contractName,
-        symbol: contractName,
         codes: contractCode,
         abis: contractAbi,
         owner: deployer,
@@ -376,9 +375,37 @@ export const addERC20ContractMeta = {
 
 // #region 合约特殊方法
 
-export const callContractMethod = {
+export const readContractMethod = {
   type: str,
-  description: '解锁团队锁仓份额',
+  description: '调用合约只读方法',
+  args: {
+    contractName: {
+      type: new NotNull(str),
+      description: '合约名称',
+    },
+    methodName: {
+      type: new NotNull(str),
+      description: '方法名称',
+    },
+    paramArrInJson: {
+      type: new NotNull(str),
+      description: '参数数组序列化后的 json 字符串',
+    },
+  },
+  async resolve(root, {
+    contractName,
+    methodName,
+    paramArrInJson,
+  }) {
+    let contract = await getContractInstance(contractName)
+    let paramArr = JSON.parse(paramArrInJson) || []
+    return contract.methods[methodName](...paramArr).call(null)
+  },
+}
+
+export const writeContractMethod = {
+  type: str,
+  description: '调用合约写入方法',
   args: {
     caller: {
       type: new NotNull(str),
@@ -406,7 +433,28 @@ export const callContractMethod = {
     let contract = await getContractAndUnlockAccount(contractName, caller)
     let paramArr = JSON.parse(paramArrInJson)
     // 解锁锁定的代币
-    return contract.methods[methodName](...paramArr).send({ from: caller })
+    return new Promise((resolve, reject) => {
+      contract
+        .methods[methodName](...paramArr)
+        .send({ from: caller })
+        .on('transactionHash', async (txid) => {
+          let { address, symbol } = await ContractMetaModel.findOne({ name: contractName })
+          await TxRecordModel.create({
+            amount: 0,
+            from: caller,
+            to: address,
+            status: STATUS.sending,
+            tokenType: symbol,
+            txid,
+            comment: `调用合约 ${contractName} 函数 ${methodName}`,
+            sendTime: new Date(),
+          }).catch(reject)
+          // 返回的是成功发出后的 txid
+          resolve(txid)
+        })
+        .on('error', reject)
+        .catch(reject)
+    })
   },
 }
 

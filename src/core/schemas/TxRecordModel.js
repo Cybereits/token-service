@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 import connection from '../../framework/dbProviders/mongo'
-import { STATUS, TOKEN_TYPES } from '../enums'
+import { STATUS } from '../enums'
 
 // 交易操作记录
 const transactionRecord = mongoose.Schema({
@@ -29,11 +29,7 @@ const transactionRecord = mongoose.Schema({
     required: true,
   },
   // 代币类型
-  tokenType: {
-    type: String,
-    required: true,
-    default: TOKEN_TYPES.cre,
-  },
+  tokenType: String,
   // 关联任务 ID
   taskid: {
     type: mongoose.Schema.Types.ObjectId,
