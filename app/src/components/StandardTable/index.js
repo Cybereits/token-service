@@ -71,7 +71,7 @@ class StandardTable extends PureComponent {
       rowKey,
       isSelect = false,
       getCheckboxProps,
-      showPaginationProps = paginationProps,
+      showPaginationProps = true,
     } = this.props;
 
     const paginationProps = {
