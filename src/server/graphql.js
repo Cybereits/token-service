@@ -3,7 +3,7 @@ import {
   GraphQLObjectType as Obj,
 } from 'graphql'
 
-import { createAdmin, adminLogin, adminLogout, changePwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
+import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
 
 import { queryAllBalance, gatherAllEth } from './fields/balance'
 
@@ -66,6 +66,14 @@ const publicQueries = new Obj({
   },
 })
 
+const publicMutations = new Obj({
+  name: 'PublicMutations',
+  description: '公开更改接口',
+  fields: {
+    resetPwd,
+  },
+})
+
 export const authSchema = new GSchema({
   query: authRequiredQueries,
   mutation: authRequiredMutations,
@@ -73,4 +81,5 @@ export const authSchema = new GSchema({
 
 export const publicSchema = new GSchema({
   query: publicQueries,
+  mutation: publicMutations,
 })
