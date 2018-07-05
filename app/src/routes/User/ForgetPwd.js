@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Link } from 'dva/router';
+// import { Link } from 'dva/router';
 import {
   // Checkbox,
   Alert,
@@ -68,8 +68,13 @@ export default class LoginPage extends Component {
             !login.submitting &&
             this.renderMessage('账户或密码错误（admin/888888）')}
           <UserName name="userName" placeholder="请输入用户名" />
+          <UserName
+            name="token"
+            rules={[{ whitespace: true, required: false }]}
+            placeholder="请输入谷歌验证码"
+          />
           <Password name="password" placeholder="请输入密码" />
-          <UserName name="token" rules={[{ whitespace: true, required: false }]} placeholder="请输入谷歌验证码 (若没有绑定可不填写此选项)" />
+          <Password name="password" placeholder="请再次输入密码" />
           {/* </Tab> */}
           {/* <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
@@ -87,15 +92,15 @@ export default class LoginPage extends Component {
               忘记密码
             </a>
           </div> */}
-          <Submit loading={submitting}>登录</Submit>
+          <Submit loading={submitting}>找回密码</Submit>
           <div className={styles.other}>
             {/* 其他登录方式
             <Icon className={styles.icon} type="alipay-circle" />
             <Icon className={styles.icon} type="taobao-circle" />
             <Icon className={styles.icon} type="weibo-circle" /> */}
-            <Link className={styles.register} to="/entry/forgetPwd">
-              忘记密码
-            </Link>
+            {/* <Link className={styles.register} to="/user/register">
+              注册账户
+            </Link> */}
           </div>
         </Login>
       </div>

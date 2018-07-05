@@ -205,6 +205,9 @@ export const getRouterData = app => {
     '/entry/login': {
       component: dynamicWrapper(app, ['login'], () => import('../routes/User/Login')),
     },
+    '/entry/forgetPwd': {
+      component: dynamicWrapper(app, ['login'], () => import('../routes/User/ForgetPwd')),
+    },
     // '/user/register': {
     //   component: dynamicWrapper(app, ['register'], () => import('../routes/User/Register')),
     // },
