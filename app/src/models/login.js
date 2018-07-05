@@ -1,5 +1,5 @@
 import { routerRedux } from 'dva/router';
-import { accountLogin, accountLogout } from '../services/api';
+import { accountLogin, accountLogout, resetPwd } from '../services/api';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 
@@ -45,6 +45,12 @@ export default {
           reloadAuthorized();
           yield put(routerRedux.push('/entry/login'));
         }
+      }
+    },
+    *resetPwd({ callback, params }, { call }) {
+      const response = yield call(resetPwd, params);
+      if (response) {
+        callback();
       }
     },
   },

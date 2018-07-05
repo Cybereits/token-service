@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-// import { Link } from 'dva/router';
+import { routerRedux } from 'dva/router';
 import {
   // Checkbox,
   Alert,
-  // Icon
+  message,
+  Icon,
 } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
@@ -22,7 +23,7 @@ const {
   login,
   submitting: loading.effects['login/login'],
 }))
-export default class LoginPage extends Component {
+export default class ForgetPwd extends Component {
   state = {
     type: 'account',
     // autoLogin: true,
@@ -33,13 +34,13 @@ export default class LoginPage extends Component {
   };
 
   handleSubmit = (err, values) => {
-    const { type } = this.state;
     if (!err) {
       this.props.dispatch({
-        type: 'login/login',
-        payload: {
-          ...values,
-          type,
+        type: 'login/resetPwd',
+        params: values,
+        callback: () => {
+          message.success('找回密码成功,请登录。');
+          this.props.dispatch(routerRedux.push('/entry/login'));
         },
       });
     }
@@ -66,15 +67,16 @@ export default class LoginPage extends Component {
           {login.status === 'error' &&
             login.type === 'account' &&
             !login.submitting &&
-            this.renderMessage('账户或密码错误（admin/888888）')}
-          <UserName name="userName" placeholder="请输入用户名" />
+            this.renderMessage('账户或密码错误')}
+          <UserName name="username" placeholder="请输入用户名" />
+          <Password name="newPassword" placeholder="请输入密码" />
+          <Password name="validPassword" placeholder="请再次输入密码" />
           <UserName
+            prefix={<Icon type="safety" style={{ color: 'rgba(0,0,0,.25)' }} />}
             name="token"
             rules={[{ whitespace: true, required: false }]}
             placeholder="请输入谷歌验证码"
           />
-          <Password name="password" placeholder="请输入密码" />
-          <Password name="password" placeholder="请再次输入密码" />
           {/* </Tab> */}
           {/* <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
@@ -92,7 +94,7 @@ export default class LoginPage extends Component {
               忘记密码
             </a>
           </div> */}
-          <Submit loading={submitting}>找回密码</Submit>
+          <Submit loading={submitting}>重置密码</Submit>
           <div className={styles.other}>
             {/* 其他登录方式
             <Icon className={styles.icon} type="alipay-circle" />

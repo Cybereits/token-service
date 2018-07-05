@@ -4,7 +4,7 @@ import { Link } from 'dva/router';
 import {
   // Checkbox,
   Alert,
-  // Icon
+  Icon,
 } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
@@ -66,10 +66,15 @@ export default class LoginPage extends Component {
           {login.status === 'error' &&
             login.type === 'account' &&
             !login.submitting &&
-            this.renderMessage('账户或密码错误（admin/888888）')}
+            this.renderMessage('账户或密码错误')}
           <UserName name="userName" placeholder="请输入用户名" />
           <Password name="password" placeholder="请输入密码" />
-          <UserName name="token" rules={[{ whitespace: true, required: false }]} placeholder="请输入谷歌验证码 (若没有绑定可不填写此选项)" />
+          <UserName
+            prefix={<Icon type="safety" style={{ color: 'rgba(0,0,0,.25)' }} />}
+            name="token"
+            rules={[{ whitespace: true, required: false }]}
+            placeholder="请输入谷歌验证码 (若没有绑定可不填写此选项)"
+          />
           {/* </Tab> */}
           {/* <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
