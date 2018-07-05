@@ -334,6 +334,19 @@ export async function writeContractMethod({caller, contractName, methodName, par
     });
 }
 
+export async function resetPwd({username, newPassword, validPassword, token}) {
+  return loginClient
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        resetPwd(username: "${username}", newPassword: "${newPassword}", validPassword: "${validPassword}", token: "${token}")
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 export async function queryTx({ pageIndex, pageSize, filter }) {
   const newFilter = { ...filter };
   for (const key in newFilter) {

@@ -34,36 +34,6 @@ async function register(username, password, validPassword, role) {
   }
 }
 
-async function resetPwd(username, originPwd, newPwd, confirmPwd, ctx) {
-  if (newPwd !== confirmPwd) {
-    return new Error('两次输入的密码不一致')
-  }
-  let admin = await AdminModel.findOne({ username })
-  if (!admin) {
-    return new Error('无效的身份')
-  } else {
-    let isMatch = await admin.comparePassword(originPwd, admin.password)
-    if (!isMatch) {
-      throw new Error('用户名或者密码不匹配')
-    } else {
-      admin.password = newPwd
-      return admin.save()
-        .then(() => {
-          let res = {}
-
-          ctx.session.admin = {
-            username: admin.username,
-            role: admin.role,
-          }
-
-          res.username = admin.username
-          res.role = admin.role
-          return res
-        })
-    }
-  }
-}
-
 async function login(username, password, token, ctx) {
   if (ctx.session && ctx.session.admin) {
     let { username, role } = ctx.session.admin
@@ -176,12 +146,30 @@ export const changePwd = {
       description: '确认密码',
     },
   },
-  resolve(root, { originPassword, newPassword, validPassword }, ctx) {
+  async resolve(root, { originPassword, newPassword, validPassword }, ctx) {
     let { session } = ctx
     if (!session || !session.admin) {
       return new Error('您还没有登录')
     } else {
-      return resetPwd(session.admin.username, originPassword, newPassword, validPassword, ctx)
+      let username = session.admin.username
+      if (newPassword !== validPassword) {
+        return new Error('两次输入的密码不一致')
+      }
+      let admin = await AdminModel.findOne({ username })
+      if (!admin) {
+        return new Error('无效的身份')
+      } else {
+        let isMatch = await admin.comparePassword(originPassword, admin.password)
+        if (!isMatch) {
+          throw new Error('用户名或者密码不匹配')
+        } else {
+          admin.password = newPassword
+          return admin.save().then(() => ({
+            username: admin.username,
+            role: admin.role,
+          }))
+        }
+      }
     }
   },
 }
@@ -261,6 +249,51 @@ export const getAdminInfo = {
       }
     } else {
       throw new Error('您还没有登录')
+    }
+  },
+}
+
+export const resetPwd = {
+  type: str,
+  description: '重置密码',
+  args: {
+    username: {
+      type: str,
+      description: '用户名',
+    },
+    newPassword: {
+      type: str,
+      description: '新密码',
+    },
+    validPassword: {
+      type: str,
+      description: '确认密码',
+    },
+    token: {
+      type: str,
+      description: '谷歌验证码',
+    },
+  },
+  async resolve(root, { username, newPassword, validPassword, token }, ctx) {
+    if (newPassword !== validPassword) {
+      return new Error('两次输入的密码不一致')
+    }
+    if (newPassword.length <= 5) {
+      return new Error('密码强度太弱，请输入6位以上数字、字母组合')
+    }
+
+    let admin = await AdminModel.findOne({ username })
+    if (!admin) {
+      return new Error('无效的身份')
+    } else {
+      if (!admin.authSecret) {
+        return new Error('用户尚未绑定谷歌验证码，无法重置密码')
+      } else if (!validSecret(admin.authSecret, token)) {
+        return new Error('谷歌验证码不正确')
+      } else {
+        admin.password = newPassword
+        return admin.save().then(() => 'success')
+      }
     }
   },
 }
