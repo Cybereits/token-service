@@ -219,11 +219,19 @@ export const createBatchTransactions = {
       .map(str => str.split(','))
 
     if (txCollection.length === 0) {
-      throw new Error('批量转账任务的转账笔数必须大于1')
+      return new Error('批量转账任务的转账笔数必须大于 1')
     }
-    if (txCollection.findIndex(t => t.amount <= 0) > -1) {
-      throw new Error('批量转账任务的所有转账金额必须大于0')
+
+    if (txCollection.findIndex(t => typeof t[1] !== 'number') > -1) {
+      return new Error('批量转账任务金额无效，必须是大于 0 的数值')
     }
+
+    if (txCollection.findIndex(t => t[1] <= 0) > -1) {
+      return new Error('批量转账任务的所有转账金额必须大于 0')
+    }
+
+    console.log(txCollection)
+
     // 先创建批量任务的实体
     let task = await BatchTransactinTaskModel.create({
       count: txCollection.length,
@@ -233,15 +241,14 @@ export const createBatchTransactions = {
     let taskID = task._id
 
     // 创建转账的交易实体
-    await TxRecordModel.insertMany(txCollection.map(
-      ([address, amount]) => ({
-        amount,
-        from: outAccount,
-        to: address,
-        tokenType,
-        taskid: taskID,
-        status: STATUS.pending,
-      })))
+    await TxRecordModel.insertMany(txCollection.map(([address, amount]) => ({
+      amount,
+      from: outAccount,
+      to: address,
+      tokenType,
+      taskid: taskID,
+      status: STATUS.pending,
+    })))
 
     return task
   },
