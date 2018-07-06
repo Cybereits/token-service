@@ -45,7 +45,7 @@ async function sendBatchTxs(recordIds) {
                 return transaction.save()
               })
               .catch(async (ex) => {
-                console.error(ex.message)
+                console.error(`发送 ETH 失败：${ex.message}`)
                 // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
                 transaction.status = STATUS.failure
                 transaction.exceptionMsg = ex.message
@@ -65,7 +65,7 @@ async function sendBatchTxs(recordIds) {
                 return transaction.save()
               })
               .catch(async (ex) => {
-                console.error(ex.message)
+                console.error(`发送代币失败：${ex.message}`)
                 // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
                 transaction.status = STATUS.failure
                 transaction.exceptionMsg = ex.message
@@ -250,8 +250,8 @@ export const createBatchTransactions = {
     // 创建转账的交易实体
     await TxRecordModel.insertMany(txPairs.map(({ address, amount }) => ({
       amount,
-      from: outAccount,
-      to: address,
+      from: outAccount.trim(),
+      to: address.trim(),
       tokenType,
       taskid: taskID,
       status: STATUS.pending,

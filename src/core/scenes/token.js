@@ -131,6 +131,8 @@ export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_N
  * @param {object} options 其它配置（可选）
  */
 export async function sendToken(fromAddress, toAddress, amount, options = {}) {
+  let _from_addr = fromAddress.trim()
+  let _to_addr = toAddress.trim()
   let _amount = new BN(amount)
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
@@ -143,7 +145,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     } = options
 
     let contractMetaPromise = ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
-    let getConnPromise = getConnByAddressThenUnlock(fromAddress)
+    let getConnPromise = getConnByAddressThenUnlock(_from_addr)
 
     let { name } = await contractMetaPromise
     let conn = await getConnPromise
@@ -162,10 +164,10 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
 
       tokenContract
         .methods
-        .transfer(toAddress, _sendAmount)
-        .send({ from: fromAddress, gasPrice, gas })
+        .transfer(_to_addr, _sendAmount)
+        .send({ from: _from_addr, gasPrice, gas })
         .on('transactionHash', (hash) => {
-          console.info(`Transfer [${_amount.toString(10)}] ${name} tokens to [${toAddress}] : [txid ${hash}]`)
+          console.info(`Transfer [${_amount.toString(10)}] ${name} tokens to [${_to_addr}] : [txid ${hash}]`)
           resolve(hash)
         })
         .on('error', reject)
@@ -182,13 +184,15 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
  * @param {object} options 其它配置（可选）
  */
 export async function sendETH(fromAddress, toAddress, amount, options = {}) {
+  let _from_addr = fromAddress.trim()
+  let _to_addr = toAddress.trim()
   let { gasPrice, gas } = options
   let _amount = new BN(amount)
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-    let getAccountPromise = getAccountInfoByAddress(fromAddress)
-    let getConnPromise = getConnByAddressThenUnlock(fromAddress)
+    let getAccountPromise = getAccountInfoByAddress(_from_addr)
+    let getConnPromise = getConnByAddressThenUnlock(_from_addr)
 
     let account = await getAccountPromise
     let conn = await getConnPromise
@@ -197,14 +201,14 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
       .eth
       .personal
       .sendTransaction({
-        from: fromAddress,
-        to: toAddress,
+        from: _from_addr,
+        to: _to_addr,
         value: conn.eth.extend.utils.toWei(_amount.toString(10), 'ether'),
         gasPrice,
         gas,
       }, account.secret)
       .then((hash) => {
-        console.info(`Transfer [${amount}] eth to [${toAddress}] [txid ${hash}]`)
+        console.info(`Transfer [${amount}] eth to [${_to_addr}] [txid ${hash}]`)
         return hash
       })
   }
@@ -216,18 +220,20 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
  * @param {string} toAddress 入账地址
  */
 export async function transferAllEth(fromAddress, toAddress) {
+  let _from_addr = fromAddress.trim()
+  let _to_addr = toAddress.trim()
 
-  if (toAddress === fromAddress) {
+  if (_to_addr === _from_addr) {
     return
   }
 
-  console.assert(toAddress, '接收地址不能为空!')
+  console.assert(_to_addr, '接收地址不能为空!')
 
   let connect = getConnection()
 
-  let balancePromise = connect.eth.getBalance(fromAddress)
+  let balancePromise = connect.eth.getBalance(_from_addr)
   let gasPricePromise = connect.eth.getGasPrice()
-  let gasFeePromise = connect.eth.estimateGas({ from: fromAddress })
+  let gasFeePromise = connect.eth.estimateGas({ from: _from_addr })
 
   let total = await balancePromise
   let gasPrice = await gasPricePromise
@@ -256,6 +262,6 @@ export async function transferAllEth(fromAddress, toAddress) {
     transAmount
     }`)
 
-  sendETH(fromAddress, toAddress, transAmount, { gasPrice, gasFee })
+  sendETH(_from_addr, _to_addr, transAmount, { gasPrice, gasFee })
 }
 
