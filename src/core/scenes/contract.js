@@ -3,9 +3,6 @@ import { getConnByAddressThenUnlock } from './account'
 import { ContractMetaModel } from '../schemas'
 import { CONTRACT_NAMES } from '../enums'
 
-// 合约实例缓存对象
-const CONTRACT_INSTANCES = {}
-
 /**
  * 获取合约元信息
  * @param {string} contractName 合约名称
@@ -47,14 +44,11 @@ export function getTokenContractMeta(contractName = CONTRACT_NAMES.cre) {
  */
 export async function getContractInstance(contractName, connection) {
   if (contractName) {
-    if (!CONTRACT_INSTANCES[contractName]) {
       let conn = connection || getConnection()
       const { abis, address, decimal } = await getTokenContractMeta(contractName)
-
-      CONTRACT_INSTANCES[contractName] = new conn.eth.Contract(abis, address)
-      CONTRACT_INSTANCES[contractName].decimal = decimal
-    }
-    return CONTRACT_INSTANCES[contractName]
+      let contract = new conn.eth.Contract(abis, address)
+      contract.decimal = decimal
+    return contract
   } else {
     throw new TypeError('合约名称不能为空')
   }
