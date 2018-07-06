@@ -214,34 +214,41 @@ export const createBatchTransactions = {
   },
   async resolve(root, { transactions, comment, tokenType, outAccount }) {
     // 获取所有待处理的
-    let txCollection = decodeURIComponent(transactions)
-      .split('\n')
-      .map(str => str.split(','))
+    let txCollection = decodeURIComponent(transactions).split('\n')
 
-    console.log(txCollection)
+    let txPairs = []
 
-    if (txCollection.length === 0) {
+    txCollection.forEach((str) => {
+      let infoArr = str.split(',')
+      if (infoArr.length === 2) {
+        txPairs.push({ address: infoArr[0], amount: +infoArr[1] })
+      }
+    })
+
+    console.log(txPairs)
+
+    if (txPairs.length === 0) {
       return new Error('批量转账任务的转账笔数必须大于 1')
     }
 
-    if (txCollection.findIndex(t => isNaN(+t[1])) > -1) {
+    if (txPairs.findIndex(t => isNaN(t.amount)) > -1) {
       return new Error('批量转账任务金额无效，必须是大于 0 的数值')
     }
 
-    if (txCollection.findIndex(t => t[1] <= 0) > -1) {
+    if (txCollection.findIndex(t => t.amount <= 0) > -1) {
       return new Error('批量转账任务的所有转账金额必须大于 0')
     }
 
     // 先创建批量任务的实体
     let task = await BatchTransactinTaskModel.create({
-      count: txCollection.length,
+      count: txPairs.length,
       comment,
     })
 
     let taskID = task._id
 
     // 创建转账的交易实体
-    await TxRecordModel.insertMany(txCollection.map(([address, amount]) => ({
+    await TxRecordModel.insertMany(txPairs.map(({ address, amount }) => ({
       amount,
       from: outAccount,
       to: address,
