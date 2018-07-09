@@ -73,6 +73,11 @@ const CreateMultiAccountForm = Form.create()(props => {
           validateFirst: true,
         })(<Input style={{ width: '100%' }} placeholder="请输入备注" />)}
       </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
+        {form.getFieldDecorator('password', {
+          validateFirst: true,
+        })(<Input type="password" style={{ width: '100%' }} placeholder="请输入密码" />)}
+      </FormItem>
     </Modal>
   );
 });
@@ -100,6 +105,11 @@ const CreateSingerAccountForm = Form.create()(props => {
         {form.getFieldDecorator('comment', {
           validateFirst: true,
         })(<Input style={{ width: '100%' }} placeholder="请输入备注" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="密码">
+        {form.getFieldDecorator('password', {
+          validateFirst: true,
+        })(<Input type="password" style={{ width: '100%' }} placeholder="请输入密码" />)}
       </FormItem>
     </Modal>
   );
@@ -248,6 +258,7 @@ export default class TableList extends PureComponent {
           params: {
             walletAmount: fields.walletAmount,
             comment: fields.comment || '',
+            password: fields.password || '',
           },
           callback: response => {
             this.setState({
@@ -267,7 +278,7 @@ export default class TableList extends PureComponent {
 
   handleStandardTableChange = pagination => {
     this.handleSearch(pagination.current - 1, pagination.pageSize);
-  }
+  };
 
   handleAddSinger = fields => {
     this.setState(
@@ -280,6 +291,7 @@ export default class TableList extends PureComponent {
           type: 'wallet/addWallet',
           params: {
             comment: fields.comment || '',
+            password: fields.password || '',
           },
           callback: response => {
             this.setState({

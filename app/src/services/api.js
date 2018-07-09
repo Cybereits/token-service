@@ -228,7 +228,7 @@ export async function addWallet(params) {
       fetchPolicy: 'no-cache',
       mutation: gql`
         mutation {
-          createAccount(comment: "${params.comment}")
+          createAccount(comment: "${params.comment}", password: "${params.password}")
         }
       `,
     })
@@ -313,7 +313,7 @@ export async function createMultiAccount(params) {
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-      createMultiAccount(count: ${params.walletAmount}, comment: "${params.comment}")
+      createMultiAccount(count: ${params.walletAmount}, comment: "${params.comment}", password: "${params.password}")
     }`,
     })
     .catch(err => {
