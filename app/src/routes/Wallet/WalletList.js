@@ -265,6 +265,10 @@ export default class TableList extends PureComponent {
     );
   };
 
+  handleStandardTableChange = pagination => {
+    this.handleSearch(pagination.current - 1, pagination.pageSize);
+  }
+
   handleAddSinger = fields => {
     this.setState(
       {
