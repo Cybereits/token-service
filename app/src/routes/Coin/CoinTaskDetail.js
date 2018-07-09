@@ -91,13 +91,15 @@ export default class CoinTaskDetail extends PureComponent {
               dispatch({
                 type: 'coinTask/sendTransactionfFromIds',
                 params: selectedRows.map(row => row.id),
-                callback: () => {
+                callback: (response) => {
+                  if (response) {
+                    message.success('发送成功！');
+                    newthis.handleSearch(0, 10);
+                  }
                   resolve();
-                  message.success('发送成功！');
                   newthis.setState({
                     selectedRows: [],
                   });
-                  newthis.handleSearch(0, 10);
                 },
               });
             });
