@@ -296,7 +296,7 @@ export default class TableList extends PureComponent {
     };
     return (
       <Form
-        onSubmit={(e) => {
+        onSubmit={e => {
           e.preventDefault();
           this.handleSearch(0, 10);
         }}
@@ -509,10 +509,12 @@ export default class TableList extends PureComponent {
                         dispatch({
                           type: 'coinTask/sendTransactionfFromIds',
                           params: [item.id],
-                          callback: () => {
-                            message.success('发送成功！');
+                          callback: response => {
+                            if (response) {
+                              message.success('发送成功！');
+                              newThis.handleSearch(0, 10);
+                            }
                             resolve();
-                            newThis.handleSearch(0, 10);
                           },
                         });
                       });

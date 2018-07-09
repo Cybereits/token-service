@@ -93,9 +93,10 @@ export default {
         //   payload: response,
         // });
       }
-      if (callback) callback();
+      if (callback) callback(response);
     },
     *createMultiAccount({ params, callback }, { call, put }) {
+      console.log('debug', params);
       const response = yield call(createMultiAccount, params);
       if (response) {
         yield put({

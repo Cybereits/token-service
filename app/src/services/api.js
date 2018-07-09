@@ -9,7 +9,7 @@ import request from '../utils/request';
 import { toGql } from '../utils/utils';
 import config from '../../config/env.json';
 
-const { host, port, baseUrl, publicUrl } = config;
+const { host, port, baseUrl } = config;
 console.log(`${host}${port ? `:${port}` : ''}${baseUrl}`);
 
 const client = new ApolloClient({
@@ -35,28 +35,28 @@ const client = new ApolloClient({
   },
 });
 
-const loginClient = new ApolloClient({
-  request: async operation => {
-    operation.setContext({
-      fetchOptions: {
-        credentials: 'include',
-      },
-    });
-  },
-  uri: `${host}${port ? `:${port}` : ''}${publicUrl}`,
-  onError: ({ graphQLErrors }) => {
-    console.log('graphQLErrors', graphQLErrors);
-    if (graphQLErrors && graphQLErrors.length > 0 && graphQLErrors[0].message !== 'Not logged in') {
-      message.error(graphQLErrors[0].message);
-      if (graphQLErrors[0].message === 'Unauthorized!') {
-        const currentAuthority = '';
-        setAuthority(currentAuthority);
-        reloadAuthorized();
-        window.location.href = `${window.location.origin}/#/entry/login`;
-      }
-    }
-  },
-});
+// const loginClient = new ApolloClient({
+//   request: async operation => {
+//     operation.setContext({
+//       fetchOptions: {
+//         credentials: 'include',
+//       },
+//     });
+//   },
+//   uri: `${host}${port ? `:${port}` : ''}${publicUrl}`,
+//   onError: ({ graphQLErrors }) => {
+//     console.log('graphQLErrors', graphQLErrors);
+//     if (graphQLErrors && graphQLErrors.length > 0 && graphQLErrors[0].message !== 'Not logged in') {
+//       message.error(graphQLErrors[0].message);
+//       if (graphQLErrors[0].message === 'Unauthorized!') {
+//         const currentAuthority = '';
+//         setAuthority(currentAuthority);
+//         reloadAuthorized();
+//         window.location.href = `${window.location.origin}/#/entry/login`;
+//       }
+//     }
+//   },
+// });
 
 
 export async function queryProjectNotice() {
@@ -127,7 +127,7 @@ export async function fakeAccountLogin(params) {
 
 export async function accountLogin({ userName, password, token }) {
   console.log(token)
-  return loginClient
+  return client
     .query({
       fetchPolicy: 'network-only',
       query: gql`
@@ -222,13 +222,13 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
     });
 }
 
-export async function addWallet() {
+export async function addWallet(params) {
   return client
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`
         mutation {
-          createAccount
+          createAccount(comment: "${params.comment}")
         }
       `,
     })
@@ -307,12 +307,13 @@ export async function sendTransactionfFromTaskid(params) {
     });
 }
 
-export async function createMultiAccount(parmas) {
+export async function createMultiAccount(params) {
+  console.log('debug', params)
   return client
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-      createMultiAccount(count: ${parmas.walletAmount})
+      createMultiAccount(count: ${params.walletAmount}, comment: "${params.comment}")
     }`,
     })
     .catch(err => {
@@ -335,7 +336,7 @@ export async function writeContractMethod({caller, contractName, methodName, par
 }
 
 export async function resetPwd({username, newPassword, validPassword, token}) {
-  return loginClient
+  return client
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {

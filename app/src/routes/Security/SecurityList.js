@@ -64,10 +64,12 @@ export default class SecurityList extends React.Component {
         callback: response => {
           this.setState({
             tokenConfirmLoading: false,
-            visible: !response,
           });
           if (response) {
             resetFields('token');
+            this.setState({
+              visible: !response,
+            });
             message.success('绑定成功！');
           }
         },

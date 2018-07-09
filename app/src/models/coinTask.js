@@ -47,9 +47,7 @@ export default {
     },
     *sendTransactionfFromTaskid({ params, callback }, { call }) {
       const response = yield call(sendTransactionfFromTaskid, params);
-      if (response) {
-        callback();
-      }
+      callback(response);
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',
@@ -59,9 +57,7 @@ export default {
     },
     *sendTransactionfFromIds({ params, callback }, { call }) {
       const response = yield call(sendTransactionfFromIds, params);
-      if (response) {
-        callback();
-      }
+      callback(response);
       // if (response) {
       //   yield put({
       //     type: 'getTaskData',

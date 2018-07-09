@@ -152,9 +152,11 @@ export default class CoinTaskList extends PureComponent {
                         dispatch({
                           type: 'coinTask/sendTransactionfFromTaskid',
                           params: item.id,
-                          callback: () => {
-                            message.success('发送成功！');
+                          callback: response => {
                             resolve();
+                            if (response) {
+                              message.success('发送成功！');
+                            }
                           },
                         });
                       });
