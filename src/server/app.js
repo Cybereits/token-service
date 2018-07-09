@@ -4,9 +4,8 @@ import session from 'koa-session'
 import serve from 'koa-static'
 import bodyParser from 'koa-bodyparser'
 
-import { publicRouter, authRouter } from './routes'
+import router from './routes'
 import { port, keys, origin } from '../config/env.json'
-import { sessionValid } from './middlewares/valid'
 
 const app = new Koa()
 
@@ -21,10 +20,8 @@ app.use(serve(`${__dirname}/../../app/dist`, {
   maxage: 1000 * 60 * 60 * 24,
 }))
 
-app.use(publicRouter.routes(), publicRouter.allowedMethods())
 // 身份验证只留给数据路由
-app.use(sessionValid)
-app.use(authRouter.routes(), authRouter.allowedMethods())
+app.use(router.routes())
 
 app
   .on('error', (error) => {

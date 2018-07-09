@@ -265,3 +265,13 @@ export async function transferAllEth(fromAddress, toAddress) {
   sendETH(_from_addr, _to_addr, transAmount, { gasPrice, gasFee })
 }
 
+export async function transferAllTokens(fromAddress, toAddress, tokenType) {
+  let _from_addr = fromAddress.trim()
+  let _to_addr = toAddress.trim()
+
+  if (_to_addr === _from_addr) {
+    return
+  }
+
+  console.assert(_to_addr, '接收地址不能为空!')
+}

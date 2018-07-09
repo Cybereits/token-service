@@ -36,6 +36,10 @@ const transactionRecord = mongoose.Schema({
     ref: 'batchTransactionTask',
   },
   txid: String,
+  // 交易创建人
+  creator: String,
+  // 交易发送人
+  executer: String,
   // 备注
   comment: String,
   // 异常信息

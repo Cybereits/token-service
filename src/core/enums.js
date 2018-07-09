@@ -13,6 +13,11 @@ export function getStatus(_value) {
   return statusKeys.filter(t => STATUS[t] === _value)[0]
 }
 
+export const USER_ROLE_LEVELS = {
+  super_admin: 1,
+  admin: 2,
+}
+
 export const CONTRACT_NAMES = {
   cre: 'CybereitsToken',
   lock: 'CybereitsTeamLock',
