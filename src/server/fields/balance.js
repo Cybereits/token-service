@@ -145,7 +145,7 @@ export const gatherAllTokens = {
 
     let validAccounts = await EthAccountModel
       .find(queryCondition, { account: 1, balances: 1 })
-      .then(accounts => accounts.filter(({ account, balances }) => account !== gatherAddress && balances.eth > 0.001))
+      .then(accounts => accounts.filter(({ account, balances }) => account !== gatherAddress && balances[tokenType] > 0.001))
 
     if (validAccounts.length > 0) {
 
