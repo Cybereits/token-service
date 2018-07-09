@@ -41,6 +41,7 @@ let _pool = clients.map(initEthConnect)
  */
 function getConnection(uri) {
   if (uri) {
+    console.log(`创建临时钱包链接：${uri}`)
     return new Web3(new Web3.providers.WebsocketProvider(uri))
   } else {
     let len = _pool.length

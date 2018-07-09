@@ -86,6 +86,10 @@ export const balanceDetail = new OutputObj({
       type: str,
       description: '钱包地址',
     },
+    comment: {
+      type: str,
+      description: '钱包备注',
+    },
     eth: {
       type: float,
       description: 'eth 余额',

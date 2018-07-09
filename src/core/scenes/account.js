@@ -48,7 +48,10 @@ export async function getConnByAddressThenUnlock(address) {
   let { account, group, secret } = await getAccountInfoByAddress(address)
   let conn = getConnection(group)
 
-  await unlockAccount(conn, account, secret).catch((err) => { throw err })
+  await unlockAccount(conn, account, secret).catch((err) => {
+    console.log(`解锁账户失败：${err.message}`)
+    throw err
+  })
 
   return conn
 }

@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 
+import { USER_ROLE_LEVELS} from '../enums'
+
 import connection from '../../framework/dbProviders/mongo'
 
 const SALT_WORK_FACTOR = 10
@@ -20,7 +22,7 @@ const adminUser = new mongoose.Schema({
   mobile: String,  // 手机号
   role: { // 1:超级管理员，2:普通管理员
     type: Number,
-    default: 2,
+    default: USER_ROLE_LEVELS.admin,
   },
 })
 

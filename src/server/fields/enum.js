@@ -2,26 +2,20 @@ import {
   GraphQLList as List,
 } from 'graphql'
 
-import { STATUS, TOKEN_TYPES } from '../../core/enums'
+import {USER_ROLE_LEVELS, STATUS, TOKEN_TYPES } from '../../core/enums'
 import { getAllTokenContracts } from '../../core/scenes/contract'
 import { hashResult } from '../types/plainTypes'
 
-// let EnumTypeGen = (desc, hashMap) => ({
-//   type: new List(hashResult),
-//   description: desc,
-//   async resolve() {
-//     return Object.entries(hashMap).map(arr => ({ name: arr[0], value: arr[1] }))
-//   },
-// })
-// EnumTypeGen('代币类型枚举类型', TOKEN_TYPES)
-
-export const statusEnum = {
+let EnumTypeGen = (desc, hashMap) => ({
   type: new List(hashResult),
-  description: '交易状态枚举类型',
-  async resolve() {
-    return Object.entries(STATUS).map(arr => ({ name: arr[0], value: arr[1] }))
+  description: desc,
+  resolve() {
+    return Object.entries(hashMap).map(arr => ({ name: arr[0], value: arr[1] }))
   },
-}
+})
+
+export const userRoleEnum = EnumTypeGen('用户角色类型', USER_ROLE_LEVELS)
+export const statusEnum = EnumTypeGen('交易状态枚举类型', STATUS)
 
 export const tokenTypeEnum = {
   type: new List(hashResult),

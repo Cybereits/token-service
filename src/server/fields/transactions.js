@@ -16,10 +16,10 @@ import { sendETH, sendToken } from '../../core/scenes/token'
 /**
  * 批量发送交易
  * @param {Array<string>} recordIds 交易记录 id 数组
+ * @param {string} username 操作用户
  * @returns {Promise}
  */
-async function sendBatchTxs(recordIds) {
-
+async function sendBatchTxs(recordIds, username) {
   if (recordIds instanceof Array && recordIds.length > 0) {
     // 创建发送任务队列
     let queue = new ParallelQueue({
@@ -42,10 +42,11 @@ async function sendBatchTxs(recordIds) {
                 transaction.status = STATUS.sending
                 transaction.txid = transactionHash
                 transaction.sendTime = new Date()
+                transaction.executer = username
                 return transaction.save()
               })
               .catch(async (ex) => {
-                console.error(ex.message)
+                console.error(`发送 ETH 失败：${ex.message}`)
                 // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
                 transaction.status = STATUS.failure
                 transaction.exceptionMsg = ex.message
@@ -62,10 +63,11 @@ async function sendBatchTxs(recordIds) {
                 transaction.status = STATUS.sending
                 transaction.txid = transactionHash
                 transaction.sendTime = new Date()
+                transaction.executer = username
                 return transaction.save()
               })
               .catch(async (ex) => {
-                console.error(ex.message)
+                console.error(`发送代币失败：${ex.message}`)
                 // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
                 transaction.status = STATUS.failure
                 transaction.exceptionMsg = ex.message
@@ -250,8 +252,8 @@ export const createBatchTransactions = {
     // 创建转账的交易实体
     await TxRecordModel.insertMany(txPairs.map(({ address, amount }) => ({
       amount,
-      from: outAccount,
-      to: address,
+      from: outAccount.trim(),
+      to: address.trim(),
       tokenType,
       taskid: taskID,
       status: STATUS.pending,
@@ -306,16 +308,20 @@ export const sendTransaction = {
       description: '指定批量任务的 id',
     },
   },
-  async resolve(root, { ids, taskid }) {
+  async resolve(root, { ids, taskid }, { session }) {
+    let { admin } = session
+    if (!admin || admin.role !== 1) {
+      return new Error('您没有发送交易的权限')
+    }
     if (ids && ids.length > 0) {
-      sendBatchTxs(ids)
+      sendBatchTxs(ids, admin.username)
       return 'success'
     } else if (taskid) {
       let recordIds = await TxRecordModel
         .find({ taskid }, '_id') // 只获取 id
         .catch((ex) => { throw ex })
       if (recordIds && recordIds.length > 0) {
-        sendBatchTxs(recordIds)
+        sendBatchTxs(recordIds, admin.username)
         return 'success'
       }
     } else {
