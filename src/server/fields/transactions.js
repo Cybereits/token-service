@@ -30,13 +30,22 @@ async function sendBatchTxs(recordIds, username) {
     let transactions = await TxRecordModel.find({ _id: { $in: recordIds } })
 
     transactions.forEach((transaction) => {
-      let { amount, from, to, status, tokenType } = transaction
+      let {
+        amount,
+        from,
+        to,
+        status,
+        tokenType,
+        gasPrice,
+        gasFee,
+      } = transaction
+
       // 当交易的发送状态为成功、发送中时 中断本次发送
       if (status !== STATUS.success && status !== STATUS.sending) {
         if (tokenType === TOKEN_TYPES.eth) {
           // 发送 eth
           queue.add(new TaskCapsule(
-            () => sendETH(from, to, amount)
+            () => sendETH(from, to, amount, { gasPrice, gas: gasFee })
               .then((transactionHash) => {
                 // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                 transaction.status = STATUS.sending
@@ -57,7 +66,7 @@ async function sendBatchTxs(recordIds, username) {
         } else {
           // 添加发送代币的胶囊任务
           queue.add(new TaskCapsule(
-            () => sendToken(from, to, amount, { tokenType })
+            () => sendToken(from, to, amount, { tokenType, gasPrice, gas: gasFee })
               .then((transactionHash) => {
                 // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
                 transaction.status = STATUS.sending
@@ -180,13 +189,14 @@ export const createTransaction = {
       description: '备注',
     },
   },
-  async resolve(root, { outAccount, to, amount, tokenType, comment }) {
+  async resolve(root, { outAccount, to, amount, tokenType, comment }, { session }) {
     return TxRecordModel.create({
       amount,
       from: outAccount,
       to,
       tokenType,
       comment,
+      creator: session.admin.username,
       status: STATUS.pending,
     })
   },
@@ -214,7 +224,7 @@ export const createBatchTransactions = {
       description: '出账的钱包账户地址',
     },
   },
-  async resolve(root, { transactions, comment, tokenType, outAccount }) {
+  async resolve(root, { transactions, comment, tokenType, outAccount }, { session }) {
     // 获取所有待处理的
     let txCollection = decodeURIComponent(transactions).split('\n')
 
@@ -226,8 +236,6 @@ export const createBatchTransactions = {
         txPairs.push({ address: infoArr[0], amount: +infoArr[1] })
       }
     })
-
-    console.log(txPairs)
 
     if (txPairs.length === 0) {
       return new Error('批量转账任务的转账笔数必须大于 1')
@@ -257,6 +265,7 @@ export const createBatchTransactions = {
       tokenType,
       taskid: taskID,
       status: STATUS.pending,
+      creator: session.admin.username,
     })))
 
     return task

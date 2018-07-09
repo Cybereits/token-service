@@ -3,8 +3,8 @@ import BN from 'bignumber.js'
 import getConnection from '../../framework/web3'
 import { getConnByAddressThenUnlock, getAccountInfoByAddress } from './account'
 import { getContractInstance } from './contract'
-import { TOKEN_TYPES, CONTRACT_NAMES } from '../enums'
-import { ContractMetaModel } from '../schemas'
+import { TOKEN_TYPES, CONTRACT_NAMES, STATUS } from '../enums'
+import { ContractMetaModel, TxRecordModel } from '../schemas'
 
 BN.config({ DECIMAL_PLACES: 5 })
 
@@ -218,8 +218,10 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
  * 将出账地址下的所有以太转移到指定入账地址
  * @param {string} fromAddress 出账地址
  * @param {string} toAddress 入账地址
+ * @param {string} taskID 任务ID
+ * @param {string} username 任务发起人
  */
-export async function transferAllEth(fromAddress, toAddress) {
+export async function transferAllEth(fromAddress, toAddress, taskID, username) {
   let _from_addr = fromAddress.trim()
   let _to_addr = toAddress.trim()
 
@@ -262,10 +264,22 @@ export async function transferAllEth(fromAddress, toAddress) {
     transAmount
     }`)
 
-  sendETH(_from_addr, _to_addr, transAmount, { gasPrice, gasFee })
+  // 创建转账的交易实体
+  return TxRecordModel.create({
+    amount: transAmount,
+    from: _from_addr,
+    to: _to_addr,
+    tokenType: TOKEN_TYPES.eth,
+    taskid: taskID,
+    status: STATUS.pending,
+    creator: username,
+    gasPrice: gasPrice.toString(10),
+    gasFee: gasFee.toString(10),
+  })
+  // sendETH(_from_addr, _to_addr, transAmount, { gasPrice, gasFee })
 }
 
-export async function transferAllTokens(fromAddress, toAddress, tokenType) {
+export async function transferAllTokens(fromAddress, toAddress, tokenType, taskID, username) {
   let _from_addr = fromAddress.trim()
   let _to_addr = toAddress.trim()
 
@@ -274,4 +288,18 @@ export async function transferAllTokens(fromAddress, toAddress, tokenType) {
   }
 
   console.assert(_to_addr, '接收地址不能为空!')
+
+  let contractMetaPromise = ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
+  let { name } = await contractMetaPromise
+  let amount = await getTokenBalance(fromAddress, name)
+
+  return TxRecordModel.create({
+    amount,
+    from: _from_addr,
+    to: _to_addr,
+    tokenType,
+    taskid: taskID,
+    status: STATUS.pending,
+    creator: username,
+  })
 }

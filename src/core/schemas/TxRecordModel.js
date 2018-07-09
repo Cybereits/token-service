@@ -35,7 +35,12 @@ const transactionRecord = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'batchTransactionTask',
   },
+  // transaction hash
   txid: String,
+  // 油价
+  gasPrice: String,
+  // 油费
+  gasFee: String,
   // 交易创建人
   creator: String,
   // 交易发送人

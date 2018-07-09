@@ -164,6 +164,14 @@ export const txRecord = new OutputObj({
       type: str,
       description: '转账记录的 TransactionId',
     },
+    creator: {
+      type: str,
+      description: '创建人',
+    },
+    executer: {
+      type: str,
+      description: '执行人',
+    },
     taskid: {
       type: str,
       description: '关联的任务ID',
