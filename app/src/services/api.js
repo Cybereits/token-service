@@ -380,7 +380,7 @@ export async function queryTx({ pageIndex, pageSize, filter }) {
               sendTime,
               confirmTime,
               creator,
-              executor,
+              executer,
               errorMsg,
             }
           }

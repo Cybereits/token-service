@@ -161,6 +161,9 @@ export default {
             sendTime: value.sendTime === '' || moment(value.sendTime).format('YYYY-MM-DD HH:mm:ss'),
             confirmTime:
               value.confirmTime === '' || moment(value.confirmTime).format('YYYY-MM-DD HH:mm:ss'),
+            errorMsg: value.errorMsg,
+            executer: value.executer,
+            creator: value.creator,
             key: index,
           };
         });
