@@ -102,6 +102,8 @@ export default class TableList extends PureComponent {
     selectedRows: [],
     // formValues: {},
     confirmLoading: false,
+    pageIndex: 0,
+    pageSize: 10,
   };
 
   componentDidMount() {
@@ -116,38 +118,15 @@ export default class TableList extends PureComponent {
   }
 
   handleStandardTableChange = pagination => {
-    // const { dispatch } = this.props;
-    // const { formValues } = this.state;
-
-    // const filters = Object.keys(filtersArg).reduce((obj, key) => {
-    //   const newObj = { ...obj };
-    //   newObj[key] = getValue(filtersArg[key]);
-    //   return newObj;
-    // }, {});
-
-    // const params = {
-    //   currentPage: pagination.current,
-    //   pageSize: pagination.pageSize,
-    //   ...formValues,
-    //   ...filters,
-    // };
-    // if (sorter.field) {
-    //   params.sorter = `${sorter.field}_${sorter.order}`;
-    // }
-
-    // dispatch({
-    //   type: 'rule/fetch',
-    //   payload: params,
-    // });
-    this.handleSearch(pagination.current - 1, pagination.pageSize);
-    // dispatch({
-    //   type: 'coin/queryPrizeList',
-    //   params: {
-    //     pageIndex: pagination.current - 1,
-    //     pageSize: pagination.pageSize,
-    //     filter: this.state.formValues,
-    //   },
-    // });
+    this.setState(
+      {
+        pageIndex: pagination.current - 1,
+        pageSize: pagination.pageSize,
+      },
+      () => {
+        this.handleSearch(pagination.current - 1, pagination.pageSize);
+      }
+    );
   };
 
   handleFormReset = () => {
@@ -298,7 +277,7 @@ export default class TableList extends PureComponent {
       <Form
         onSubmit={e => {
           e.preventDefault();
-          this.handleSearch(0, 10);
+          this.handleSearch(this.state.pageIndex, this.state.pageSize);
         }}
         layout="inline"
       >
@@ -445,15 +424,6 @@ export default class TableList extends PureComponent {
     const { coin: { data, statusEnum, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
     const columns = [
-      // {
-      //   title: '入账地址',
-      //   dataIndex: 'to',
-      //   fixed: 'left',
-      // },
-      // {
-      //   title: 'id',
-      //   dataIndex: 'id',
-      // },
       {
         title: '发送代币数量',
         dataIndex: 'amount',
@@ -462,34 +432,10 @@ export default class TableList extends PureComponent {
         title: '出账地址',
         dataIndex: 'from',
       },
-      // {
-      //   title: '发送状态',
-      //   dataIndex: 'status',
-      // },
       {
         title: '代币类型',
         dataIndex: 'tokenType',
       },
-      // {
-      //   title: '备注',
-      //   dataIndex: 'comment',
-      // },
-      // {
-      //   title: 'txid',
-      //   dataIndex: 'txid',
-      // },
-      // {
-      //   title: '任务id',
-      //   dataIndex: 'taskid',
-      // },
-      // {
-      //   title: '发送时间',
-      //   dataIndex: 'sendTime',
-      // },
-      // {
-      //   title: '确认时间',
-      //   dataIndex: 'confirmTime',
-      // },
       {
         title: '操作',
         render: item => {
@@ -581,12 +527,6 @@ export default class TableList extends PureComponent {
       //   ),
       // },
     ];
-    // const menu = (
-    //   <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-    //     {/* <Menu.Item key="remove">删除</Menu.Item> */}
-    //     <Menu.Item key="approval">批量创建</Menu.Item>
-    //   </Menu>
-    // );
 
     const parentMethods = {
       sendCoin: this.sendCoin,
@@ -627,15 +567,17 @@ export default class TableList extends PureComponent {
               expandedRowRender={item => {
                 return (
                   <Card bordered={false}>
-                    <DescriptionList size="large">
-                      <Description term="入账地址">{item.to}</Description>
-                      <Description term="id">{item.id}</Description>
-                      <Description term="发送状态">{item.status}</Description>
-                      <Description term="备注">{item.comment}</Description>
+                    <DescriptionList col={2} size="large">
                       <Description term="txid">{item.txid}</Description>
                       <Description term="任务id">{item.taskid}</Description>
+                      <Description term="入账地址">{item.to}</Description>
+                      <Description term="发送状态">{item.status}</Description>
                       <Description term="发送时间">{item.sendTime}</Description>
                       <Description term="确认时间">{item.confirmTime}</Description>
+                      <Description term="创建人">{item.creator}</Description>
+                      <Description term="执行人">{item.executor}</Description>
+                      <Description term="备注">{item.comment}</Description>
+                      <Description term="错误信息">{item.errorMsg}</Description>
                     </DescriptionList>
                   </Card>
                 );

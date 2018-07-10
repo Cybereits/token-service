@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 // import ApolloClient from 'apollo-boost';
 // import gql from 'graphql-tag';
 // import moment from 'moment';
@@ -129,14 +130,14 @@ export default class TableList extends PureComponent {
     // formValues: {},
     confirmLoading: false,
     confirmLoadingSinger: false,
+    pageIndex: 0,
+    pageSize: 10,
+    showBatchTransfer: false,
   };
 
   componentDidMount() {
     this.handleSearch(0, 10);
     const { dispatch } = this.props;
-    // dispatch({
-    //   type: 'coin/commonStatusEnum',
-    // });
     dispatch({
       type: 'wallet/tokenTypeEnum',
     });
@@ -148,10 +149,6 @@ export default class TableList extends PureComponent {
     this.setState({
       // formValues: {},
     });
-    // dispatch({
-    //   type: 'rule/fetch',
-    //   payload: {},
-    // });
   };
 
   toggleForm = () => {
@@ -164,21 +161,13 @@ export default class TableList extends PureComponent {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
 
-    // if (!selectedRows) return;
-
     switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'wallet/remove',
-          payload: {
-            no: selectedRows.map(row => row.no).join(','),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
+      case 'batchTransfer':
+        dispatch(
+          routerRedux.push({
+            pathname: `/coin/coin-createTask/${JSON.stringify(selectedRows)}`,
+          })
+        );
         break;
       case 'approval':
         this.handleModalVisible(true);
@@ -189,28 +178,20 @@ export default class TableList extends PureComponent {
   };
 
   handleSelectRows = rows => {
+    console.log('debug', rows);
     this.setState({
       selectedRows: rows,
+      showBatchTransfer: rows.length > 0,
     });
   };
 
   handleSearch = (pageIndex, pageSize) => {
-    // dispatch({
-    //   type: 'rule/queryAllBalance',
-    // });
-    // e.preventDefault();
-
     const { dispatch, form } = this.props;
 
     form.validateFields((err, fieldsValue) => {
-      // console.log(fieldsValue);
       if (err) return;
-      // this.setState({
-      //   formValues: fieldsValue,
-      // });
       const newParam = fieldsValue;
       Object.keys(newParam).forEach(item => {
-        // console.log(newParam[item], item);
         if (newParam[item] === '') {
           delete newParam[item];
         } else if (item === 'tokenType' && newParam[item] === undefined) {
@@ -218,7 +199,6 @@ export default class TableList extends PureComponent {
         }
       });
       const newFieldsValue = { ...newParam };
-      // console.log(newFieldsValue)
       dispatch({
         type: 'wallet/queryAllBalance',
         params: {
@@ -227,10 +207,6 @@ export default class TableList extends PureComponent {
           filter: newFieldsValue,
         },
       });
-      // const values = {
-      //   ...fieldsValue,
-      //   updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
-      // };
     });
   };
 
@@ -277,7 +253,15 @@ export default class TableList extends PureComponent {
   };
 
   handleStandardTableChange = pagination => {
-    this.handleSearch(pagination.current - 1, pagination.pageSize);
+    this.setState(
+      {
+        pageIndex: pagination.current - 1,
+        pageSize: pagination.pageSize,
+      },
+      () => {
+        this.handleSearch(pagination.current - 1, pagination.pageSize);
+      }
+    );
   };
 
   handleAddSinger = fields => {
@@ -315,7 +299,8 @@ export default class TableList extends PureComponent {
       <Form
         onSubmit={e => {
           e.preventDefault();
-          this.handleSearch(0, 10);
+          // this.handleStandardTableChange()
+          this.handleSearch(this.state.pageIndex, this.state.pageSize);
         }}
         ayout="inline"
       >
@@ -394,6 +379,7 @@ export default class TableList extends PureComponent {
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         {/* <Menu.Item key="remove">删除</Menu.Item> */}
         <Menu.Item key="approval">批量创建</Menu.Item>
+        {this.state.showBatchTransfer ? <Menu.Item key="batchTransfer">批量转账</Menu.Item> : null}
       </Menu>
     );
 
@@ -432,6 +418,7 @@ export default class TableList extends PureComponent {
               </span>
             </div>
             <StandardTable
+              isSelect
               selectedRows={selectedRows}
               loading={loading}
               data={data}
