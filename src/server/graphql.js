@@ -8,7 +8,7 @@ import { authLevelWrapper, sessionValidWrapper } from './common/auth'
 
 import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
 
-import { queryAllBalance, gatherAllEth } from './fields/balance'
+import { queryAllBalance, gatherAllEth, gatherAllTokens } from './fields/balance'
 
 import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, readContractMethod, writeContractMethod } from './fields/contract'
 
@@ -48,10 +48,10 @@ const MutationApis = new Obj({
     changePwd: sessionValidWrapper(changePwd),
     createAdmin: authLevelWrapper([USER_ROLE_LEVELS.super_admin], createAdmin),
     addERC20ContractMeta: authLevelWrapper([USER_ROLE_LEVELS.super_admin], addERC20ContractMeta),
-    createAccount: authLevelWrapper([USER_ROLE_LEVELS.super_admin], createAccount),
-    createBatchTransactions: sessionValidWrapper(createBatchTransactions),
+    createAccount: sessionValidWrapper(createAccount),
     createMultiAccount: sessionValidWrapper(createMultiAccount),
     createTransaction: sessionValidWrapper(createTransaction),
+    createBatchTransactions: sessionValidWrapper(createBatchTransactions),
     deployCREContract: authLevelWrapper([USER_ROLE_LEVELS.super_admin], deployCREContract),
     deployKycContract: authLevelWrapper([USER_ROLE_LEVELS.super_admin], deployKycContract),
     deployAssetContract: authLevelWrapper([USER_ROLE_LEVELS.super_admin], deployAssetContract),
@@ -59,6 +59,7 @@ const MutationApis = new Obj({
     readContractMethod: sessionValidWrapper(readContractMethod),
     writeContractMethod: authLevelWrapper([USER_ROLE_LEVELS.super_admin], writeContractMethod),
     gatherAllEth: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllEth),
+    gatherAllTokens: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllTokens),
     bindTwoFactorAuth: sessionValidWrapper(bindTwoFactorAuth),
     resetPwd,
   },

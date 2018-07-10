@@ -429,7 +429,7 @@ export const writeContractMethod = {
     contractName,
     methodName,
     paramArrInJson,
-  }) {
+  }, { session }) {
     let contract = await getContractAndUnlockAccount(contractName, caller)
     let paramArr = JSON.parse(decodeURIComponent(paramArrInJson))
     // 解锁锁定的代币
@@ -445,6 +445,8 @@ export const writeContractMethod = {
             to: address,
             status: STATUS.sending,
             tokenType: symbol,
+            creator: session.admin.username,
+            executer: session.admin.username,
             txid,
             comment: `调用合约 ${contractName} 函数 ${methodName}`,
             sendTime: new Date(),

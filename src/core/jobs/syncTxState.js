@@ -51,10 +51,10 @@ export default async function (job, done) {
             transaction.status = STATUS.success
             transaction.confirmTime = new Date()
             transaction.save().then(resolve).catch(reject)
-          } else if (txInfo === null) {
-            // 交易丢失（未被确认也不在 pendingTransactions 里）
-            transaction.status = STATUS.failure
-            transaction.exceptionMsg = '交易已广播，但长时间内未被确认'
+          } else if (transaction.sendTime <= Date.now() - (2 * 60 * 60 * 1000)) {
+            // 2 小时后仍未被确认 视作失败
+            transaction.status = STATUS.error
+            transaction.exceptionMsg = '交易已广播，但在接下来的 2 个小时内未被确认，请手动确认'
             transaction.save().then(resolve).catch(reject)
           } else {
             // 尚未确认

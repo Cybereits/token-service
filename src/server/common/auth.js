@@ -15,8 +15,6 @@ export const authLevelWrapper = function (levels, graphqlFieldsSchema) {
   let __originFunc = graphqlFieldsSchema.resolve
   graphqlFieldsSchema.resolve = (root, _, ctx) => {
     let { session } = ctx
-    console.log(levels)
-    console.log(session.admin.role)
     if (session && session.admin && levels.indexOf(session.admin.role) > -1) {
       return __originFunc(root, _, ctx)
     } else {
