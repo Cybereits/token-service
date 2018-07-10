@@ -155,7 +155,7 @@ export const queryTxRecordsViaTaskId = {
     let result = await TxRecordModel.find({ taskid: taskID }).skip(pageIndex * pageSize).limit(pageSize)
 
     if (result) {
-      return PaginationResult(result.slice((pageIndex * pageSize), ((pageIndex + 1) * pageSize)), pageIndex, pageSize, total)
+      return PaginationResult(result, pageIndex, pageSize, total)
     } else {
       throw new Error('没有找到对应的转账记录')
     }
