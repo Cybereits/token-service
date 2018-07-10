@@ -378,7 +378,10 @@ export async function queryTx({ pageIndex, pageSize, filter }) {
               txid,
               taskid,
               sendTime,
-              confirmTime
+              confirmTime,
+              creator,
+              executor,
+              errorMsg,
             }
           }
         }

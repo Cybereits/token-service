@@ -116,7 +116,10 @@ export const getRouterData = app => {
     '/coin/coin-overview': {
       component: dynamicWrapper(app, ['coin'], () => import('../routes/Coin/CoinOverview')),
     },
-    '/coin/coin-createTask': {
+    '/coin/coin-createTask/:addressList': {
+      component: dynamicWrapper(app, ['coinTask'], () => import('../routes/Coin/CreateTask')),
+    },
+    '/coin/coin-createTask/': {
       component: dynamicWrapper(app, ['coinTask'], () => import('../routes/Coin/CreateTask')),
     },
     '/coin/coin-overview/taskList': {
