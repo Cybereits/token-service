@@ -91,7 +91,7 @@ export default class CoinTaskDetail extends PureComponent {
               dispatch({
                 type: 'coinTask/sendTransactionfFromIds',
                 params: selectedRows.map(row => row.id),
-                callback: (response) => {
+                callback: response => {
                   if (response) {
                     message.success('发送成功！');
                     newthis.handleSearch(0, 10);
@@ -119,108 +119,24 @@ export default class CoinTaskDetail extends PureComponent {
     const { selectedRows } = this.state;
     const columns = [
       {
+        title: '发送代币数量',
+        dataIndex: 'amount',
+        editable: true,
+      },
+      {
+        title: '出账地址',
+        dataIndex: 'from',
+        editable: true,
+      },
+      {
         title: '入账地址',
         dataIndex: 'to',
+        editable: true,
       },
-      // {
-      //   title: 'id',
-      //   dataIndex: 'id',
-      // },
-      {
-        title: '代币数量',
-        dataIndex: 'amount',
-      },
-      // {
-      //   title: '出账地址',
-      //   dataIndex: 'from',
-      // },
-      // {
-      //   title: '状态',
-      //   dataIndex: 'status',
-      // },
       {
         title: '代币类型',
         dataIndex: 'tokenType',
       },
-      // {
-      //   title: '备注',
-      //   dataIndex: 'comment',
-      // },
-      // {
-      //   title: 'txid',
-      //   dataIndex: 'txid',
-      // },
-      // {
-      //   title: 'taskid',
-      //   dataIndex: 'taskid',
-      // },
-      // {
-      //   title: '发送时间',
-      //   dataIndex: 'sendTime',
-      // },
-      // {
-      //   title: '确认时间',
-      //   dataIndex: 'confirmTime',
-      // },
-
-      // {
-      //   title: '创建时间',
-      //   dataIndex: 'createAt',
-      // },
-      // {
-      //   title: '服务调用次数',
-      //   dataIndex: 'callNo',
-      //   sorter: true,
-      //   align: 'right',
-      //   render: val => `${val} 万`,
-      //   // mark to display a total number
-      //   needTotal: true,
-      // },
-      // {
-      //   title: '状态',
-      //   dataIndex: 'status',
-      //   filters: [
-      //     {
-      //       text: status[0],
-      //       value: 0,
-      //     },
-      //     {
-      //       text: status[1],
-      //       value: 1,
-      //     },
-      //     {
-      //       text: status[2],
-      //       value: 2,
-      //     },
-      //     {
-      //       text: status[3],
-      //       value: 3,
-      //     },
-      //   ],
-      //   onFilter: (value, record) => record.status.toString() === value,
-      //   render(val) {
-      //     return <Badge status={statusMap[val]} text={status[val]} />;
-      //   },
-      // },
-      // {
-      //   title: '更新时间',
-      //   dataIndex: 'updatedAt',
-      //   sorter: true,
-      //   render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-      // },
-      // {
-      //   title: '操作',
-      //   render: (item) => {
-      //     // console.log(item)
-      //     return (
-      //       <Fragment>
-      //         <a onClick={() => { console.log(item) }}>任务详情</a>
-      //         {/* <Divider type="vertical" />
-      //         <a href="">订阅警报</a> */}
-      //       </Fragment>
-      //     )
-      //   },
-      // },
     ];
 
     const menu = (
@@ -271,15 +187,15 @@ export default class CoinTaskDetail extends PureComponent {
             expandedRowRender={item => {
               return (
                 <Card bordered={false}>
-                  <DescriptionList size="large">
-                    <Description term="id">{item.id}</Description>
-                    <Description term="出账地址">{item.from}</Description>
-                    <Description term="状态">{item.status}</Description>
-                    <Description term="备注">{item.comment}</Description>
+                  <DescriptionList col={2} size="large">
                     <Description term="txid">{item.txid}</Description>
-                    <Description term="taskid">{item.taskid}</Description>
+                    <Description term="发送状态">{item.status}</Description>
                     <Description term="发送时间">{item.sendTime}</Description>
                     <Description term="确认时间">{item.confirmTime}</Description>
+                    <Description term="创建人">{item.creator}</Description>
+                    <Description term="执行人">{item.executer}</Description>
+                    <Description term="备注">{item.comment}</Description>
+                    <Description term="错误信息">{item.errorMsg}</Description>
                   </DescriptionList>
                 </Card>
               );

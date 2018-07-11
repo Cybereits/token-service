@@ -549,6 +549,9 @@ export async function queryTxRecordsViaTaskId({ pageIndex, pageSize, taskID }) {
               taskid,
               sendTime,
               confirmTime,
+              executer,
+              creator,
+              errorMsg,
             },
             pagination{
               total,
@@ -574,6 +577,22 @@ export async function changePwd(params) {
         changePwd(originPassword:"${params.originPassword}",newPassword:"${params.newPassword}",validPassword:"${params.validPassword}") {
           username,
           role,
+        }
+    }`,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function editTransaction(params) {
+  console.log(params)
+  return client
+    .mutate({
+      // fetchPolicy: 'no-cache',
+      mutation: gql`mutation {
+        editTransaction(id:"${params.id}",outAccount:"${params.from}",to:"${params.to}", amount:${params.amount}) {
+          id,
         }
     }`,
     })

@@ -13,6 +13,7 @@ import {
   queryBatchTransactionTasks,
   handlePrizes,
   tokenTypeEnum,
+  editTransaction,
 } from '../services/api';
 
 export default {
@@ -221,6 +222,10 @@ export default {
         payload: response,
       });
       if (callback) callback();
+    },
+    *editTransaction({ params, callback }, { call }) {
+      const response = yield call(editTransaction, params);
+      callback(response);
     },
   },
 
