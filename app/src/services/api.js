@@ -212,6 +212,8 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
               address
               eth
               token
+              createAt
+              comment
             }
           }
         }

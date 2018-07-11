@@ -16,7 +16,6 @@ import {
   Dropdown,
   Menu,
   Modal,
-  message,
   // Badge,
   // Divider,
 } from 'antd';
@@ -241,10 +240,17 @@ export default class TableList extends PureComponent {
               confirmLoading: false,
             });
             if (response) {
+              const walletAddressList = response.data.createMultiAccount;
+              const walletAddressListStr = walletAddressList.join('\n');
+              Modal.success({
+                title: '创建成功',
+                content: `钱包地址为\n${walletAddressListStr}`,
+                width: 500,
+              });
               this.setState({
                 modalVisible: false,
               });
-              message.success(`成功创建 ${fields.walletAmount}个 钱包!`);
+              // message.success(`成功创建 ${fields.walletAmount}个 钱包!`);
             }
           },
         });
@@ -282,10 +288,16 @@ export default class TableList extends PureComponent {
               confirmLoadingSinger: false,
             });
             if (response) {
+              Modal.success({
+                title: '创建成功',
+                content: `钱包地址为\n${response.data.createAccount}`,
+                width: 500,
+              });
+              console.log('debug', response);
               this.setState({
                 modalVisibleSinger: false,
               });
-              message.success(`成功创建 1个 钱包!`);
+              // message.success(`成功创建 1个 钱包!`);
             }
           },
         });
@@ -373,6 +385,14 @@ export default class TableList extends PureComponent {
       {
         title: '所选代笔余额',
         dataIndex: 'token',
+      },
+      {
+        title: '备注',
+        dataIndex: 'comment',
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'createAt',
       },
     ];
     const menu = (

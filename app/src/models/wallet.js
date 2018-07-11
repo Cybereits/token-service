@@ -1,3 +1,4 @@
+import moment from 'moment';
 import {
   queryRule,
   removeRule,
@@ -67,7 +68,11 @@ export default {
       const data = {};
       if (response) {
         data.list = response.data.queryAllBalance.list.map((item, index) => {
-          return { ...item, key: index };
+          return {
+            ...item,
+            key: index,
+            createAt: item.createAt === '' || moment(item.createAt).format('YYYY-MM-DD HH:mm:ss'),
+          };
         });
         data.pagination = response.data.queryAllBalance.pagination;
         yield put({

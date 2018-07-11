@@ -122,6 +122,7 @@ export default {
             ethAddress: value.ethAddress,
             ethAmount: value.balances[0].value,
             creAmount: value.balances[1].value,
+
             key: index,
           };
         });

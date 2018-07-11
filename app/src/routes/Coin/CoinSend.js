@@ -458,7 +458,12 @@ export default class TableList extends PureComponent {
                           callback: response => {
                             if (response) {
                               message.success('发送成功！');
-                              newThis.handleSearch(0, 10);
+                              setTimeout(function() {
+                                newThis.handleSearch(
+                                  newThis.state.pageIndex,
+                                  newThis.state.pageSize
+                                );
+                              }, 1000);
                             }
                             resolve();
                           },
@@ -575,7 +580,7 @@ export default class TableList extends PureComponent {
                       <Description term="发送时间">{item.sendTime}</Description>
                       <Description term="确认时间">{item.confirmTime}</Description>
                       <Description term="创建人">{item.creator}</Description>
-                      <Description term="执行人">{item.executor}</Description>
+                      <Description term="执行人">{item.executer}</Description>
                       <Description term="备注">{item.comment}</Description>
                       <Description term="错误信息">{item.errorMsg}</Description>
                     </DescriptionList>
