@@ -43,14 +43,16 @@ export const queryAllBalance = {
     }
 
     listAccounts = await EthAccountModel
-      .find(queryCondition, { account: 1, balances: 1 })
+      .find(queryCondition, { account: 1, balances: 1, createAt: 1, comment: 1 })
       .sort(sortCondition)
       .skip(pageSize * pageIndex)
       .limit(pageSize)
-      .then(accounts => accounts.map(({ account, balances }) => ({
+      .then(accounts => accounts.map(({ account, balances, createAt, comment }) => ({
         address: account,
         eth: balances[TOKEN_TYPES.eth] || 0,
         token: balances[tokenType] || 0,
+        createAt,
+        comment,
       })))
 
     // 结果数量

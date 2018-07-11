@@ -94,6 +94,7 @@ export const balanceDetail = new OutputObj({
       type: str,
       description: '创建时间',
       resolve: (tx) => {
+        console.log(tx)
         if (tx.createAt) {
           return tx.createAt.toJSON()
         } else {
