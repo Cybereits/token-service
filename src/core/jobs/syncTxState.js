@@ -38,6 +38,7 @@ export default async function (job, done) {
     let queue = new ParallelQueue({
       limit: 50,
       toleration: 0,
+      span: 100,
     })
 
     sendingTxs.forEach((transaction) => {
