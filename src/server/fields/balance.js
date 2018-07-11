@@ -34,12 +34,16 @@ export const queryAllBalance = {
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
     let listAccounts
-    let { ethAddresses, tokenType } = filter
-    let queryCondition = null
+    let { ethAddresses, tokenType, comment } = filter
+    let queryCondition = {}
     let sortCondition = { [`balances.${tokenType}`]: -1 }
 
     if (ethAddresses && ethAddresses.length > 0) {
-      queryCondition = { account: { $in: ethAddresses } }
+      Object.assign(queryCondition, { account: { $in: ethAddresses } })
+    }
+
+    if (comment) {
+      Object.assign(queryCondition, { comment: { $regex: comment, $options: 'ig' } })
     }
 
     listAccounts = await EthAccountModel
