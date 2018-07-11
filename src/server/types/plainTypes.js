@@ -70,14 +70,6 @@ export const hashResult = new OutputObj({
   },
 })
 
-export const userInfo = new OutputObj({
-  name: 'userInfo',
-  description: '用户信息',
-  fields: {
-    username: { type: str, description: '用户名' },
-  },
-})
-
 export const balanceDetail = new OutputObj({
   name: 'balanceDetail',
   description: '账户详情',
@@ -97,6 +89,17 @@ export const balanceDetail = new OutputObj({
     token: {
       type: float,
       description: '代币余额',
+    },
+    createAt: {
+      type: str,
+      description: '创建时间',
+      resolve: (tx) => {
+        if (tx.createAt) {
+          return tx.createAt.toJSON()
+        } else {
+          return ''
+        }
+      },
     },
   },
 })

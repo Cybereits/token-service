@@ -338,3 +338,42 @@ export const sendTransaction = {
     }
   },
 }
+
+export const editTransaction = {
+  type: txRecord,
+  description: '编辑转账信息',
+  args: {
+    id: {
+      type: str,
+      description: 'Record ID',
+    },
+    outAccount: {
+      type: new NotNull(str),
+      description: '转出的系统钱包地址',
+    },
+    to: {
+      type: new NotNull(str),
+      description: '入账钱包地址',
+    },
+    amount: {
+      type: new NotNull(float),
+      description: '转账代币数额',
+      defaultValue: 0,
+    },
+  },
+  async resolve(root, { id, outAccount, to, amount }, { session }) {
+    let tx = await TxRecordModel.findOne({ _id: id })
+    if (!tx) {
+      return new Error('没有找到对应的转账信息')
+    }
+    if (tx.status !== STATUS.pending || tx.status !== STATUS.failure) {
+      tx.from = outAccount
+      tx.to = to
+      tx.amount = amount
+      tx.creator = session.admin.username
+      return tx.save()
+    } else {
+      return new Error('当前转账的状态不支持编辑')
+    }
+  },
+}

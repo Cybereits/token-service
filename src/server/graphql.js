@@ -8,7 +8,7 @@ import { authLevelWrapper, sessionValidWrapper } from './common/auth'
 
 import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
 
-import { queryAllBalance, gatherAllEth, gatherAllTokens } from './fields/balance'
+import { queryAllBalance, gatherAllEth, gatherAllTokens, tokenBalanceOverview } from './fields/balance'
 
 import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, readContractMethod, writeContractMethod } from './fields/contract'
 
@@ -16,14 +16,14 @@ import { statusEnum, tokenTypeEnum, userRoleEnum } from './fields/enum'
 
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 
-import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction } from './fields/transactions'
+import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction, editTransaction } from './fields/transactions'
 
 const QueryApis = new Obj({
   name: 'QueryApis',
   description: '查询接口',
   fields: {
     adminLogin,
-    adminLogout: sessionValidWrapper(adminLogout),
+    adminLogout,
     queryAllBalance: sessionValidWrapper(queryAllBalance),
     queryAdminList: sessionValidWrapper(queryAdminList),
     queryAccountList: sessionValidWrapper(queryAccountList),
@@ -35,6 +35,7 @@ const QueryApis = new Obj({
     queryIsSysAccount: sessionValidWrapper(queryIsSysAccount),
     getAdminInfo: sessionValidWrapper(getAdminInfo),
     getTwoFactorAuthUrl: sessionValidWrapper(getTwoFactorAuthUrl),
+    tokenBalanceOverview: sessionValidWrapper(tokenBalanceOverview),
     statusEnum: sessionValidWrapper(statusEnum),
     tokenTypeEnum: sessionValidWrapper(tokenTypeEnum),
     userRoleEnum: sessionValidWrapper(userRoleEnum),
@@ -56,6 +57,7 @@ const MutationApis = new Obj({
     deployKycContract: authLevelWrapper([USER_ROLE_LEVELS.super_admin], deployKycContract),
     deployAssetContract: authLevelWrapper([USER_ROLE_LEVELS.super_admin], deployAssetContract),
     sendTransaction: authLevelWrapper([USER_ROLE_LEVELS.super_admin], sendTransaction),
+    editTransaction: sessionValidWrapper(editTransaction),
     readContractMethod: sessionValidWrapper(readContractMethod),
     writeContractMethod: authLevelWrapper([USER_ROLE_LEVELS.super_admin], writeContractMethod),
     gatherAllEth: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllEth),
