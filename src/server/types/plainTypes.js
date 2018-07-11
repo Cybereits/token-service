@@ -94,6 +94,7 @@ export const balanceDetail = new OutputObj({
       type: str,
       description: '创建时间',
       resolve: (tx) => {
+        console.log(tx)
         if (tx.createAt) {
           return tx.createAt.toJSON()
         } else {
@@ -239,6 +240,7 @@ export const balanceFilter = new InputObj({
   fields: {
     ethAddresses: { type: new List(str), description: '要查询的钱包地址' },
     tokenType: { type: str, description: '查询的代币类型' },
+    comment: { type: str, description: '钱包创建时的备注' },
   },
 })
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import DescriptionList from 'components/DescriptionList';
@@ -17,7 +18,7 @@ import {
   Modal,
   message,
   // Badge,
-  // Divider,
+  Divider,
 } from 'antd';
 import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -28,6 +29,55 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
 const { Description } = DescriptionList;
+
+const EditableContext = React.createContext();
+const EditableRow = ({ form, index, ...props }) => (
+  <EditableContext.Provider value={form}>
+    <tr {...props} />
+  </EditableContext.Provider>
+);
+
+const EditableFormRow = Form.create()(EditableRow);
+
+class EditableCell extends React.Component {
+  getInput = () => {
+    if (this.props.inputType === 'number') {
+      return <InputNumber />;
+    }
+    return <Input />;
+  };
+
+  render() {
+    const { editing, dataIndex, title, inputType, record, index, ...restProps } = this.props;
+    return (
+      <EditableContext.Consumer>
+        {form => {
+          const { getFieldDecorator } = form;
+          return (
+            <td {...restProps}>
+              {editing ? (
+                <FormItem style={{ margin: 0 }}>
+                  {getFieldDecorator(dataIndex, {
+                    rules: [
+                      {
+                        required: true,
+                        message: `Please Input ${title}!`,
+                      },
+                    ],
+                    initialValue: record[dataIndex],
+                  })(this.getInput())}
+                </FormItem>
+              ) : (
+                restProps.children
+              )}
+            </td>
+          );
+        }}
+      </EditableContext.Consumer>
+    );
+  }
+}
+
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, sendCoin, handleModalVisible, confirmLoading } = props;
   const okHandle = () => {
@@ -89,7 +139,6 @@ const CreateForm = Form.create()(props => {
     </Modal>
   );
 });
-
 @connect(({ coin, loading }) => ({
   coin,
   loading: loading.models.coin,
@@ -104,6 +153,7 @@ export default class TableList extends PureComponent {
     confirmLoading: false,
     pageIndex: 0,
     pageSize: 10,
+    editingKey: '',
   };
 
   componentDidMount() {
@@ -420,6 +470,53 @@ export default class TableList extends PureComponent {
       : this.renderSimpleForm(statusEnum, tokenTypeEnum);
   }
 
+  isEditing = item => {
+    return item.id === this.state.editingKey;
+  };
+
+  cancel = () => {
+    this.setState({ editingKey: '' });
+  };
+
+  edit(key) {
+    this.setState({ editingKey: key });
+  }
+
+  save(form, key) {
+    form.validateFields((error, fieldsValue) => {
+      console.log(error, fieldsValue);
+
+      if (error) {
+        return;
+      }
+      let newFieldsValue = { ...fieldsValue, id: key };
+      this.props.dispatch({
+        type: 'coin/editTransaction',
+        params: newFieldsValue,
+        callback: respnse => {
+          if (respnse) {
+            message.success('编辑成功！');
+            this.handleSearch(this.state.pageIndex, this.state.pageSize);
+          }
+        },
+      });
+      this.setState({ editingKey: '' });
+      // const newData = [...this.state.data];
+      // const index = newData.findIndex(item => key === item.key);
+      // if (index > -1) {
+      //   const item = newData[index];
+      //   newData.splice(index, 1, {
+      //     ...item,
+      //     ...row,
+      //   });
+      //   this.setState({ data: newData, editingKey: '' });
+      // } else {
+      //   newData.push(data);
+      //   this.setState({ data: newData, editingKey: '' });
+      // }
+    });
+  }
+
   render() {
     const { coin: { data, statusEnum, tokenTypeEnum }, loading } = this.props;
     const { selectedRows, modalVisible, confirmLoading } = this.state;
@@ -427,10 +524,17 @@ export default class TableList extends PureComponent {
       {
         title: '发送代币数量',
         dataIndex: 'amount',
+        editable: true,
       },
       {
         title: '出账地址',
         dataIndex: 'from',
+        editable: true,
+      },
+      {
+        title: '入账地址',
+        dataIndex: 'to',
+        editable: true,
       },
       {
         title: '代币类型',
@@ -441,6 +545,7 @@ export default class TableList extends PureComponent {
         render: item => {
           const { dispatch } = this.props;
           const newThis = this;
+          const editable = this.isEditing(item);
           return (
             <Fragment>
               <a
@@ -458,7 +563,12 @@ export default class TableList extends PureComponent {
                           callback: response => {
                             if (response) {
                               message.success('发送成功！');
-                              newThis.handleSearch(0, 10);
+                              setTimeout(function() {
+                                newThis.handleSearch(
+                                  newThis.state.pageIndex,
+                                  newThis.state.pageSize
+                                );
+                              }, 1000);
                             }
                             resolve();
                           },
@@ -469,8 +579,35 @@ export default class TableList extends PureComponent {
                   });
                 }}
               >
-                发送代币
+                发送
               </a>
+              <Divider type="vertical" />
+              {editable ? (
+                <span>
+                  <EditableContext.Consumer>
+                    {form => (
+                      <a href="javascript:;" onClick={() => this.save(form, item.id)}>
+                        保存
+                      </a>
+                    )}
+                  </EditableContext.Consumer>
+                  <Divider type="vertical" />
+                  <a
+                    onClick={() => {
+                      this.cancel(item.id);
+                    }}
+                  >
+                    取消
+                  </a>
+                </span>
+              ) : (
+                <a
+                  disabled={item.status === 'pending' || item.status === 'failure' ? false : true}
+                  onClick={() => this.edit(item.id)}
+                >
+                  编辑
+                </a>
+              )}
             </Fragment>
           );
         },
@@ -528,9 +665,32 @@ export default class TableList extends PureComponent {
       // },
     ];
 
+    const newColumns = columns.map(col => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: record => ({
+          record,
+          inputType: col.dataIndex === 'age' ? 'number' : 'text',
+          dataIndex: col.dataIndex,
+          title: col.title,
+          editing: this.isEditing(record),
+        }),
+      };
+    });
+
     const parentMethods = {
       sendCoin: this.sendCoin,
       handleModalVisible: this.handleModalVisible,
+    };
+
+    const components = {
+      body: {
+        row: EditableFormRow,
+        cell: EditableCell,
+      },
     };
 
     return (
@@ -558,10 +718,11 @@ export default class TableList extends PureComponent {
               </span> */}
             </div>
             <StandardTable
+              components={components}
               selectedRows={selectedRows}
               loading={loading}
               data={data}
-              columns={columns}
+              columns={newColumns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
               expandedRowRender={item => {
@@ -569,13 +730,11 @@ export default class TableList extends PureComponent {
                   <Card bordered={false}>
                     <DescriptionList col={2} size="large">
                       <Description term="txid">{item.txid}</Description>
-                      <Description term="任务id">{item.taskid}</Description>
-                      <Description term="入账地址">{item.to}</Description>
                       <Description term="发送状态">{item.status}</Description>
                       <Description term="发送时间">{item.sendTime}</Description>
                       <Description term="确认时间">{item.confirmTime}</Description>
                       <Description term="创建人">{item.creator}</Description>
-                      <Description term="执行人">{item.executor}</Description>
+                      <Description term="执行人">{item.executer}</Description>
                       <Description term="备注">{item.comment}</Description>
                       <Description term="错误信息">{item.errorMsg}</Description>
                     </DescriptionList>

@@ -34,23 +34,29 @@ export const queryAllBalance = {
   },
   async resolve(root, { pageIndex = 0, pageSize = 10, filter }) {
     let listAccounts
-    let { ethAddresses, tokenType } = filter
-    let queryCondition = null
+    let { ethAddresses, tokenType, comment } = filter
+    let queryCondition = {}
     let sortCondition = { [`balances.${tokenType}`]: -1 }
 
     if (ethAddresses && ethAddresses.length > 0) {
-      queryCondition = { account: { $in: ethAddresses } }
+      Object.assign(queryCondition, { account: { $in: ethAddresses } })
+    }
+
+    if (comment) {
+      Object.assign(queryCondition, { comment: { $regex: comment, $options: 'ig' } })
     }
 
     listAccounts = await EthAccountModel
-      .find(queryCondition, { account: 1, balances: 1 })
+      .find(queryCondition, { account: 1, balances: 1, createAt: 1, comment: 1 })
       .sort(sortCondition)
       .skip(pageSize * pageIndex)
       .limit(pageSize)
-      .then(accounts => accounts.map(({ account, balances }) => ({
+      .then(accounts => accounts.map(({ account, balances, createAt, comment }) => ({
         address: account,
         eth: balances[TOKEN_TYPES.eth] || 0,
         token: balances[tokenType] || 0,
+        createAt,
+        comment,
       })))
 
     // 结果数量

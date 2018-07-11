@@ -13,6 +13,7 @@ import {
   queryBatchTransactionTasks,
   handlePrizes,
   tokenTypeEnum,
+  editTransaction,
 } from '../services/api';
 
 export default {
@@ -122,6 +123,7 @@ export default {
             ethAddress: value.ethAddress,
             ethAmount: value.balances[0].value,
             creAmount: value.balances[1].value,
+
             key: index,
           };
         });
@@ -220,6 +222,10 @@ export default {
         payload: response,
       });
       if (callback) callback();
+    },
+    *editTransaction({ params, callback }, { call }) {
+      const response = yield call(editTransaction, params);
+      callback(response);
     },
   },
 

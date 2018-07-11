@@ -6,7 +6,7 @@ import { getAllTokenContracts } from '../../core/scenes/contract'
 let executable = true
 
 export async function updateAllAccounts(tokenContractNames) {
-  const taskQueue = new ParallelQueue({ limit: 20 })
+  const taskQueue = new ParallelQueue({ limit: 20, span: 500 })
 
   let accounts = await getAllAccounts()
 
