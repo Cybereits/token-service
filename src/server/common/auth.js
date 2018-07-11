@@ -5,7 +5,7 @@ export const sessionValidWrapper = (graphqlFieldsSchema) => {
     if (session && session.admin) {
       return __originFunc(root, _, ctx)
     } else {
-      return new Error('您没有权限访问该接口')
+      return new Error('Unauthorized!')
     }
   }
   return graphqlFieldsSchema

@@ -9,7 +9,7 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 import { TOKEN_TYPES } from '../../core/enums'
 import { EthAccountModel, BatchTransactinTaskModel } from '../../core/schemas'
 import { transferAllEth, transferAllTokens } from '../../core/scenes/token'
-import { balanceDetail, balanceFilter } from '../types/plainTypes'
+import { balanceDetail, balanceFilter, hashResult } from '../types/plainTypes'
 import { PaginationWrapper, PaginationResult } from '../types/complexTypes'
 
 export const queryAllBalance = {
@@ -60,15 +60,22 @@ export const queryAllBalance = {
 }
 
 export const tokenBalanceOverview = {
-  type: str,
+  type: new List(hashResult),
   description: '获取代币余额总览',
-  args: {
-    tokenType: str,
-    description: '代币类型',
-  },
   async resolve() {
-    // todo
-    return 'todo...'
+    let accounts = await EthAccountModel.find(null, { balances: 1 })
+    let counter = {}
+    accounts.forEach(({ balances }) => {
+      if (balances) {
+        Object.entries(balances).forEach(([tokenType, amount]) => {
+          if (counter[tokenType] === undefined) {
+            counter[tokenType] = 0
+          }
+          counter[tokenType] += amount
+        })
+      }
+    })
+    return Object.entries(counter).map(([name, amount]) => ({ name, value: amount }))
   },
 }
 
