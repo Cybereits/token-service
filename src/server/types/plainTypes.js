@@ -9,7 +9,7 @@ import {
   GraphQLBoolean as boolean,
 } from 'graphql'
 
-import { getStatus } from '../../core/enums'
+import { getStatus, TOKEN_TYPES } from '../../core/enums'
 
 // #region Output Objects
 
@@ -286,6 +286,35 @@ export const commonContractArgs = new InputObj({
     tokenSymbol: { type: new NotNull(str), description: '代币缩写' },
     contractName: { type: new NotNull(str), description: '合约名称' },
     contractDecimals: { type: new NotNull(int), description: '合约精度' },
+  },
+})
+
+export const transactionArgs = new InputObj({
+  name: 'transactionArgs',
+  description: '转账参数',
+  fields: {
+    outAccount: {
+      type: new NotNull(str),
+      description: '转出的系统钱包地址',
+    },
+    to: {
+      type: new NotNull(str),
+      description: '入账钱包地址',
+    },
+    amount: {
+      type: new NotNull(float),
+      description: '转账代币数额',
+      defaultValue: 0,
+    },
+    tokenType: {
+      type: str,
+      description: '转账代币类型 默认cre',
+      defaultValue: TOKEN_TYPES.cre,
+    },
+    comment: {
+      type: str,
+      description: '备注',
+    },
   },
 })
 

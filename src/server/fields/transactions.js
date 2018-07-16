@@ -9,7 +9,7 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import { STATUS, TOKEN_TYPES } from '../../core/enums'
 import { BatchTransactinTaskModel, TxRecordModel } from '../../core/schemas'
-import { batchTransactionTask, txRecord, txFilter } from '../types/plainTypes'
+import { batchTransactionTask, txRecord, txFilter, transactionArgs } from '../types/plainTypes'
 import { PaginationResult, PaginationWrapper } from '../types/complexTypes'
 import { sendETH, sendToken } from '../../core/scenes/token'
 
@@ -166,27 +166,9 @@ export const createTransaction = {
   type: txRecord,
   description: '创建转账信息',
   args: {
-    outAccount: {
-      type: new NotNull(str),
-      description: '转出的系统钱包地址',
-    },
-    to: {
-      type: new NotNull(str),
-      description: '入账钱包地址',
-    },
-    amount: {
-      type: new NotNull(float),
-      description: '转账代币数额',
-      defaultValue: 0,
-    },
-    tokenType: {
-      type: str,
-      description: '转账代币类型 默认cre',
-      defaultValue: TOKEN_TYPES.cre,
-    },
-    comment: {
-      type: str,
-      description: '备注',
+    transaction: {
+      type: transactionArgs,
+      description: '转账交易参数',
     },
   },
   async resolve(root, { outAccount, to, amount, tokenType, comment }, { session }) {
@@ -207,65 +189,46 @@ export const createBatchTransactions = {
   description: '创建批量转账任务',
   args: {
     transactions: {
-      type: new NotNull(str),
-      description: '要发送的信息，以地址和代币数额以逗号分割，交易之间以换行分隔，最终的字符串需要 encodeURIComponent',
+      type: new List(transactionArgs),
+      description: '批量转账任务',
     },
     comment: {
-      type: new NotNull(str),
-      description: '批量任务描述',
-    },
-    tokenType: {
       type: str,
-      description: '转账代币类型 默认cre',
-      defaultValue: TOKEN_TYPES.cre,
-    },
-    outAccount: {
-      type: str,
-      description: '出账的钱包账户地址',
+      description: '任务备注',
     },
   },
-  async resolve(root, { transactions, comment, tokenType, outAccount }, { session }) {
-    // 获取所有待处理的
-    let txCollection = decodeURIComponent(transactions).split('\n')
+  async resolve(root, { transactions, comment }, { session }) {
 
-    let txPairs = []
-
-    txCollection.forEach((str) => {
-      let infoArr = str.split(',')
-      if (infoArr.length === 2) {
-        txPairs.push({ address: infoArr[0], amount: +infoArr[1] })
-      }
-    })
-
-    if (txPairs.length === 0) {
+    if (transactions.length === 0) {
       return new Error('批量转账任务的转账笔数必须大于 1')
     }
 
-    if (txPairs.findIndex(t => isNaN(t.amount)) > -1) {
+    if (transactions.findIndex(t => isNaN(t.amount)) > -1) {
       return new Error('批量转账任务金额无效，必须是大于 0 的数值')
     }
 
-    if (txCollection.findIndex(t => t.amount <= 0) > -1) {
+    if (transactions.findIndex(t => t.amount <= 0) > -1) {
       return new Error('批量转账任务的所有转账金额必须大于 0')
     }
 
     // 先创建批量任务的实体
     let task = await BatchTransactinTaskModel.create({
-      count: txPairs.length,
+      count: transactions.length,
       comment,
     })
 
     let taskID = task._id
 
     // 创建转账的交易实体
-    await TxRecordModel.insertMany(txPairs.map(({ address, amount }) => ({
+    await TxRecordModel.insertMany(transactions.map(({ outAccount, amount, tokenType, to, comment }) => ({
       amount,
       from: outAccount.trim(),
-      to: address.trim(),
+      to: to.trim(),
       tokenType,
       taskid: taskID,
       status: STATUS.pending,
       creator: session.admin.username,
+      comment,
     })))
 
     return task

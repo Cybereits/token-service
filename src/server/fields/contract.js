@@ -57,13 +57,10 @@ function compileContract(sources) {
  * @param {string} address 解锁账户地址
  */
 async function getContractAndUnlockAccount(contractName, address) {
-  let contractPromise = getContractInstance(contractName)
-  let unlockPromise = getConnByAddressThenUnlock(address)
-
   // 解锁账户
-  await unlockPromise
+  let conn = await getConnByAddressThenUnlock(address)
   // 获取合约实例
-  let contract = await contractPromise
+  let contract = await getContractInstance(contractName, conn)
   return contract
 }
 
