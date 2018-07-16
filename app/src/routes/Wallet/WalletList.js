@@ -177,7 +177,6 @@ export default class TableList extends PureComponent {
   };
 
   handleSelectRows = rows => {
-    console.log('debug', rows);
     this.setState({
       selectedRows: rows,
       showBatchTransfer: rows.length > 0,
@@ -227,7 +226,6 @@ export default class TableList extends PureComponent {
         confirmLoading: true,
       },
       () => {
-        console.log('debug', fields);
         this.props.dispatch({
           type: 'wallet/createMultiAccount',
           params: {
@@ -276,7 +274,6 @@ export default class TableList extends PureComponent {
         confirmLoadingSinger: true,
       },
       () => {
-        console.log('debug', fields);
         this.props.dispatch({
           type: 'wallet/addWallet',
           params: {
@@ -293,7 +290,6 @@ export default class TableList extends PureComponent {
                 content: `钱包地址为\n${response.data.createAccount}`,
                 width: 500,
               });
-              console.log('debug', response);
               this.setState({
                 modalVisibleSinger: false,
               });

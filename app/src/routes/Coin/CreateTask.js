@@ -37,8 +37,6 @@ export default class CreateTask extends PureComponent {
   }
 
   componentDidMount = () => {
-    console.log('debug', this.props);
-    console.log('debug', this.state.addressList);
     const { addressList } = this.state;
     if (addressList) {
       const newAddressList = addressList.map(value => {
