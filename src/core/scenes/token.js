@@ -252,17 +252,17 @@ export async function transferAllEth(fromAddress, toAddress, taskID, username) {
   let txCost = gasPrice.mul(gasFee)
   let transAmount = connect.eth.extend.utils.fromWei(total.minus(txCost).toString(10))
 
-  console.log(`余额\t${
-    connect.eth.extend.utils.fromWei(total.toString(10))
-    } 油费\t${
-    gasPrice.toString(10)
-    } 用量\t${
-    gasFee.toString(10)
-    } 总花费\t${
-    connect.eth.extend.utils.fromWei(txCost.toString(10))
-    } 实际发送数额\t${
-    transAmount
-    }`)
+  // console.log(`余额\t${
+  //   connect.eth.extend.utils.fromWei(total.toString(10))
+  //   } 油费\t${
+  //   gasPrice.toString(10)
+  //   } 用量\t${
+  //   gasFee.toString(10)
+  //   } 总花费\t${
+  //   connect.eth.extend.utils.fromWei(txCost.toString(10))
+  //   } 实际发送数额\t${
+  //   transAmount
+  //   }`)
 
   // 创建转账的交易实体
   return TxRecordModel.create({
@@ -279,7 +279,7 @@ export async function transferAllEth(fromAddress, toAddress, taskID, username) {
   // sendETH(_from_addr, _to_addr, transAmount, { gasPrice, gasFee })
 }
 
-export async function transferAllTokens(fromAddress, toAddress, tokenType, taskID, username) {
+export async function transferAllTokens(fromAddress, toAddress, taskID, username, tokenType) {
   let _from_addr = fromAddress.trim()
   let _to_addr = toAddress.trim()
 

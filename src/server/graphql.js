@@ -8,7 +8,7 @@ import { authLevelWrapper, sessionValidWrapper } from './common/auth'
 
 import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
 
-import { queryAllBalance, gatherAllEth, gatherAllTokens, tokenBalanceOverview } from './fields/balance'
+import { queryAllBalance, gatherAllTokens, tokenBalanceOverview } from './fields/balance'
 
 import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, readContractMethod, writeContractMethod } from './fields/contract'
 
@@ -60,7 +60,6 @@ const MutationApis = new Obj({
     editTransaction: sessionValidWrapper(editTransaction),
     readContractMethod: sessionValidWrapper(readContractMethod),
     writeContractMethod: authLevelWrapper([USER_ROLE_LEVELS.super_admin], writeContractMethod),
-    gatherAllEth: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllEth),
     gatherAllTokens: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllTokens),
     bindTwoFactorAuth: sessionValidWrapper(bindTwoFactorAuth),
     resetPwd,

@@ -85,56 +85,9 @@ export const tokenBalanceOverview = {
   },
 }
 
-export const gatherAllEth = {
-  type: str,
-  description: '归集所有的以太',
-  args: {
-    gatherAddress: {
-      type: new NotNull(str),
-      description: '归集到的地址',
-    },
-    fromAddresses: {
-      type: new List(str),
-      description: '指定转出的系统地址，默认所有',
-    },
-  },
-  async resolve(root, { gatherAddress, fromAddresses }, { session }) {
-    let queryCondition = {}
-
-    if (fromAddresses && fromAddresses.length > 0) {
-      queryCondition = { account: { $in: fromAddresses } }
-    }
-
-    let validAccounts = await EthAccountModel
-      .find(queryCondition, { account: 1, balances: 1 })
-      .then(accounts => accounts.filter(({ account, balances }) => account !== gatherAddress && balances.eth > 0.001))
-
-    if (validAccounts.length > 0) {
-      // 先创建任务实体
-      let task = await BatchTransactinTaskModel.create({
-        count: validAccounts.length,
-        comment: `归集 ${validAccounts.length} 个地址的 ETH 到 ${gatherAddress}`,
-      })
-
-      let queue = new ParallelQueue({ limit: 15 })
-
-      validAccounts.forEach(({ account }) => {
-        queue.add(new TaskCapsule(() => transferAllEth(account, gatherAddress, task._id, session.admin.username)))
-      })
-
-      return queue.consume()
-        .then(() => '成功创建 ETH 归集任务')
-        .catch(err => `创建 ETH 归集任务失败 ${err.message}`)
-
-    } else {
-      return new Error('没有需要归集的地址')
-    }
-  },
-}
-
 export const gatherAllTokens = {
   type: str,
-  description: '归集所有代币',
+  description: '归集所有的代币',
   args: {
     gatherAddress: {
       type: new NotNull(str),
@@ -146,10 +99,11 @@ export const gatherAllTokens = {
     },
     tokenType: {
       type: str,
-      description: '代币类型，默认 cre',
+      description: '代币类型，默认 eth',
+      defaultValue: TOKEN_TYPES.eth,
     },
   },
-  async resolve(root, { gatherAddress, fromAddresses, tokenType = TOKEN_TYPES.cre }, { session }) {
+  async resolve(root, { gatherAddress, fromAddresses, tokenType }, { session }) {
     let queryCondition = {}
 
     if (fromAddresses && fromAddresses.length > 0) {
@@ -161,7 +115,6 @@ export const gatherAllTokens = {
       .then(accounts => accounts.filter(({ account, balances }) => account !== gatherAddress && balances[tokenType] > 0.001))
 
     if (validAccounts.length > 0) {
-
       // 先创建任务实体
       let task = await BatchTransactinTaskModel.create({
         count: validAccounts.length,
@@ -170,14 +123,15 @@ export const gatherAllTokens = {
 
       let queue = new ParallelQueue({ limit: 15 })
 
+      let transferFunc = tokenType === TOKEN_TYPES.eth ? transferAllEth : transferAllTokens
+
       validAccounts.forEach(({ account }) => {
-        queue.add(new TaskCapsule(() => transferAllTokens(account, gatherAddress, tokenType, task._id, session.admin.username)))
+        queue.add(new TaskCapsule(() => transferFunc(account, gatherAddress, task._id, session.admin.username, tokenType)))
       })
 
       return queue.consume()
-        .then(() => `成功创建 ${tokenType} 归集任务`)
-        .catch(err => `创建 ${tokenType} 归集任务失败 ${err.message}`)
-
+      .then(() => `成功创建 ${tokenType} 归集任务`)
+      .catch(err => `创建 ${tokenType} 归集任务失败 ${err.message}`)
     } else {
       return new Error('没有需要归集的地址')
     }
