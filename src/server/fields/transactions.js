@@ -171,7 +171,7 @@ export const createTransaction = {
       description: '转账交易参数',
     },
   },
-  async resolve(root, { outAccount, to, amount, tokenType, comment }, { session }) {
+  async resolve(root, { transaction: { outAccount, to, amount, tokenType, comment } }, { session }) {
     return TxRecordModel.create({
       amount,
       from: outAccount,
