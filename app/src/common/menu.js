@@ -89,6 +89,10 @@ const menuData = [
         path: 'coin-createTask',
       },
       {
+        name: '代币归集',
+        path: 'coin-gather',
+      },
+      {
         name: '交易列表',
         path: 'coin-send',
         authority: 'superAdmin',

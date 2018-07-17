@@ -6,6 +6,7 @@ import Debounce from 'lodash-decorators/debounce';
 import { Link } from 'dva/router';
 // import NoticeIcon from '../NoticeIcon';
 // import HeaderSearch from '../HeaderSearch';
+import CoinOverView from './CoinOverView';
 import styles from './index.less';
 
 export default class GlobalHeader extends PureComponent {
@@ -97,6 +98,7 @@ export default class GlobalHeader extends PureComponent {
           type={collapsed ? 'menu-unfold' : 'menu-fold'}
           onClick={this.toggle}
         />
+        <CoinOverView />
         <div className={styles.right}>
           {/* <HeaderSearch
             className={`${styles.action} ${styles.search}`}

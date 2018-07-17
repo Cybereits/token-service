@@ -62,17 +62,6 @@ class FormCoin extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
         </FormItem>
-        {/* <FormItem {...formItemLayout} label="秘钥">
-          {getFieldDecorator('secret', {
-            validateFirst: true,
-            rules: [
-              {
-                whitespace: true,
-                required: false,
-              },
-            ],
-          })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
-        </FormItem> */}
         <FormItem {...formItemLayout} label="代币总量">
           {getFieldDecorator('tokenSupply', {
             validateFirst: true,
@@ -214,41 +203,6 @@ class FomrKYC extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入钱包地址" />)}
         </FormItem>
-        {/* <FormItem {...formItemLayout} label="秘钥">
-          {getFieldDecorator('secret', {
-            validateFirst: true,
-            rules: [
-              {
-                whitespace: true,
-                required: false,
-              },
-            ],
-          })(<Input type="password" style={{ width: '100%' }} placeholder="请输入秘钥" />)}
-        </FormItem> */}
-        {/* <FormItem {...formItemLayout} label="代币总量">
-          {getFieldDecorator('tokenSupply', {
-            validateFirst: true,
-            rules: [
-              {
-                whitespace: true,
-                required: true,
-                message: '代币总量为必填项',
-              },
-            ],
-          })(<Input style={{ width: '100%' }} placeholder="请输入代币总量" />)}
-        </FormItem>
-        <FormItem {...formItemLayout} label="代币缩写">
-          {getFieldDecorator('tokenSymbol', {
-            validateFirst: true,
-            rules: [
-              {
-                whitespace: true,
-                required: true,
-                message: '代币缩写为必填项',
-              },
-            ],
-          })(<Input style={{ width: '100%' }} placeholder="请输入代币缩写" />)}
-        </FormItem> */}
         <FormItem {...formItemLayout} label="合约名称">
           {getFieldDecorator('contractName', {
             validateFirst: true,
@@ -261,18 +215,6 @@ class FomrKYC extends React.Component {
             ],
           })(<Input style={{ width: '100%' }} placeholder="请输入合约名称" />)}
         </FormItem>
-        {/* <FormItem {...formItemLayout} label="合约精度">
-          {getFieldDecorator('contractDecimals', {
-            validateFirst: true,
-            rules: [
-              {
-                whitespace: true,
-                required: true,
-                message: '合约精度为必填项',
-              },
-            ],
-          })(<Input style={{ width: '100%' }} placeholder="请输入合约精度" />)}
-        </FormItem> */}
         <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
           <Button type="primary" htmlType="submit" loading={submitting}>
             提交

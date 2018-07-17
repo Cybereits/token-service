@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  position: fixed;
+  width: 50%;
+  top: 0;
+  left: 256px;
+  right: 0;
+  z-index: 1;
+  margin: 0 auto;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  > div {
+    flex: 1;
+    flex-direction: column;
+  }
+  div {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.value {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14;
+}
