@@ -170,6 +170,10 @@ export function toGql(obj) {
   }
 }
 
+export function stringifyToGql(obj) {
+  return obj.replace(/\"(\w+)\":/gi, '$1:')
+}
+
 export function getQueryVariable(variable) {
   const query = window.location.href.split('?')[window.location.href.split('?').length - 1];
   const vars = query.split('&');

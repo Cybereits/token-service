@@ -14,6 +14,7 @@ import NotFound from '../routes/Exception/404';
 import { getRoutes } from '../utils/utils';
 import Authorized from '../utils/Authorized';
 import { getMenuData } from '../common/menu';
+// import FlexHeader from './FlexHeader';
 import logo from '../assets/logo.svg';
 
 const { Content, Header, Footer } = Layout;
@@ -199,6 +200,21 @@ class BasicLayout extends React.PureComponent {
         />
         <Layout>
           <Header style={{ padding: 0 }}>
+            {/* <FlexHeader collapsed={collapsed} /> */}
+            {/* <div style={{display: 'flex', position: 'fixed', width: '65%', top: 0, left: !collapsed ? '256px' : '80px', right: 0, zIndex: 1, margin: '0 auto', backgroundColor: 'transparent'}}>
+              <div>
+                <div>ETH</div>
+                <div>10000</div>
+              </div>
+              <div>
+                <div>CRE</div>
+                <div>10000</div>
+              </div>
+              <div>
+                <div>BTC</div>
+                <div>10000</div>
+              </div>
+            </div> */}
             <GlobalHeader
               logo={logo}
               currentUser={currentUser}

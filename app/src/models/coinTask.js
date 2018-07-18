@@ -6,6 +6,7 @@ import {
   sendTransactionfFromTaskid,
   createBatchTransactions,
   tokenTypeEnum,
+  gatherAllTokens,
 } from '../services/api';
 
 export default {
@@ -34,16 +35,23 @@ export default {
       }
     },
     *createBatchTransactions({ params, callback }, { call }) {
-      const response = yield call(createBatchTransactions, params);
-      if (response) {
-        callback();
-      }
-      // if (response) {
-      //   yield put({
-      //     type: 'getTaskData',
-      //     queryBatchTransactionTasks: response.data.queryBatchTransactionTasks,
-      //   });
-      // }
+      const newParams = {
+        transaction: [],
+        comment: params.comment,
+      };
+      params.transaction.forEach(item => {
+        const obj = { ...item };
+        delete obj.key;
+        newParams.transaction.push({
+          ...obj,
+        });
+      });
+      const response = yield call(createBatchTransactions, newParams);
+      callback(response);
+    },
+    *gatherAllTokens({ params, callback }, { call }) {
+      const response = yield call(gatherAllTokens, params);
+      callback(response);
     },
     *sendTransactionfFromTaskid({ params, callback }, { call }) {
       const response = yield call(sendTransactionfFromTaskid, params);

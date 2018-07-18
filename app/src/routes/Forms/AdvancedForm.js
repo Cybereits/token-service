@@ -79,6 +79,7 @@ class AdvancedForm extends PureComponent {
     const { getFieldDecorator, validateFieldsAndScroll, getFieldsError } = form;
     const validate = () => {
       validateFieldsAndScroll((error, values) => {
+        console.log(values);
         if (!error) {
           // submit the values
           dispatch({

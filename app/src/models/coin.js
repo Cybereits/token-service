@@ -14,6 +14,7 @@ import {
   handlePrizes,
   tokenTypeEnum,
   editTransaction,
+  tokenBalanceOverview,
 } from '../services/api';
 
 export default {
@@ -32,6 +33,7 @@ export default {
       list: [],
       pagination: {},
     },
+    tokenBalanceOverviewList: [],
   },
 
   effects: {
@@ -57,6 +59,15 @@ export default {
         yield put({
           type: 'save',
           tokenTypeEnum: response.data.tokenTypeEnum,
+        });
+      }
+    },
+    *tokenBalanceOverview({ payload }, { call, put }) {
+      const response = yield call(tokenBalanceOverview, payload);
+      if (response) {
+        yield put({
+          type: 'save',
+          tokenBalanceOverviewList: response.data.tokenBalanceOverview,
         });
       }
     },
@@ -235,6 +246,7 @@ export default {
         ...state,
         data: { ...state.data, ...action.payload },
         statusEnum: action.statusEnum || state.statusEnum,
+        tokenBalanceOverviewList: action.tokenBalanceOverviewList || state.tokenBalanceOverviewList,
         tokenTypeEnum: action.tokenTypeEnum || state.tokenTypeEnum,
         sendCoinOverviewData: action.sendCoinOverviewData || state.sendCoinOverviewData,
         coinTotal: action.coinTotal || state.coinTotal,

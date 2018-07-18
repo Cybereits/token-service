@@ -6,7 +6,7 @@ import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 // import { errorMesage } from '../utils/networkErrorMsg';
 import request from '../utils/request';
-import { toGql } from '../utils/utils';
+import { toGql, stringifyToGql } from '../utils/utils';
 import config from '../../config/env.json';
 
 const { host, port, baseUrl } = config;
@@ -57,7 +57,6 @@ const client = new ApolloClient({
 //     }
 //   },
 // });
-
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -126,7 +125,7 @@ export async function fakeAccountLogin(params) {
 }
 
 export async function accountLogin({ userName, password, token }) {
-  console.log(token)
+  console.log(token);
   return client
     .query({
       fetchPolicy: 'network-only',
@@ -200,8 +199,8 @@ export async function queryAllBalance({ pageIndex, pageSize, filter }) {
       query: gql`
         {
           queryAllBalance(pageIndex: ${pageIndex}, pageSize: ${pageSize}, filter: ${toGql(
-          newFilter
-        )}) {
+        newFilter
+      )}) {
             pagination {
               total
               current
@@ -272,21 +271,39 @@ export async function sendTransactionfFromIds(params) {
     });
 }
 
-export async function createBatchTransactions({ transactions, comment, tokenType, outAccount }) {
+export async function createBatchTransactions({ transaction, comment }) {
+  console.log(transaction);
   return client
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`
         mutation {
-          createBatchTransactions(transactions: "${transactions}", comment: "${comment}", tokenType: "${toGql(
-          tokenType
-        )}", outAccount: "${outAccount}") {
+          createBatchTransactions(transactions: ${stringifyToGql(
+            JSON.stringify(transaction)
+          )}, comment: "${comment}") {
             id,
             count,
             comment,
             createAt
           }
         }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function gatherAllTokens({ gatherAddress, fromAddresses, tokenType }) {
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          gatherAllTokens(fromAddresses: ${JSON.stringify(
+            fromAddresses
+          )}, gatherAddress: "${gatherAddress}", tokenType: "${tokenType}")
+        }  
       `,
     })
     .catch(err => {
@@ -310,12 +327,14 @@ export async function sendTransactionfFromTaskid(params) {
 }
 
 export async function createMultiAccount(params) {
-  console.log('debug', params)
+  console.log('debug', params);
   return client
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-      createMultiAccount(count: ${params.walletAmount}, comment: "${params.comment}", password: "${params.password}")
+      createMultiAccount(count: ${params.walletAmount}, comment: "${params.comment}", password: "${
+        params.password
+      }")
     }`,
     })
     .catch(err => {
@@ -323,13 +342,15 @@ export async function createMultiAccount(params) {
     });
 }
 
-export async function writeContractMethod({caller, contractName, methodName, paramArrInJson}) {
-  console.log(caller, contractName, methodName, paramArrInJson)
+export async function writeContractMethod({ caller, contractName, methodName, paramArrInJson }) {
+  console.log(caller, contractName, methodName, paramArrInJson);
   return client
     .mutate({
       fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        writeContractMethod(caller: "${caller}", contractName: "${contractName}", methodName: "${methodName}", paramArrInJson: "${encodeURIComponent(paramArrInJson)}")
+        writeContractMethod(caller: "${caller}", contractName: "${contractName}", methodName: "${methodName}", paramArrInJson: "${encodeURIComponent(
+        paramArrInJson
+      )}")
     }`,
     })
     .catch(err => {
@@ -337,7 +358,7 @@ export async function writeContractMethod({caller, contractName, methodName, par
     });
 }
 
-export async function resetPwd({username, newPassword, validPassword, token}) {
+export async function resetPwd({ username, newPassword, validPassword, token }) {
   return client
     .mutate({
       fetchPolicy: 'no-cache',
@@ -434,6 +455,24 @@ export async function commonStatusEnum() {
       query: gql`
         {
           statusEnum {
+            name
+            value
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+export async function tokenBalanceOverview() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          tokenBalanceOverview {
             name
             value
           }
@@ -569,12 +608,14 @@ export async function queryTxRecordsViaTaskId({ pageIndex, pageSize, taskID }) {
 }
 
 export async function changePwd(params) {
-  console.log(params)
+  console.log(params);
   return client
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        changePwd(originPassword:"${params.originPassword}",newPassword:"${params.newPassword}",validPassword:"${params.validPassword}") {
+        changePwd(originPassword:"${params.originPassword}",newPassword:"${
+        params.newPassword
+      }",validPassword:"${params.validPassword}") {
           username,
           role,
         }
@@ -586,12 +627,14 @@ export async function changePwd(params) {
 }
 
 export async function editTransaction(params) {
-  console.log(params)
+  console.log(params);
   return client
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        editTransaction(id:"${params.id}",outAccount:"${params.from}",to:"${params.to}", amount:${params.amount}) {
+        editTransaction(id:"${params.id}",outAccount:"${params.from}",to:"${params.to}", amount:${
+        params.amount
+      }) {
           id,
         }
     }`,
@@ -602,11 +645,11 @@ export async function editTransaction(params) {
 }
 
 export async function deployCREContract(params) {
-  console.log(params.lockAddresses)
+  console.log(params.lockAddresses);
   const newParams = { ...params };
   for (const key in newParams) {
     if (newParams[key] === undefined) {
-      newParams[key] = ''
+      newParams[key] = '';
     }
   }
   return client
@@ -625,7 +668,7 @@ export async function deployCREContract(params) {
       console.log(err);
     });
 }
-export async function queryAllContract(params={}) {
+export async function queryAllContract(params = {}) {
   return client
     .query({
       fetchPolicy: 'network-only',
@@ -675,18 +718,20 @@ export async function queryAllContract(params={}) {
 //     });
 // }
 export async function deployKycContract(params) {
-  console.log(params)
+  console.log(params);
   const newParams = { ...params };
   for (const key in newParams) {
     if (newParams[key] === undefined) {
-      newParams[key] = ''
+      newParams[key] = '';
     }
   }
   return client
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        deployKycContract(deployer: "${newParams.address}", contractName: "${newParams.contractName}")
+        deployKycContract(deployer: "${newParams.address}", contractName: "${
+        newParams.contractName
+      }")
     }`,
     })
     .catch(err => {
@@ -694,11 +739,11 @@ export async function deployKycContract(params) {
     });
 }
 export async function deployAssetContract(params) {
-  console.log(params)
+  console.log(params);
   const newParams = { ...params };
   for (const key in newParams) {
     if (newParams[key] === undefined) {
-      newParams[key] = ''
+      newParams[key] = '';
     }
   }
   return client
@@ -718,14 +763,15 @@ export async function deployAssetContract(params) {
     });
 }
 
-
 export async function addERC20ContractMeta(params) {
-  console.log(params)
+  console.log(params);
   return client
     .mutate({
       // fetchPolicy: 'no-cache',
       mutation: gql`mutation {
-        addERC20ContractMeta(name: "${params.name}", symbol: "${params.symbol}", decimal: ${params.decimal},codes: "${params.codes}",abis: "${params.abis}",address: "${params.address}")
+        addERC20ContractMeta(name: "${params.name}", symbol: "${params.symbol}", decimal: ${
+        params.decimal
+      },codes: "${params.codes}",abis: "${params.abis}",address: "${params.address}")
     }`,
     })
     .catch(err => {
@@ -734,7 +780,7 @@ export async function addERC20ContractMeta(params) {
 }
 
 export async function bindTwoFactorAuth(params) {
-  console.log(params)
+  console.log(params);
   return client
     .mutate({
       // fetchPolicy: 'no-cache',
@@ -747,12 +793,12 @@ export async function bindTwoFactorAuth(params) {
     });
 }
 
-export async function queryAdminList(params={pageIndex:0,pageSize:10}) {
-console.log(params)
+export async function queryAdminList(params = { pageIndex: 0, pageSize: 10 }) {
+  console.log(params);
   return client
-  .query({
-    // fetchPolicy: 'network-only',
-    query: gql`
+    .query({
+      // fetchPolicy: 'network-only',
+      query: gql`
       query {
         queryAdminList(pageIndex:${params.pageIndex},pageSize:${params.pageSize}) {
           list {
@@ -768,10 +814,10 @@ console.log(params)
         }
       }
     `,
-  })
-  .catch(err => {
-    console.log(err);
-  });
+    })
+    .catch(err => {
+      console.log(err);
+    });
 }
 
 export async function getAdminInfo() {
