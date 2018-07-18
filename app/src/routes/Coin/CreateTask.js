@@ -423,7 +423,7 @@ export default class CreateTask extends PureComponent {
           size="large"
           tabBarStyle={{ backgroundColor: '#fff', marginBottom: 0 }}
         >
-          <TabPane tab="单一地址" key="1">
+          <TabPane tab="批量转出" key="1">
             <Card bordered={false}>
               <SingleAddress_
                 submitting={submittingSingleAddress_}
@@ -435,7 +435,7 @@ export default class CreateTask extends PureComponent {
               />
             </Card>
           </TabPane>
-          <TabPane tab="多个地址" key="2">
+          <TabPane tab="批量转账" key="2">
             <Card bordered={false}>
               <MultipleAddress_
                 submitting={submittingMultipleAddress_}
