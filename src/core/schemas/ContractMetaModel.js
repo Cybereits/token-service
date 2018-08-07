@@ -47,7 +47,6 @@ contractMeta.pre('save', async function (next) {
   if (!meta.isModified('symbol')) return next()
   if (!meta.symbol) {
     let exist = await ContractMetaModel.findOne({ symbol: meta.symbol })
-    console.log(exist)
     if (!exist || exist.name === meta.name) {
       next()
     } else {
