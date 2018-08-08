@@ -1,7 +1,9 @@
+@import '~antd/lib/style/themes/default.less';
+
 .container {
   display: flex;
   margin: -66px auto;
-  width: 50%;
+  width: 72%;
   height: 64px;
   background-color: #fff;
   > div {
@@ -12,11 +14,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    transition: text-shadow 0.3s ease;
+    text-shadow: rgba(0, 0, 0, 0.33) 0 5px 8px;
+    & :hover {
+      text-shadow: rgba(0, 0, 0, 0.55) 0 2px 3px;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-sm) {
+  .container {
+    display: none;
   }
 }
 
 .name {
   font-weight: 500;
+  font-size: 18;
   color: rgba(0, 0, 0, 0.85);
 }
 

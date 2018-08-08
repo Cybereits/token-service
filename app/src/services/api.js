@@ -125,7 +125,6 @@ export async function fakeAccountLogin(params) {
 }
 
 export async function accountLogin({ userName, password, token }) {
-  console.log(token);
   return client
     .query({
       fetchPolicy: 'network-only',
@@ -303,7 +302,7 @@ export async function gatherAllTokens({ gatherAddress, fromAddresses, tokenType 
           gatherAllTokens(fromAddresses: ${JSON.stringify(
             fromAddresses
           )}, gatherAddress: "${gatherAddress}", tokenType: "${tokenType}")
-        }  
+        }
       `,
     })
     .catch(err => {

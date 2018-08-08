@@ -81,7 +81,7 @@ export const tokenBalanceOverview = {
         })
       }
     })
-    return Object.entries(counter).map(([name, amount]) => ({ name, value: amount }))
+    return Object.entries(counter).map(([name, amount]) => ({ name, value: Math.round(amount).toFixed(2) }))
   },
 }
 
@@ -130,8 +130,8 @@ export const gatherAllTokens = {
       })
 
       return queue.consume()
-      .then(() => `成功创建 ${tokenType} 归集任务`)
-      .catch(err => `创建 ${tokenType} 归集任务失败 ${err.message}`)
+        .then(() => `成功创建 ${tokenType} 归集任务`)
+        .catch(err => `创建 ${tokenType} 归集任务失败 ${err.message}`)
     } else {
       return new Error('没有需要归集的地址')
     }

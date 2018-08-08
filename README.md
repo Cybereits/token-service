@@ -12,3 +12,9 @@
 - graphiql 调试地址 `http://localhost:8010/data`
 - graphql Api 地址 `http://localhost:8010/graphql`
 - 控制台地址 `http://localhost:8000`
+
+## Todo
+
+- 钱包客户端运行状态监视
+- 账户余额变动事件推送
+- 交易确认事件推送

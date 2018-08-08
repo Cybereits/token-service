@@ -1,13 +1,9 @@
 import mongoose from 'mongoose'
-import propReader from 'properties-reader'
-import path from 'path'
+
+import { mongo } from '../../config/env.json'
 
 mongoose.Promise = Promise
-
-let reader = propReader(path.resolve(__dirname, '../../config/server.properties'))
-let ip = reader.get('db_ip')
-let name = reader.get('db_name')
-let port = reader.get('db_port')
+const { ip, name, port } = mongo
 
 const db = mongoose
   .createConnection(ip, name, port)

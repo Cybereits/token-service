@@ -41,7 +41,8 @@ app
         process.exit(1)
         break
       default:
-        throw error
+        console.error(error.code)
+        break
     }
   })
   .listen(port, () => { console.info(`Listening on ${port}`) })

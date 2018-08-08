@@ -4,6 +4,8 @@ import getConnection from '../../framework/web3'
 import { getContractInstance, subscribeContractAllEvents } from './contract'
 import { getAllAccounts } from '../scenes/account'
 
+const LISTENERS = {}
+
 /**
  * 创建合约事件监听器
  * @param {string} contractMetaName 合约名称枚举
@@ -60,4 +62,16 @@ export function createEthEventListener() {
   })
 
   return eventBus
+}
+
+/**
+ * 获取监听器对象
+ * @param {String} listenerName 监听器名称
+ * @return {EventEmitter}
+ */
+export function getListener(listenerName) {
+  if (!LISTENERS[listenerName]) {
+    LISTENERS[listenerName] = new EventEmitter()
+  }
+  return LISTENERS[listenerName]
 }

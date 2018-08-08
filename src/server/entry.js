@@ -11,6 +11,7 @@ require('babel-register')({
   ],
 })
 
+// 开启 web 服务
 require('./app')
 // 开启定时任务
 require('../core/jobs')

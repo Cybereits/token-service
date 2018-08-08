@@ -13,7 +13,7 @@ import { ContractMetaModel, TxRecordModel } from '../../core/schemas'
 import { createAndDeployContract, getContractInstance } from '../../core/scenes/contract'
 import { getConnByAddressThenUnlock } from '../../core/scenes/account'
 import { CONTRACT_NAMES, STATUS } from '../../core/enums'
-import { establishContractListener } from '../../core/listeners/utils'
+import establishContractListener from '../../core/listeners/contract'
 import { updateAllAccounts } from '../../core/jobs/updateSysAccount'
 import { creContractArgs, commonContractArgs, contractMetaResult, contractFilter } from '../types/plainTypes'
 

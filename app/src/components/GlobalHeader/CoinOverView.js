@@ -11,11 +11,15 @@ class CoinOverView extends React.Component {
     this.props.dispatch({
       type: 'coin/tokenBalanceOverview',
     });
-    setInterval(() => {
+    this.itv = setInterval(() => {
       this.props.dispatch({
         type: 'coin/tokenBalanceOverview',
       });
     }, 1000 * 30);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.itv);
   }
 
   render() {
@@ -27,7 +31,7 @@ class CoinOverView extends React.Component {
             /*eslint-disable*/
             <div key={index}>
               <div className={styles.name}>{item.name}</div>
-              <div className={styles.value}>{parseInt(item.value - 0, 10)}</div>
+              <div className={styles.value}>{item.value}</div>
             </div>
           );
         })}

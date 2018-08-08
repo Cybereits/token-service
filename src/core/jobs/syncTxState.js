@@ -3,6 +3,9 @@ import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 import getConnection from '../../framework/web3'
 import { TxRecordModel } from '../../core/schemas'
 import { STATUS } from '../../core/enums'
+import { confirmBlockLimitation } from '../../config/env.json'
+import { getTrackedTransactions } from '../redis/transaction'
+import { confirmTransaction, errorTransaction } from '../scenes/transaction'
 
 let executable = true
 
@@ -25,14 +28,31 @@ export default async function (job, done) {
     return
   }
 
+  // 当前区块高度
   let currBlockNumber = await conn.eth.getBlockNumber()
-  // 60 个区块高度前的区块内的交易视作已确认
-  let blockHeightLimitation = currBlockNumber - 30
-  let sendingTxs = await TxRecordModel.find({ status: STATUS.sending }).catch((ex) => {
-    console.error(`交易状态同步失败 ${ex}`)
-    executable = true
-    done()
-  })
+  // 有效区块高度
+  let blockHeightLimitation = currBlockNumber - confirmBlockLimitation
+
+  // 获取跟踪的交易
+  let trackedTxs = await getTrackedTransactions()
+    .catch((ex) => {
+      console.error(`交易状态同步失败 ${ex}`)
+      executable = true
+      done()
+    })
+
+  // 需要跟踪的发送中的交易
+  let sendingTxs = await TxRecordModel
+    .find({
+      txid: { $in: trackedTxs },
+      status: STATUS.sending,
+    })
+    .catch((ex) => {
+      console.error(`交易状态同步失败 ${ex}`)
+      executable = true
+      done()
+    })
+
   if (sendingTxs.length > 0) {
     // 创建任务队列
     let queue = new ParallelQueue({
@@ -49,23 +69,17 @@ export default async function (job, done) {
           let txInfo = await conn.eth.getTransaction(txid).catch(() => false)
           if (txInfo && txInfo.blockNumber && txInfo.blockNumber < blockHeightLimitation) {
             // 确认成功
-            transaction.status = STATUS.success
-            transaction.confirmTime = new Date()
-            transaction.save().then(resolve).catch(reject)
+            confirmTransaction(transaction).then(resolve).catch(reject)
           } else if (transaction.sendTime <= Date.now() - (2 * 60 * 60 * 1000)) {
             // 2 小时后仍未被确认 视作失败
-            transaction.status = STATUS.error
-            transaction.exceptionMsg = '交易已广播，但在接下来的 2 个小时内未被确认，请手动确认'
-            transaction.save().then(resolve).catch(reject)
+            errorTransaction(transaction, '交易已广播，但在接下来的 2 个小时内未被确认，请手动确认').then(resolve).catch(reject)
           } else {
             // 尚未确认
             resolve()
           }
         } else {
           // 交易失败 没有 txid 却被置为 sending
-          transaction.status = STATUS.error
-          transaction.exceptionMsg = '缺失 transaction hash 却被标记为 sending'
-          transaction.save().then(resolve).catch(reject)
+          errorTransaction(transaction, '缺失 transaction hash 却被标记为 sending').then(resolve).catch(reject)
         }
       })))
     })

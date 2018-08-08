@@ -2,7 +2,7 @@ import {
   GraphQLList as List,
 } from 'graphql'
 
-import {USER_ROLE_LEVELS, STATUS, TOKEN_TYPES } from '../../core/enums'
+import { USER_ROLE_LEVELS, STATUS, TOKEN_TYPES } from '../../core/enums'
 import { getAllTokenContracts } from '../../core/scenes/contract'
 import { hashResult } from '../types/plainTypes'
 

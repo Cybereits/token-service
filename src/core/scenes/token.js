@@ -1,10 +1,12 @@
 import BN from 'bignumber.js'
 
 import getConnection from '../../framework/web3'
-import { getConnByAddressThenUnlock, getAccountInfoByAddress } from './account'
+import { getConnByAddressThenUnlock } from './account'
 import { getContractInstance } from './contract'
 import { TOKEN_TYPES, CONTRACT_NAMES, STATUS } from '../enums'
 import { ContractMetaModel, TxRecordModel } from '../schemas'
+import { publishTransaction, publishConfirmInfo } from '../listeners/transaction'
+import { confirmBlockLimitation } from '../../config/env.json'
 
 BN.config({ DECIMAL_PLACES: 5 })
 
@@ -101,6 +103,14 @@ BN.config({ DECIMAL_PLACES: 5 })
 //   }
 // }
 
+function releasePromEvent(promEvent) {
+  if (promEvent) {
+    promEvent.off('confirmation')
+    promEvent.off('transactionHash')
+  }
+  promEvent = null
+}
+
 /**
  * 获取指定地址的以太代币余额
  * @param {string} address 钱包地址
@@ -162,15 +172,23 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
       let _multiplier = 10 ** tokenContract.decimal
       let _sendAmount = _amount.mul(_multiplier)
 
-      tokenContract
+      let promEvent = tokenContract
         .methods
         .transfer(_to_addr, _sendAmount)
         .send({ from: _from_addr, gasPrice, gas })
-        .on('transactionHash', (hash) => {
-          console.info(`Transfer [${_amount.toString(10)}] ${name} tokens to [${_to_addr}] : [txid ${hash}]`)
-          resolve(hash)
+
+      promEvent
+        .on('transactionHash', (txid) => {
+          publishTransaction(txid)
+          resolve(txid)
         })
-        .on('error', reject)
+        .on('confirmation', (confirmationNumber, receipt) => {
+          if (confirmationNumber >= confirmBlockLimitation) {
+            let { transactionHash } = receipt
+            publishConfirmInfo(transactionHash)
+            releasePromEvent(promEvent)
+          }
+        })
         .catch(reject)
     })
   }
@@ -191,26 +209,31 @@ export async function sendETH(fromAddress, toAddress, amount, options = {}) {
   if (_amount.lessThanOrEqualTo(0)) {
     throw new Error('忽略转账额度小于等于0的请求')
   } else {
-    let getAccountPromise = getAccountInfoByAddress(_from_addr)
-    let getConnPromise = getConnByAddressThenUnlock(_from_addr)
+    let conn = await getConnByAddressThenUnlock(_from_addr)
 
-    let account = await getAccountPromise
-    let conn = await getConnPromise
-
-    return conn
-      .eth
-      .personal
-      .sendTransaction({
+    return new Promise((resolve, reject) => {
+      let promEvent = conn.eth.sendTransaction({
         from: _from_addr,
         to: _to_addr,
         value: conn.eth.extend.utils.toWei(_amount.toString(10), 'ether'),
         gasPrice,
         gas,
-      }, account.secret)
-      .then((hash) => {
-        console.info(`Transfer [${amount}] eth to [${_to_addr}] [txid ${hash}]`)
-        return hash
       })
+
+      promEvent
+        .on('transactionHash', (txid) => {
+          publishTransaction(txid)
+          resolve(txid)
+        })
+        .on('confirmation', (confirmationNumber, receipt) => {
+          if (confirmationNumber >= confirmBlockLimitation) {
+            let { transactionHash } = receipt
+            publishConfirmInfo(transactionHash)
+            releasePromEvent(promEvent)
+          }
+        })
+        .catch(reject)
+    })
   }
 }
 
@@ -241,28 +264,12 @@ export async function transferAllEth(fromAddress, toAddress, taskID, username) {
   let gasPrice = await gasPricePromise
   let gasFee = await gasFeePromise
 
-  // if (+gasPrice === 0) {
-  //   gasPrice = 30000
-  // }
-
   total = new BN(total)
   gasPrice = new BN(gasPrice)
   gasFee = new BN(gasFee)
 
   let txCost = gasPrice.mul(gasFee)
   let transAmount = connect.eth.extend.utils.fromWei(total.minus(txCost).toString(10))
-
-  // console.log(`余额\t${
-  //   connect.eth.extend.utils.fromWei(total.toString(10))
-  //   } 油费\t${
-  //   gasPrice.toString(10)
-  //   } 用量\t${
-  //   gasFee.toString(10)
-  //   } 总花费\t${
-  //   connect.eth.extend.utils.fromWei(txCost.toString(10))
-  //   } 实际发送数额\t${
-  //   transAmount
-  //   }`)
 
   // 创建转账的交易实体
   return TxRecordModel.create({
@@ -276,7 +283,6 @@ export async function transferAllEth(fromAddress, toAddress, taskID, username) {
     gasPrice: gasPrice.toString(10),
     gasFee: gasFee.toString(10),
   })
-  // sendETH(_from_addr, _to_addr, transAmount, { gasPrice, gasFee })
 }
 
 export async function transferAllTokens(fromAddress, toAddress, taskID, username, tokenType) {
