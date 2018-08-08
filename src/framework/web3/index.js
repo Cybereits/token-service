@@ -28,7 +28,7 @@ function initEthConnect(wsUri) {
       })
   }, 3000)
 
-  return conn
+  return () => conn
 }
 
 let _index = 0
@@ -42,12 +42,14 @@ let _pool = clients.map(initEthConnect)
 function getConnection(uri) {
   if (uri) {
     console.log(`创建临时钱包链接：${uri}`)
-    return new Web3(new Web3.providers.WebsocketProvider(uri))
+    let conn = new Web3(new Web3.providers.WebsocketProvider(uri))
+    conn.__uri = uri
+    return conn
   } else {
     let len = _pool.length
     if (len > 0) {
       _index = (_index + 1) % len
-      return _pool[_index]
+      return _pool[_index]()
     } else {
       throw new Error('没有可用的钱包链接...')
     }
