@@ -5,11 +5,15 @@ const SET_NAMES = {
 }
 
 export function addTrackedTransaction(txid) {
-  return tempConnection.sadd(SET_NAMES.trackedTx, txid)
+  if (txid) {
+    return tempConnection.sadd(SET_NAMES.trackedTx, txid)
+  }
 }
 
 export function removeTrackedTransaction(txid) {
-  return tempConnection.srem(SET_NAMES.trackedTx, txid)
+  if (txid) {
+    return tempConnection.srem(SET_NAMES.trackedTx, txid)
+  }
 }
 
 export function getTrackedTransactions() {
