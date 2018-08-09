@@ -12,6 +12,8 @@ let client = redis.createClient(port, ip, {
 let wrapper = redisWrapper(redis, {
   host: ip,
   port,
+  password: env.redis.pwd,
+  db: env.redis.database,
 })
 
 client
