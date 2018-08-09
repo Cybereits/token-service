@@ -709,7 +709,7 @@ export default class TableList extends PureComponent {
                 创建发送任务
               </Button> */}
               {/* <span>
-                 <Button>批量操作</Button> 
+                 <Button>批量操作</Button>
                 <Dropdown overlay={menu}>
                   <Button>
                     更多操作 <Icon type="down" />

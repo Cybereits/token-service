@@ -12,6 +12,7 @@ import { BatchTransactinTaskModel, TxRecordModel } from '../../core/schemas'
 import { batchTransactionTask, txRecord, txFilter, transactionArgs } from '../types/plainTypes'
 import { PaginationResult, PaginationWrapper } from '../types/complexTypes'
 import { sendETH, sendToken } from '../../core/scenes/token'
+import { sendingTransaction, failTransaction, editTransaction as editTx, deleteTransaction } from '../../core/scenes/transaction'
 
 /**
  * 批量发送交易
@@ -40,53 +41,27 @@ async function sendBatchTxs(recordIds, username) {
         gasFee,
       } = transaction
 
-      // 当交易的发送状态为成功、发送中时 中断本次发送
+      // 忽略发送中或者已经发送成功的交易
       if (status !== STATUS.success && status !== STATUS.sending) {
         if (tokenType === TOKEN_TYPES.eth) {
           // 发送 eth
           queue.add(new TaskCapsule(
             () => sendETH(from, to, amount, { gasPrice, gas: gasFee })
-              .then((transactionHash) => {
-                // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
-                transaction.status = STATUS.sending
-                transaction.txid = transactionHash
-                transaction.sendTime = new Date()
-                transaction.executer = username
-                return transaction.save()
-              })
-              .catch(async (ex) => {
-                console.error(`发送 ETH 失败：${ex.message}`)
-                // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
-                transaction.status = STATUS.failure
-                transaction.exceptionMsg = ex.message
-                transaction.txid = null
-                return transaction.save()
-              })
+              // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
+              .then(txid => sendingTransaction(transaction, txid, username))
+              // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
+              .catch(ex => failTransaction(transaction, ex.message))
           ))
         } else {
           // 添加发送代币的胶囊任务
           queue.add(new TaskCapsule(
             () => sendToken(from, to, amount, { tokenType, gasPrice, gas: gasFee })
-              .then((transactionHash) => {
-                // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
-                transaction.status = STATUS.sending
-                transaction.txid = transactionHash
-                transaction.sendTime = new Date()
-                transaction.executer = username
-                return transaction.save()
-              })
-              .catch(async (ex) => {
-                console.error(`发送代币失败：${ex.message}`)
-                // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
-                transaction.status = STATUS.failure
-                transaction.exceptionMsg = ex.message
-                transaction.txid = null
-                return transaction.save()
-              })
+              // 交易产生后将这条记录的状态设置为 “发送中” 并且记录 txID
+              .then(txid => sendingTransaction(transaction, txid, username))
+              // 交易过程中出现问题 则将该条记录的状态置为 ”失败“
+              .catch(ex => failTransaction(transaction, ex.message))
           ))
         }
-      } else {
-        // 忽略发送中或者已经发送成功的交易
       }
     })
 
@@ -329,14 +304,24 @@ export const editTransaction = {
     if (!tx) {
       return new Error('没有找到对应的转账信息')
     }
-    if (tx.status !== STATUS.pending || tx.status !== STATUS.failure) {
-      tx.from = outAccount
-      tx.to = to
-      tx.amount = amount
-      tx.creator = session.admin.username
-      return tx.save()
-    } else {
-      return new Error('当前转账的状态不支持编辑')
+    return editTx(tx, outAccount, to, amount, session.admin.username)
+  },
+}
+
+export const removeTransaction = {
+  type: str,
+  description: '删除转账信息（只能删除未处理的转账）',
+  args: {
+    id: {
+      type: str,
+      description: 'Record ID',
+    },
+  },
+  async resolve(root, { id }) {
+    let tx = await TxRecordModel.findOne({ _id: id })
+    if (!tx) {
+      return new Error('没有找到对应的转账信息')
     }
+    return deleteTransaction(tx).then(() => 'success')
   },
 }

@@ -16,7 +16,7 @@ import { statusEnum, tokenTypeEnum, userRoleEnum } from './fields/enum'
 
 import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
 
-import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction, editTransaction } from './fields/transactions'
+import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction, editTransaction, removeTransaction } from './fields/transaction'
 
 const QueryApis = new Obj({
   name: 'QueryApis',
@@ -58,6 +58,7 @@ const MutationApis = new Obj({
     deployAssetContract: authLevelWrapper([USER_ROLE_LEVELS.super_admin], deployAssetContract),
     sendTransaction: authLevelWrapper([USER_ROLE_LEVELS.super_admin], sendTransaction),
     editTransaction: sessionValidWrapper(editTransaction),
+    removeTransaction: authLevelWrapper([USER_ROLE_LEVELS.super_admin], removeTransaction),
     readContractMethod: sessionValidWrapper(readContractMethod),
     writeContractMethod: authLevelWrapper([USER_ROLE_LEVELS.super_admin], writeContractMethod),
     gatherAllTokens: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllTokens),
