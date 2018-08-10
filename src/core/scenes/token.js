@@ -141,6 +141,7 @@ export async function getTokenBalance(userAddress, contractMetaName = CONTRACT_N
  * @param {object} options 其它配置（可选）
  */
 export async function sendToken(fromAddress, toAddress, amount, options = {}) {
+  console.log(`send ${amount} token from ${fromAddress} to ${toAddress}`)
   let _from_addr = fromAddress.trim()
   let _to_addr = toAddress.trim()
   let _amount = new BN(amount)
@@ -202,6 +203,7 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
  * @param {object} options 其它配置（可选）
  */
 export async function sendETH(fromAddress, toAddress, amount, options = {}) {
+  console.log(`send ${amount} eth from ${fromAddress} to ${toAddress}`)
   let _from_addr = fromAddress.trim()
   let _to_addr = toAddress.trim()
   let { gasPrice, gas } = options

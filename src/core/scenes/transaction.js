@@ -41,6 +41,7 @@ export function sendingTransaction(transaction, txid, username) {
   transaction.txid = txid
   transaction.sendTime = new Date()
   transaction.executer = username
+  console.log(`${username} sent ${txid}`)
   return transaction.save()
 }
 
@@ -56,6 +57,7 @@ export function errorTransaction(transaction, msg) {
   removeTrackedTransaction(transaction.txid)
   transaction.status = STATUS.error
   transaction.exceptionMsg = msg
+  console.log(`${transaction.from} to ${transaction.to} tx error: ${msg}`)
   return transaction.save()
 }
 
@@ -64,6 +66,7 @@ export function failTransaction(transaction, msg) {
   transaction.status = STATUS.failure
   transaction.exceptionMsg = msg
   transaction.txid = null
+  console.log(`${transaction.from} to ${transaction.to} tx failed: ${msg}`)
   return transaction.save()
 }
 
