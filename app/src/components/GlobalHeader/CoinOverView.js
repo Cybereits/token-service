@@ -32,7 +32,9 @@ class CoinOverView extends React.Component {
       <div className={styles.container}>
         <div className={styles.statusContainer}>
           <div>当前区块高度：{currentBlockHeight}</div>
-          <div>当前油费：{gasPrice}</div>
+          <div>
+            当前油价：{(+gasPrice).toFixed(10)} ({+gasPrice * 10 ** 8} GWei)
+          </div>
         </div>
         <div className={styles.balanceContainer}>
           {tokenBalanceOverviewList.map((item, index) => {

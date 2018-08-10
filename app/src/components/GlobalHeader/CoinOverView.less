@@ -7,11 +7,14 @@
   height: 64px;
   background-color: #fff;
   .statusContainer {
-    display: flex;
     flex: 2;
+    display: flex;
+    flex-direction: column;
     > div {
       flex: 1;
-      line-height: 64px;
+      display: flex;
+      align-items: center;
+      line-height: 18px;
     }
   }
   .balanceContainer {
@@ -21,9 +24,11 @@
     overflow-y: none;
     .balanceCell {
       flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       line-height: 18px;
-      margin: 3px 12px;
-      padding-top: 12px;
+      margin: 0 12px;
       text-align: center;
     }
   }
