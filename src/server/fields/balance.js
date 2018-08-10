@@ -81,7 +81,7 @@ export const tokenBalanceOverview = {
         })
       }
     })
-    return Object.entries(counter).map(([name, amount]) => ({ name, value: Math.round(amount).toFixed(2) }))
+    return Object.entries(counter).map(([name, amount]) => ({ name, value: (Math.round(amount * 100) / 100).toFixed(2) }))
   },
 }
 

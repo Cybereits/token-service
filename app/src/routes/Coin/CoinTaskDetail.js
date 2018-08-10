@@ -124,6 +124,10 @@ export default class CoinTaskDetail extends PureComponent {
         editable: true,
       },
       {
+        title: '发送状态',
+        dataIndex: 'status',
+      },
+      {
         title: '出账地址',
         dataIndex: 'from',
         editable: true,
@@ -187,9 +191,10 @@ export default class CoinTaskDetail extends PureComponent {
             expandedRowRender={item => {
               return (
                 <Card bordered={false}>
-                  <DescriptionList col={2} size="large">
-                    <Description term="txid">{item.txid}</Description>
-                    <Description term="发送状态">{item.status}</Description>
+                  <DescriptionList col={1} size="large">
+                    <Description term="txid">
+                      <a href={`https://etherscan.io/tx/${item.txid}`}>{item.txid}</a>
+                    </Description>
                     <Description term="发送时间">{item.sendTime}</Description>
                     <Description term="确认时间">{item.confirmTime}</Description>
                     <Description term="创建人">{item.creator}</Description>

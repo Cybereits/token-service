@@ -168,6 +168,28 @@ export async function queryNotices() {
   return request('/api/notices');
 }
 
+export async function queryServerStates() {
+  return client
+    .query({
+      fetchPolicy: 'network-only',
+      query: gql`
+        {
+          queryServerStates {
+            currentBlockHeight
+            gasPrice
+          },
+          tokenBalanceOverview{
+            name
+            value
+          }
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 export async function getAccountList() {
   return client
     .query({
@@ -454,24 +476,6 @@ export async function commonStatusEnum() {
       query: gql`
         {
           statusEnum {
-            name
-            value
-          }
-        }
-      `,
-    })
-    .catch(err => {
-      console.log(err);
-    });
-}
-
-export async function tokenBalanceOverview() {
-  return client
-    .query({
-      fetchPolicy: 'network-only',
-      query: gql`
-        {
-          tokenBalanceOverview {
             name
             value
           }

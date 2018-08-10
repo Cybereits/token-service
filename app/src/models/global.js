@@ -1,11 +1,14 @@
-import { queryNotices } from '../services/api';
+import { queryNotices, queryServerStates } from '../services/api';
 
 export default {
   namespace: 'global',
 
   state: {
-    collapsed: false,
+    collapsed: true,
     notices: [],
+    tokenBalanceOverviewList: [],
+    currentBlockHeight: '',
+    gasPrice: '',
   },
 
   effects: {
@@ -31,6 +34,20 @@ export default {
         payload: count,
       });
     },
+    *updateServerState(_, { call, put }) {
+      const response = yield call(queryServerStates);
+      if (response) {
+        const { data: { queryServerStates: serverStates, tokenBalanceOverview } } = response;
+        yield put({
+          type: 'saveServerState',
+          payload: serverStates,
+        });
+        yield put({
+          type: 'saveTokenBalanceOverview',
+          payload: tokenBalanceOverview,
+        });
+      }
+    },
   },
 
   reducers: {
@@ -50,6 +67,19 @@ export default {
       return {
         ...state,
         notices: state.notices.filter(item => item.type !== payload),
+      };
+    },
+    saveServerState(state, { payload }) {
+      return {
+        ...state,
+        currentBlockHeight: payload.currentBlockHeight,
+        gasPrice: payload.gasPrice,
+      };
+    },
+    saveTokenBalanceOverview(state, { payload }) {
+      return {
+        ...state,
+        tokenBalanceOverviewList: payload,
       };
     },
   },

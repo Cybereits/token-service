@@ -6,19 +6,25 @@
   width: 72%;
   height: 64px;
   background-color: #fff;
-  > div {
-    flex: 1;
-    flex-direction: column;
-  }
-  div {
+  .statusContainer {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: text-shadow 0.3s ease;
-    text-shadow: rgba(0, 0, 0, 0.33) 0 5px 8px;
-    & :hover {
-      text-shadow: rgba(0, 0, 0, 0.55) 0 2px 3px;
+    flex: 2;
+    > div {
+      flex: 1;
+      line-height: 64px;
+    }
+  }
+  .balanceContainer {
+    display: flex;
+    flex: 3;
+    overflow-x: scroll;
+    overflow-y: none;
+    .balanceCell {
+      flex: 1;
+      line-height: 18px;
+      margin: 3px 12px;
+      padding-top: 12px;
+      text-align: center;
     }
   }
 }
@@ -27,15 +33,4 @@
   .container {
     display: none;
   }
-}
-
-.name {
-  font-weight: 500;
-  font-size: 18;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.value {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 14;
 }

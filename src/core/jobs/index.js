@@ -14,10 +14,9 @@ agendaClient.define(TASKS.updateAccount, updateSysAccount)
 agendaClient
   .on('ready', () => {
     agendaClient.every('15 minutes', TASKS.syncTxState).unique({ syncTxState: true })  // 同步交易状态
-    agendaClient.every('5 hours', TASKS.updateAccount).unique({ updateAccount: true })  // 同步账户信息
+    agendaClient.every('30 minutes', TASKS.updateAccount).unique({ updateAccount: true })  // 同步账户信息
     agendaClient.start()
   })
   .on('error', (ex) => {
-    console.log(ex.message)
-    process.exit(-1)
+    console.log(`schedule task error: ${ex.message}`)
   })

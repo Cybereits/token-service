@@ -229,6 +229,15 @@ export const adminDetailInfo = new OutputObj({
   },
 })
 
+export const serverStatesResult = new OutputObj({
+  name: 'serviceStatesResult',
+  description: '服务器状态结果信息',
+  fields: {
+    currentBlockHeight: { type: str, description: '当前区块高度' },
+    gasPrice: { type: str, description: '当前油价' },
+  },
+})
+
 // #endregion
 
 // #region Input Objects

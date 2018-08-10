@@ -18,6 +18,8 @@ import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount 
 
 import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction, editTransaction, removeTransaction } from './fields/transaction'
 
+import { serverStates } from './fields/server'
+
 const QueryApis = new Obj({
   name: 'QueryApis',
   description: '查询接口',
@@ -33,6 +35,7 @@ const QueryApis = new Obj({
     queryTx: sessionValidWrapper(queryTx),
     queryTxRecordsViaTaskId: sessionValidWrapper(queryTxRecordsViaTaskId),
     queryIsSysAccount: sessionValidWrapper(queryIsSysAccount),
+    queryServerStates: sessionValidWrapper(serverStates),
     getAdminInfo: sessionValidWrapper(getAdminInfo),
     getTwoFactorAuthUrl: sessionValidWrapper(getTwoFactorAuthUrl),
     tokenBalanceOverview: sessionValidWrapper(tokenBalanceOverview),
