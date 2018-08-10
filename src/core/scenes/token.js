@@ -152,7 +152,6 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
       tokenType = TOKEN_TYPES.cre,
       gasPrice,
       gas,
-      priceRate = 1.08,  // 油费溢价率
     } = options
 
     let contractMetaPromise = ContractMetaModel.findOne({ symbol: tokenType }, { name: 1 })
@@ -161,12 +160,9 @@ export async function sendToken(fromAddress, toAddress, amount, options = {}) {
     let { name } = await contractMetaPromise
     let conn = await getConnPromise
 
-    if (!gasPrice) {
-      gasPrice = await conn
-        .eth
-        .getGasPrice()
-        .then(price => Math.floor(price * priceRate))
-    }
+    // if (!gasPrice) {
+    //   gasPrice = await conn.eth.getGasPrice()
+    // }
 
     return new Promise(async (resolve, reject) => {
       let tokenContract = await getContractInstance(name, conn)
