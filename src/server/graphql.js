@@ -6,19 +6,19 @@ import {
 import { USER_ROLE_LEVELS } from '../core/enums'
 import { authLevelWrapper, sessionValidWrapper } from './common/auth'
 
-import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './fields/admin'
+import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './actions/admin'
 
-import { queryAllBalance, gatherAllTokens, tokenBalanceOverview } from './fields/balance'
+import { queryAllBalance, gatherAllTokens, tokenBalanceOverview } from './actions/balance'
 
-import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, readContractMethod, writeContractMethod } from './fields/contract'
+import { queryCREContractAbi, deployCREContract, deployKycContract, deployAssetContract, addERC20ContractMeta, queryAllContract, readContractMethod, writeContractMethod } from './actions/contract'
 
-import { statusEnum, tokenTypeEnum, userRoleEnum } from './fields/enum'
+import { statusEnum, tokenTypeEnum, userRoleEnum } from './actions/enum'
 
-import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './fields/account'
+import { createAccount, createMultiAccount, queryAccountList, queryIsSysAccount } from './actions/account'
 
-import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction, editTransaction, removeTransaction } from './fields/transaction'
+import { queryBatchTransactionTasks, queryTxRecordsViaTaskId, queryTx, createTransaction, createBatchTransactions, sendTransaction, editTransaction, removeTransaction } from './actions/transaction'
 
-import { serverStates } from './fields/server'
+import { serverStates } from './actions/server'
 
 const QueryApis = new Obj({
   name: 'QueryApis',
