@@ -2,32 +2,31 @@
 import Web3 from 'web3'
 import { clients } from '../../config/env.json'
 
+const reconnectDelay = 2
+
+function establishConnection(uri) {
+  let conn = new Web3(new Web3.providers.WebsocketProvider(uri))
+  let onclose = () => {
+    console.warn(`[${uri}] 钱包客户端连接失败，${reconnectDelay} 秒后尝试重连...`)
+    setTimeout(() => {
+      conn = establishConnection(uri)
+    }, reconnectDelay * 1000)
+  }
+
+  let onconnect = () => {
+    console.info(`[${uri}] 钱包客户端连接成功!`)
+  }
+
+  conn.__uri = uri
+
+  conn.currentProvider.on('end', onclose)
+  conn.currentProvider.on('connect', onconnect)
+
+  return conn
+}
+
 function initEthConnect(wsUri) {
-  let connected = true
-  let conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
-  conn.__uri = wsUri
-
-  // 心跳检测
-  setInterval(() => {
-    conn
-      .eth
-      .getBlockNumber()
-      .then(() => {
-        if (!connected) {
-          connected = true
-          console.info(`[${wsUri}] 钱包客户端连接成功!`)
-        }
-      })
-      .catch(() => {
-        if (connected) {
-          connected = false
-        }
-        console.warn(`[${wsUri}] 钱包客户端连接失败，尝试重连...`)
-        conn = new Web3(new Web3.providers.WebsocketProvider(wsUri))
-        conn.__uri = wsUri
-      })
-  }, 3000)
-
+  let conn = establishConnection(wsUri)
   return () => conn
 }
 
@@ -41,10 +40,19 @@ let _pool = clients.map(initEthConnect)
  */
 function getConnection(uri) {
   if (uri) {
-    // console.log(`创建临时钱包链接：${uri}`)
-    let conn = new Web3(new Web3.providers.WebsocketProvider(uri))
-    conn.__uri = uri
-    return conn
+    let _matched_index = _pool.findIndex(c => c().__uri === uri)
+    // 查找当前链接池中是否有对应的钱包链接
+    if (_matched_index > -1) {
+      // 如果有则返回对应链接
+      console.log(`使用链接池中的链接 [${uri}]`)
+      return _pool[_matched_index]()
+    } else {
+      // 如果没有 则新建链接
+      console.log(`新建临时链接 [${uri}]`)
+      let conn = new Web3(new Web3.providers.WebsocketProvider(uri))
+      conn.__uri = uri
+      return conn
+    }
   } else {
     let len = _pool.length
     if (len > 0) {
