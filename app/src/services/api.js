@@ -292,6 +292,21 @@ export async function sendTransactionfFromIds(params) {
     });
 }
 
+export async function loadcsv() {
+  return client
+    .mutate({
+      fetchPolicy: 'no-cache',
+      mutation: gql`
+        mutation {
+          exportAccountBalanceData
+        }
+      `,
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}
+
 export async function createBatchTransactions({ transaction, comment }) {
   console.log(transaction);
   return client
