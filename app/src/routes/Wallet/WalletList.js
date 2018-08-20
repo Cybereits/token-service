@@ -308,7 +308,7 @@ export default class TableList extends PureComponent {
           `${env.host}${env.port ? `:${env.port}` : ''}/${response.data.exportAccountBalanceData}`
         );
         // window.open(`${window.location.origin}/${response.data.exportAccountBalanceData}`)
-        // window.open(`${env.host}${env.port ? `:${env.port}` : ''}/${response.data.exportAccountBalanceData}`)
+        window.open(`${env.host}${env.port ? `:${env.port}` : ''}/${response.data.exportAccountBalanceData}`)
       },
     });
   }
