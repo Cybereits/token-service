@@ -1,5 +1,5 @@
-import { TxRecordModel, BatchTransactinTaskModel } from '../../core/schemas'
-import { STATUS } from '../../core/enums'
+import { TxRecordModel, BatchTransactinTaskModel } from '../schemas'
+import { STATUS } from '../enums'
 import { removeTrackedTransaction } from '../redis/transaction'
 
 export function editTransaction(transaction, from, to, amount, creator) {

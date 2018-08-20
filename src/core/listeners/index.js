@@ -1,4 +1,4 @@
-import { getAllTokenContracts } from '../../core/scenes/contract'
+import { getAllTokenContracts } from '../scenes/contract'
 
 import establishEthListener from './eth'
 import establishContractListener from './contract'

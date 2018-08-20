@@ -1,5 +1,5 @@
-import { createEthEventListener } from '../../core/scenes/listener'
-import { checkIsSysThenUpdate } from '../../core/scenes/account'
+import { createEthEventListener } from '../scenes/listener'
+import { checkIsSysThenUpdate } from '../scenes/account'
 
 export default function establishEthListener() {
   console.info('启动 eth 转账监听')

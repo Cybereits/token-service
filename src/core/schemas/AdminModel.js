@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt/bcrypt'
 
 import { USER_ROLE_LEVELS} from '../enums'
 

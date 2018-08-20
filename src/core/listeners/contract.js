@@ -1,5 +1,5 @@
-import { createContractEventListener } from '../../core/scenes/listener'
-import { checkIsSysThenUpdate } from '../../core/scenes/account'
+import { createContractEventListener } from '../scenes/listener'
+import { checkIsSysThenUpdate } from '../scenes/account'
 
 export default function establishContractListener(contractName) {
   console.info(`启动 ${contractName} 合约转账监听`)

@@ -28,6 +28,9 @@ coverage
 # migration scripts
 migration_scripts/
 
-#config
+# config
 src/config/const.js
 src/config/env.js
+
+# static files
+src/static

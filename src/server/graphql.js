@@ -6,6 +6,8 @@ import {
 import { USER_ROLE_LEVELS } from '../core/enums'
 import { authLevelWrapper, sessionValidWrapper } from './common/auth'
 
+import { exportAccountBalanceData } from './actions/excel'
+
 import { createAdmin, adminLogin, adminLogout, changePwd, resetPwd, queryAdminList, getTwoFactorAuthUrl, bindTwoFactorAuth, getAdminInfo } from './actions/admin'
 
 import { queryAllBalance, gatherAllTokens, tokenBalanceOverview } from './actions/balance'
@@ -66,6 +68,7 @@ const MutationApis = new Obj({
     writeContractMethod: authLevelWrapper([USER_ROLE_LEVELS.super_admin], writeContractMethod),
     gatherAllTokens: authLevelWrapper([USER_ROLE_LEVELS.super_admin], gatherAllTokens),
     bindTwoFactorAuth: sessionValidWrapper(bindTwoFactorAuth),
+    exportAccountBalanceData: authLevelWrapper([USER_ROLE_LEVELS.super_admin], exportAccountBalanceData),
     resetPwd,
   },
 })

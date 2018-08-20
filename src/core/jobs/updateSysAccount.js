@@ -1,7 +1,7 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
-import { getAllAccounts, updateBalanceOfAccount } from '../../core/scenes/account'
-import { getAllTokenContracts } from '../../core/scenes/contract'
+import { getAllAccounts, updateBalanceOfAccount } from '../scenes/account'
+import { getAllTokenContracts } from '../scenes/contract'
 
 let executable = true
 

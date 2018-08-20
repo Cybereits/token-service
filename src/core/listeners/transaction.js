@@ -1,4 +1,4 @@
-import { getListener } from '../../core/scenes/listener'
+import { getListener } from '../scenes/listener'
 import { addTrackedTransaction, removeTrackedTransaction } from '../redis/transaction'
 import { confirmTransactionByTxid } from '../scenes/transaction'
 

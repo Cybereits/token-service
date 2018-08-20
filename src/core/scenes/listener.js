@@ -2,7 +2,7 @@ import { EventEmitter } from 'events'
 
 import getConnection from '../../framework/web3'
 import { getContractInstance, subscribeContractAllEvents } from './contract'
-import { getAllAccounts } from '../scenes/account'
+import { getAllAccounts } from './account'
 
 const LISTENERS = {}
 

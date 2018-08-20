@@ -1,8 +1,8 @@
 import { TaskCapsule, ParallelQueue } from 'async-task-manager'
 
 import getConnection from '../../framework/web3'
-import { TxRecordModel } from '../../core/schemas'
-import { STATUS } from '../../core/enums'
+import { TxRecordModel } from '../schemas'
+import { STATUS } from '../enums'
 import { confirmBlockLimitation } from '../../config/env.json'
 import { getTrackedTransactions } from '../redis/transaction'
 import { confirmTransaction, errorTransaction } from '../scenes/transaction'
