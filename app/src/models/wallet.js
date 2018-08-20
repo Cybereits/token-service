@@ -8,6 +8,7 @@ import {
   addWallet,
   createMultiAccount,
   tokenTypeEnum,
+  loadcsv,
 } from '../services/api';
 
 export default {
@@ -98,6 +99,10 @@ export default {
         //   payload: response,
         // });
       }
+      if (callback) callback(response);
+    },
+    *loadcsv({ params, callback }, { call }) {
+      const response = yield call(loadcsv, params);
       if (callback) callback(response);
     },
     *createMultiAccount({ params, callback }, { call, put }) {

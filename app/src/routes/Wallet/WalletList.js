@@ -22,7 +22,7 @@ import {
 import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import styles from './WalletList.less';
-
+import env from '../../../config/env.json';
 // const { confirm } = Modal;
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -300,6 +300,18 @@ export default class TableList extends PureComponent {
       }
     );
   };
+  loadcsv() {
+    this.props.dispatch({
+      type: 'wallet/loadcsv',
+      callback: response => {
+        console.log(
+          `${env.host}${env.port ? `:${env.port}` : ''}/${response.data.exportAccountBalanceData}`
+        );
+        // window.open(`${window.location.origin}/${response.data.exportAccountBalanceData}`)
+        // window.open(`${env.host}${env.port ? `:${env.port}` : ''}/${response.data.exportAccountBalanceData}`)
+      },
+    });
+  }
 
   renderSimpleForm(tokenTypeEnum) {
     const { getFieldDecorator } = this.props.form;
@@ -423,6 +435,15 @@ export default class TableList extends PureComponent {
                 }}
               >
                 创建钱包
+              </Button>
+              <Button
+                icon="download"
+                type="primary"
+                onClick={() => {
+                  this.loadcsv(true);
+                }}
+              >
+                下载报表
               </Button>
               <span>
                 {/* <Button>批量操作</Button> */}
